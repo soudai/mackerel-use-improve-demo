@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Mackerel Improvement Labの実接続、デモ再現、候補実装の比較検証結果。2026年10月26日。">
+<meta name="color-scheme" content="light">
+<title>Mackerel Improvement Lab — 実接続・改善可能性の検証</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<a class="skip-link" href="#content">本文へ移動</a>
+<aside class="sidebar" aria-label="検証レポートのナビゲーション">
+<a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">m</span><span>Mackerel<br><small>Improvement Lab</small></span></a>
+<div class="nav-label">VALIDATION REPORT</div>
+<nav><a href="#summary">検証の結論<span>01</span></a><a href="#runtime">実接続と観測<span>02</span></a><a href="#candidates">改善候補の実験<span>03</span></a><a href="#repairs">検証で直した問題<span>04</span></a><a href="#limits">未実施・限界<span>05</span></a><a href="#evidence">証拠と再現<span>06</span></a></nav>
+<a class="repo-link" href="index.html">デモハンドブックへ <span aria-hidden="true">←</span></a>
+<p class="sidebar-note">検証日 2026-10-26<br>development / synthetic data</p>
+</aside>
+<div class="document">
+<header class="topbar"><span>実接続検証 / 2026年10月26日</span><a href="index.html">デモの手順を読む ↗</a></header>
+<main id="content">
+<section class="hero" id="summary">
+<div><p class="eyebrow"><span></span> VERIFIED WITH REAL TELEMETRY</p><h1>実データで、<br><em>できること</em>を確認。</h1><p class="hero-lead">Mackerelへの送信だけで終わらせず、認証済みAPIからデータを読み戻し、デモの症状・コードとの対応・改善候補を検証しました。</p><div class="hero-actions"><a class="button" href="#runtime">接続の結果を見る ↓</a><a class="text-link" href="#limits">検証の限界も確認 →</a></div></div>
+<div class="hero-card"><div class="hero-card-label">WHAT WAS VERIFIED</div><ol><li><span>01</span><div><strong>APM・ログの実読戻し</strong><small>HTTP件数、SQL時間、trace IDの相関</small></div></li><li><span>02</span><div><strong>品質メトリックスの投稿</strong><small>25系列とmetadataをAPIで照合</small></div></li><li><span>03</span><div><strong>症状の再現と改善余地</strong><small>N+1、ロック、走査、集約、複雑度</small></div></li></ol><div class="hero-card-foot"><span class="status-dot"></span> mainには改善前の業務実装を保持</div></div>
+</section>
+<div class="principle-strip"><div><strong>28</strong><span>PHPUnitテスト / 89 assertions</span></div><div><strong>18</strong><span>Pythonツールテスト</span></div><div><strong>25</strong><span>投稿・読戻し確認済み品質系列</span></div><p>改善候補は隔離した実験です。<br>修正版のデプロイや改善PRの作成は、この検証には含みません。</p></div>
+<section class="section" id="runtime"><div class="section-head"><span class="section-no">02</span><div><h2>Mackerelで実際に読めた情報</h2><p>対象組織は <code>mackerel-seminar</code>、サービスは <code>mackerel-seminar-demo</code>、namespaceは <code>demo</code>、環境は <code>development</code> です。</p></div></div>
+<div class="table-wrap" tabindex="0" aria-label="実接続検証の結果"><table><caption>認証済みAPIによる読戻し</caption><thead><tr><th>対象</th><th>確認結果</th><th>読み方</th></tr></thead><tbody>
+<tr><td>HTTP APM</td><td>注文一覧32件、検索21件、売上集計9件、計62件。</td><td>ウォームアップを含む実リクエスト数と一致。</td></tr>
+<tr><td>アクセスログ</td><td>同じ期間・版の62件を取得。すべてtrace IDあり。</td><td>環境・versionの照合を通過し、APMへたどれる。</td></tr>
+<tr><td>N+1のSQL</td><td>顧客取得SQLが1,600回。平均0.4695 ms。</td><td>注文一覧32リクエスト × 顧客50件。単独SQLは短くても反復が見える。</td></tr>
+<tr><td>売上集計SQL</td><td>9回、平均46.2078 ms。</td><td>SQLの成功実行にかかったアプリ側の時間を取得。</td></tr>
+<tr><td>品質系列</td><td>25系列の値とmetadataを読み戻して照合。投稿結果 <code>verified</code>。</td><td>PHPUnit・CCCCの生レポートから正規化し、実投稿した結果。</td></tr>
+</tbody></table></div>
+<p>上記62件の実行版は <code>cb761900245b74b02ab49224cffedf517f717fc3</code> です。品質投稿と次の同時購入は <code>3cad843ef08bd225f79255c84dc94a625d4d57c1</code> を対象にしています。異なる測定のversionを一つにまとめていません。</p>
+<div class="two-column"><div class="note"><h3>ロック待ちを実際に再現</h3><p>同時購入は24件すべて成功し、在庫は24減少、注文は24増加しました。負荷中に7つのブロックされたセッションを観測しました。HTTP p95は <strong>2,564.668 ms</strong>。SQLのロック取得は24回、平均 <strong>1,804.5083 ms</strong> とMackerelから読み戻せました。</p></div><div class="note"><h3>トレースからコードへ</h3><p>同時購入のトレース264スパンを照合し、表示対象の長いスパン30件のうち13件で同一版のソース属性を取得しました。Issue下書き用の証拠は <code>complete</code>、警告なし。テスト由来のゼロtrace IDログは、この版では0件でした。</p></div></div>
+<div class="note accent"><h3>DBメトリックスの送信確認</h3><p>Collectorの内部カウンターでは、PostgreSQLの受信596 pointsに対してMackerel向け送信成功も596 points、metricsキューは0 / 1,024でした。これはexporterの送信成功の証拠です。Mackerel画面でのグラフ表示を確認した証拠とは区別します。</p></div>
+</section>
+<section class="section" id="candidates"><div class="section-head"><span class="section-no">03</span><div><h2>改善できることを、隔離した実験で確かめる</h2><p>候補コードを本番相当のアプリへ切り替えることなく、同じ入力の結果と構造的な改善を比較しました。</p></div></div>
+<div class="table-wrap" tabindex="0" aria-label="改善候補の比較"><table><caption>改善前と候補の比較</caption><thead><tr><th>シナリオ</th><th>改善前 → 候補</th><th>維持できたこと</th></tr></thead><tbody>
+<tr><td>N+1</td><td>注文50件でSQL <strong>51 → 2回</strong>。20件でも21 → 2回、100件では101 → 2回。</td><td>返却内容が一致。件数に比例するSQL増加を解消できる。</td></tr>
+<tr><td>日付検索</td><td><strong>Seq Scan＋Sort → Index Scan</strong>。候補インデックスはトランザクション内で作成し、ロールバック。</td><td>返却50行が一致。日付の境界と並び順を保持。</td></tr>
+<tr><td>売上集計</td><td>DBからの取得行数 <strong>48,000 → 31行</strong>。</td><td>集計結果が一致。必要な日別結果だけを取得できる。</td></tr>
+<tr><td>割引計算</td><td>最大認知複雑度 <strong>51 → 8</strong>、最大循環的複雑度 <strong>29 → 7</strong>。</td><td>4,320通りの有効な入力組合せで結果が一致。</td></tr>
+</tbody></table></div>
+<p>候補比較は単一CLIプロセスの実験です。実行時間は参考値にとどめ、同一結果・SQL数・取得行数・実行計画・複雑度を主な証拠にしています。性能改善の採否を決めるPRでは、同一条件のHTTP負荷による反復比較が必要です。</p>
+<p>未使用インデックスは <code>orders_legacy_reference_idx</code> を候補として調査できます。観測した負荷で使われないことと、将来も不要であることは別です。用途・制約・月次処理などを確認する工程を残しています。</p>
+</section>
+<section class="section" id="repairs"><div class="section-head"><span class="section-no">04</span><div><h2>実接続で見つかった観測の問題を修正</h2><p>業務上の改善前コードは保持し、デモの証拠を誤って読む原因を取り除きました。</p></div></div>
+<ol class="workflow"><li><strong>過去のトレースで取得上限が埋まる問題</strong><p>対象trace IDをストリーミング中に絞り込み、該当スパンだけを上限に数えるよう修正。走査量や巨大レコードで打ち切った場合はpartialを返します。</p></li><li><strong>SQLのprepare時間を実行時間と読んでしまう問題</strong><p>PDO自動計装のprepareスパンではなく、Laravelの成功した <code>QueryExecuted</code> を1件のCLIENTスパンにしました。アプリ側のprepare・execute・fetchを含む経過時間です。失敗クエリはこのイベントに出ないため、例外・HTTPエラー・DB側の情報で補います。</p></li><li><strong>テストのアクセスログが実リクエストに混ざる問題</strong><p>PHPUnit実行中のアクセスログ出力を除外。実サービスと同じ属性で、ゼロtrace IDのテストログを送信しないようにしました。</p></li></ol>
+</section>
+<section class="section" id="limits"><div class="section-head"><span class="section-no">05</span><div><h2>確認できた範囲と、残す工程</h2><p>「APIから読めた」「画面で見えた」「改善をデプロイした」は、それぞれ別の確認です。</p></div></div>
+<div class="two-column"><div class="note"><h3>今回確認できたこと</h3><ul class="compact-list"><li>認証済みAPIでのHTTP・DB APM、ログ、品質系列の読戻し。</li><li>ロック待ちと業務整合性、トレースと同一版ソースの対応。</li><li>候補実装による返却内容の一致と、SQL数・行数・複雑度の改善余地。</li></ul></div><div class="note"><h3>今回未実施のこと</h3><ul class="compact-list"><li>現在のChromeプロファイルでは対象組織がOrgNotFoundとなり、Mackerel画面の目視確認は未完了。</li><li>改善候補のデプロイと、実Issue・改善PRの作成。</li><li>業務アプリのmainをGitHubへpushすること。公開したのは検証レポート用ブランチ。</li></ul></div></div>
+<p>取得窓を広げた最終確認では、同時購入のHTTP・DB・ログと品質メトリックスの全信号が <code>complete</code> になりました。<code>analysis.complete=1</code>、認知複雑度max=51、循環的複雑度max=29、テスト選択件数28を読み戻しています。</p>
+<p>品質のサービスメトリックスを読むときは、測定時刻の分だけでなく前後に余裕を持たせます。APIの時刻境界が分単位になるため、狭すぎる取得窓は投稿済みの点を取りこぼします。今回の投稿値・metadataの検証自体は <code>verified</code> まで完了しています。</p>
+</section>
+<section class="section" id="evidence"><div class="section-head"><span class="section-no">06</span><div><h2>証拠と再現の入口</h2><p>APIキーや資格情報は、レポート・ソース・公開成果物に含めていません。</p></div></div>
+<p><a href="https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality">公開済みの品質レポートを開く ↗</a></p>
+<div class="table-wrap" tabindex="0" aria-label="ローカル証拠ファイル"><table><caption>ローカルリポジトリに保存した検証成果物（Git対象外）</caption><thead><tr><th>証拠</th><th>保存先</th></tr></thead><tbody><tr><td>HTTP・DB・ログの読戻し</td><td><code>artifacts/verification/live/observed-mackerel-final.json</code></td></tr><tr><td>同時購入の整合性</td><td><code>artifacts/verification/live/checkout-verification.json</code></td></tr><tr><td>同時購入のAPI読戻し</td><td><code>artifacts/verification/live/observed-checkout-wide.json</code></td></tr><tr><td>コード対応とIssue下書き</td><td><code>artifacts/verification/live/checkout-issue/</code></td></tr><tr><td>品質投稿・metadata照合</td><td><code>artifacts/verification/live/quality-publish/normalized/publication-result.json</code></td></tr><tr><td>Collectorの送信カウンター</td><td><code>artifacts/verification/collector-export-counters.json</code></td></tr><tr><td>隔離した候補実験</td><td><code>artifacts/verification/experiments/comparison-with-complexity.json</code></td></tr></tbody></table></div>
+<p>今後のデモは、検証済みの観測基盤を含む改善前ベースラインから、シナリオ別のブランチを切って進めます。既存の <code>demo-before</code> タグは元の状態を示します。新しいベースラインの参照名と起動手順は、<a href="index.html#quickstart">ハンドブック</a>とリポジトリのREADMEを確認してください。</p>
+<div class="code-block"><pre><code>./scripts/demo test
+python3 -m unittest discover -s tests/python -v
+python3 scripts/quality.py
+
+# 観測の期間・service.versionを揃えて再計測する
+python3 scripts/load.py orders --requests 100 --concurrency 4 \
+  --output artifacts/runs/new-orders.json</code></pre></div>
+</section>
+<footer class="footer"><div><strong>Mackerel Improvement Lab</strong><p>実測に基づく開発改善デモ · 検証日 2026年10月26日</p></div><a href="index.html">デモハンドブックへ戻る →</a></footer>
+</main></div>
+</body>
+</html>

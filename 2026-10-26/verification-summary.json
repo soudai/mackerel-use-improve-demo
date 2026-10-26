@@ -1,0 +1,111 @@
+{
+  "verified_at": "2026-10-26T19:01:01.811282+09:00",
+  "service": "mackerel-seminar-demo",
+  "organization": "mackerel-seminar",
+  "quality": {
+    "attempt_id": "1",
+    "measurement_timestamp": 1793008677,
+    "metric_count": 25,
+    "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18",
+    "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+    "run_id": "20261026T095756Z-a8bfaae1",
+    "schema_version": 1,
+    "service": "mackerel-seminar-demo",
+    "stages": [
+      {
+        "at": "2026-10-26T09:58:00.560395+00:00",
+        "status": "preflight_complete"
+      },
+      {
+        "at": "2026-10-26T09:58:00.560752+00:00",
+        "status": "posting"
+      },
+      {
+        "at": "2026-10-26T09:58:00.694503+00:00",
+        "status": "published_unverified"
+      },
+      {
+        "at": "2026-10-26T09:58:04.611051+00:00",
+        "status": "metrics_verified"
+      },
+      {
+        "at": "2026-10-26T09:58:04.801359+00:00",
+        "status": "verified"
+      }
+    ],
+    "status": "verified"
+  },
+  "checkout": {
+    "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+    "successful_requests": 24,
+    "stock_decrease": 24,
+    "orders_increase": 24,
+    "blocked_sessions_observed": 7,
+    "test_logs_with_zero_trace_ids_for_revision": 0,
+    "load_summary": {
+      "requests": 24,
+      "successful_requests": 24,
+      "failed_requests": 0,
+      "elapsed_seconds": 7.847,
+      "requests_per_second": 3.059,
+      "all_requests": {
+        "p50_ms": 2483.189,
+        "p95_ms": 2564.668
+      },
+      "successful_requests_latency": {
+        "p50_ms": 2483.189,
+        "p95_ms": 2564.668
+      },
+      "statuses": {
+        "201": 24
+      },
+      "observed_app_revisions": [
+        "3cad843ef08bd225f79255c84dc94a625d4d57c1"
+      ]
+    }
+  },
+  "http_and_logs": {
+    "revision": "cb761900245b74b02ab49224cffedf517f717fc3",
+    "http_requests": 62,
+    "logs_with_trace_id": 62,
+    "status": "api_readback_verified"
+  },
+  "collector_metrics": {
+    "accepted_points": 596,
+    "sent_points": 596,
+    "queue_size": 0,
+    "status": "collector_ack_verified_ui_not_verified"
+  },
+  "isolated_candidates": {
+    "n_plus_one_queries": [
+      51,
+      2
+    ],
+    "sales_returned_rows": [
+      48000,
+      31
+    ],
+    "pricing_cases_equal": 4320,
+    "cognitive_max": [
+      51,
+      8
+    ],
+    "cyclomatic_max": [
+      29,
+      7
+    ],
+    "scope": "not deployed; main retains before implementation"
+  },
+  "repairs": [
+    "trace selection before cap",
+    "SQL execution duration instead of PDO prepare time",
+    "exclude unit-test access logs",
+    "service name parameterization"
+  ],
+  "limits": [
+    "Current Chrome account shows Org Not Found for target; UI display not confirmed.",
+    "Only reports branch pushed; application main must be pushed before GitHub issue source links and real PR workflow.",
+    "Unused-index result is a candidate within observed workload, not proof of global disuse.",
+    "No live improvement PR or production change was made."
+  ]
+}
