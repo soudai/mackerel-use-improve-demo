@@ -1,0 +1,3 @@
+PHPUnit 12.5.40 by Sebastian Bergmann and contributors.
+
+Wrote list of tests that would have been run to /artifacts/verification/after-quality/raw/test-plan.xml

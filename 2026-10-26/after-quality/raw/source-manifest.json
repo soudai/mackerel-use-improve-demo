@@ -1,0 +1,20 @@
+{
+  "backend/app/Http/Controllers/CheckoutController.php": "7b870297bc486faf8fa77c73b77f4d4fd7b00dfd5e27e0dc22c371ea4ce8ca08",
+  "backend/app/Http/Controllers/Controller.php": "25d1c1ef8e6cc8a376553faacfba2b07d9dfaee9bdbb84f14f77517580e9deb1",
+  "backend/app/Http/Controllers/OrderController.php": "5f3446fddf06418c8cec0fc3a2e564dcca1750c6b1806e21b7626a15b5adc0f4",
+  "backend/app/Http/Controllers/ProductController.php": "52cd98a447b3dcb101ac0d784ec14f8c6395dbbe20939531a2ea8f24131fa70a",
+  "backend/app/Http/Controllers/QuoteController.php": "de6ae02838e3f7212f53df77cd5df7f9efa4cd21f652cd0b112181b21056bf8e",
+  "backend/app/Http/Controllers/ReportController.php": "e3ca7319b571355cc8b2784e4f84ed6fd75f4cb2c7ca37e0012c167e3081191a",
+  "backend/app/Http/Middleware/ObserveRequest.php": "0f25baa19c7ac7dd346f8949146ced47c3acd73871fcb1cc96a09d50ffd0e86b",
+  "backend/app/Models/Customer.php": "d2b93b83c148c59c6221f8802ddfc3de82e7d3d84c5b4a2ecdf958f37bcbc9b3",
+  "backend/app/Models/Inventory.php": "67aff419a2536848af718f67dae2d0149cb998538c066b6bda5e2a0964a226a7",
+  "backend/app/Models/Order.php": "b727ebc73a19f9993659b08f0b85b9bd5197c0ec4f2faffe6ebb7f9805e7d087",
+  "backend/app/Models/OrderItem.php": "c9b969f0524e2c5fff9fe4e7c7a7ff80c42932dba756046f6dbd72eadeccf69f",
+  "backend/app/Models/Product.php": "1b46726baeff112e2770aa736db80723a47e7f1cce4493a1023de4b13eb1c2a3",
+  "backend/app/Models/User.php": "1dca1344e88308fe405ae050f02bd65081a649de65ec86f2ee2beabbb4706afa",
+  "backend/app/Providers/AppServiceProvider.php": "27c6637e685cb0b5ce7a4fc6fec2421d535b50d798064a563290a6f6d6a9025c",
+  "backend/app/Services/CheckoutService.php": "8c2599bbb8808b3d7009b029100d7cb10eeaf23377b4d5187b3c20d433380151",
+  "backend/app/Services/PricingService.php": "6cf54f95490bbf68ca94cdceb273fc2405680832beb27ec6afd3ffba1f90050d",
+  "backend/app/Services/SalesReportService.php": "e24eb251cef84c6357620b3db3ebc156fd320f95b3deff1179e088c605aa9b4f",
+  "backend/app/Support/Telemetry.php": "f1936f8138829e1e46d2d98fe2d806cd90e9f84495b098b72c2afd8046c04f6e"
+}

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<testSuite xmlns="https://xml.phpunit.de/testSuite">
+ <tests>
+  <testClass name="Tests\Unit\ExampleTest" file="/var/www/html/tests/Unit/ExampleTest.php">
+   <testMethod id="Tests\Unit\ExampleTest::test_that_true_is_true" name="test_that_true_is_true"/>
+  </testClass>
+  <testClass name="Tests\Feature\DemoBehaviorTest" file="/var/www/html/tests/Feature/DemoBehaviorTest.php">
+   <testMethod id="Tests\Feature\DemoBehaviorTest::test_tests_are_isolated_from_the_demo_database" name="test_tests_are_isolated_from_the_demo_database"/>
+   <testMethod id="Tests\Feature\DemoBehaviorTest::test_order_listing_preserves_customer_and_order" name="test_order_listing_preserves_customer_and_order"/>
+   <testMethod id="Tests\Feature\DemoBehaviorTest::test_search_includes_both_date_boundaries_and_filters_status" name="test_search_includes_both_date_boundaries_and_filters_status"/>
+   <testMethod id="Tests\Feature\DemoBehaviorTest::test_report_aggregates_paid_order_items_and_keeps_last_day" name="test_report_aggregates_paid_order_items_and_keeps_last_day"/>
+   <testMethod id="Tests\Feature\DemoBehaviorTest::test_checkout_updates_stock_order_and_total_atomically" name="test_checkout_updates_stock_order_and_total_atomically"/>
+   <testMethod id="Tests\Feature\DemoBehaviorTest::test_insufficient_stock_creates_no_order_and_calls_no_shipping" name="test_insufficient_stock_creates_no_order_and_calls_no_shipping"/>
+   <testMethod id="Tests\Feature\DemoBehaviorTest::test_shipping_failure_rolls_back_stock_and_order" name="test_shipping_failure_rolls_back_stock_and_order"/>
+   <testMethod id="Tests\Feature\DemoBehaviorTest::test_invalid_quantity_is_rejected_before_writes" name="test_invalid_quantity_is_rejected_before_writes"/>
+   <testMethod id="Tests\Feature\DemoBehaviorTest::test_reversed_search_range_is_rejected" name="test_reversed_search_range_is_rejected"/>
+  </testClass>
+  <testClass name="Tests\Feature\ExampleTest" file="/var/www/html/tests/Feature/ExampleTest.php">
+   <testMethod id="Tests\Feature\ExampleTest::test_the_application_returns_a_successful_response" name="test_the_application_returns_a_successful_response"/>
+  </testClass>
+  <testClass name="Tests\Feature\ImprovementRegressionTest" file="/var/www/html/tests/Feature/ImprovementRegressionTest.php">
+   <testMethod id="Tests\Feature\ImprovementRegressionTest::test_order_listing_fetches_all_customers_in_one_query" name="test_order_listing_fetches_all_customers_in_one_query"/>
+   <testMethod id="Tests\Feature\ImprovementRegressionTest::test_shipping_quote_runs_before_the_inventory_transaction" name="test_shipping_quote_runs_before_the_inventory_transaction"/>
+   <testMethod id="Tests\Feature\ImprovementRegressionTest::test_stock_is_rechecked_after_shipping_quote" name="test_stock_is_rechecked_after_shipping_quote"/>
+   <testMethod id="Tests\Feature\ImprovementRegressionTest::test_product_is_rechecked_after_shipping_quote" name="test_product_is_rechecked_after_shipping_quote"/>
+   <testMethod id="Tests\Feature\ImprovementRegressionTest::test_invalid_shipping_amount_cannot_change_stock_or_create_an_order" name="test_invalid_shipping_amount_cannot_change_stock_or_create_an_order"/>
+   <testMethod id="Tests\Feature\ImprovementRegressionTest::test_empty_sales_report_preserves_its_response_shape" name="test_empty_sales_report_preserves_its_response_shape"/>
+   <testMethod id="Tests\Feature\ImprovementRegressionTest::test_sales_report_counts_each_order_once_with_multiple_items" name="test_sales_report_counts_each_order_once_with_multiple_items"/>
+   <testMethod id="Tests\Feature\ImprovementRegressionTest::test_direct_pricing_calls_keep_invalid_enum_error_behavior" name="test_direct_pricing_calls_keep_invalid_enum_error_behavior"/>
+  </testClass>
+  <testClass name="Tests\Feature\PricingRulesTest" file="/var/www/html/tests/Feature/PricingRulesTest.php">
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#regular" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#silver below quantity threshold" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#silver quantity five" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#silver quantity ten" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#gold quantity one" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#gold quantity five" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#gold coupon stacking" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#regular quantity twenty" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#coupon below minimum" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#coupon at minimum" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#coupon cap" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#free shipping coupon" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#remote excludes freeship" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#express added after free shipping" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#discount affects shipping threshold" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#round down member discount" name="test_price_rules_preserve_business_results"/>
+   <testMethod id="Tests\Feature\PricingRulesTest::test_quote_rejects_unknown_coupon" name="test_quote_rejects_unknown_coupon"/>
+  </testClass>
+ </tests>
+ <groups>
+  <group name="default">
+   <test id="Tests\Unit\ExampleTest::test_that_true_is_true"/>
+   <test id="Tests\Feature\DemoBehaviorTest::test_tests_are_isolated_from_the_demo_database"/>
+   <test id="Tests\Feature\DemoBehaviorTest::test_order_listing_preserves_customer_and_order"/>
+   <test id="Tests\Feature\DemoBehaviorTest::test_search_includes_both_date_boundaries_and_filters_status"/>
+   <test id="Tests\Feature\DemoBehaviorTest::test_report_aggregates_paid_order_items_and_keeps_last_day"/>
+   <test id="Tests\Feature\DemoBehaviorTest::test_checkout_updates_stock_order_and_total_atomically"/>
+   <test id="Tests\Feature\DemoBehaviorTest::test_insufficient_stock_creates_no_order_and_calls_no_shipping"/>
+   <test id="Tests\Feature\DemoBehaviorTest::test_shipping_failure_rolls_back_stock_and_order"/>
+   <test id="Tests\Feature\DemoBehaviorTest::test_invalid_quantity_is_rejected_before_writes"/>
+   <test id="Tests\Feature\DemoBehaviorTest::test_reversed_search_range_is_rejected"/>
+   <test id="Tests\Feature\ExampleTest::test_the_application_returns_a_successful_response"/>
+   <test id="Tests\Feature\ImprovementRegressionTest::test_order_listing_fetches_all_customers_in_one_query"/>
+   <test id="Tests\Feature\ImprovementRegressionTest::test_shipping_quote_runs_before_the_inventory_transaction"/>
+   <test id="Tests\Feature\ImprovementRegressionTest::test_stock_is_rechecked_after_shipping_quote"/>
+   <test id="Tests\Feature\ImprovementRegressionTest::test_product_is_rechecked_after_shipping_quote"/>
+   <test id="Tests\Feature\ImprovementRegressionTest::test_invalid_shipping_amount_cannot_change_stock_or_create_an_order"/>
+   <test id="Tests\Feature\ImprovementRegressionTest::test_empty_sales_report_preserves_its_response_shape"/>
+   <test id="Tests\Feature\ImprovementRegressionTest::test_sales_report_counts_each_order_once_with_multiple_items"/>
+   <test id="Tests\Feature\ImprovementRegressionTest::test_direct_pricing_calls_keep_invalid_enum_error_behavior"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#regular"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#silver below quantity threshold"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#silver quantity five"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#silver quantity ten"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#gold quantity one"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#gold quantity five"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#gold coupon stacking"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#regular quantity twenty"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#coupon below minimum"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#coupon at minimum"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#coupon cap"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#free shipping coupon"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#remote excludes freeship"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#express added after free shipping"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#discount affects shipping threshold"/>
+   <test id="Tests\Feature\PricingRulesTest::test_price_rules_preserve_business_results#round down member discount"/>
+   <test id="Tests\Feature\PricingRulesTest::test_quote_rejects_unknown_coupon"/>
+  </group>
+ </groups>
+</testSuite>

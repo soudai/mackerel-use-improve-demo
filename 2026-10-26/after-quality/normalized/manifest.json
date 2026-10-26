@@ -1,0 +1,140 @@
+{
+  "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality",
+  "artifacts": {
+    "config": {
+      "sha256": "a43455e900d83ce6171ca5ed83e9a32ee1413d01b380a6ef7efb00376f5926ff"
+    },
+    "details.json": {
+      "bytes": 22112,
+      "sha256": "03435a7b81a032246413daf314e3c3bd0abb413debd3ff84ba9e2ed12edf6700",
+      "uri": "details.json"
+    },
+    "metrics.json": {
+      "bytes": 2469,
+      "sha256": "4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd",
+      "uri": "metrics.json"
+    },
+    "php_static_raw": {
+      "bytes": 5277,
+      "relative_to": "run_manifest_parent",
+      "sha256": "fb5b6b61c8bb6028bbec4d611ed8711faf3c9a45a002b62cffcd2c15b46355b8",
+      "uri": "raw/cccc.json"
+    },
+    "run": {
+      "sha256": "fa8973178973a983f91141569a90dc8265db76c8d54f16f9f3f1c31a41043d5c"
+    },
+    "unit_raw": {
+      "bytes": 11809,
+      "relative_to": "run_manifest_parent",
+      "sha256": "05009e7e5beb36190c2d8f743c7be1f56beae95828c8d86ea4ea918bc64aa053",
+      "uri": "raw/phpunit.xml"
+    }
+  },
+  "attempt_id": "1",
+  "base_revision": null,
+  "collection": {
+    "php_static": {
+      "complete": true,
+      "diagnostics": [],
+      "exit_code": 0,
+      "gate_exit_code": null,
+      "report_complete": true,
+      "status": "complete"
+    },
+    "unit": {
+      "complete": true,
+      "diagnostics": [],
+      "exit_code": 0,
+      "gate_exit_code": null,
+      "report_complete": true,
+      "run_status": "completed",
+      "status": "complete",
+      "success": 1,
+      "test_plan_complete": true,
+      "wrapper_exit_code": 0
+    }
+  },
+  "comparison_key": "845b5dd18a4bb6e3f8d33d9434ae71e1f5d0a7107660d35a5cd2af679935016b",
+  "environment": "development",
+  "finished_at": "2026-10-26T10:24:48.593137Z",
+  "mackerel_service": "mackerel-seminar-demo",
+  "profiles": {
+    "php_static": {
+      "comparison_key": "c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c",
+      "raw_artifacts": {},
+      "ruleset_hash": null,
+      "scope": {
+        "cognitive_limit": 15,
+        "cyclomatic_limit": 10,
+        "kind": "cccc",
+        "language": "php",
+        "producer": "moznion/cccc",
+        "selection": "backend/app PHP sources; full JSON; min=0; no config; no cache",
+        "version": "1.8.3"
+      },
+      "tool": {
+        "adapter_version": "2",
+        "observed_version": "1.8.3",
+        "producer": "moznion/cccc",
+        "version": "1.8.3"
+      }
+    },
+    "unit": {
+      "comparison_key": "2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72",
+      "raw_artifacts": {},
+      "ruleset_hash": null,
+      "scope": {
+        "kind": "junit",
+        "producer": "phpunit",
+        "selection": "full PHPUnit suite, one invocation, no retries; independent --list-tests-xml plan",
+        "version": "12.5.40"
+      },
+      "tool": {
+        "adapter_version": "2",
+        "observed_version": "12.5.40",
+        "producer": "phpunit",
+        "version": "12.5.40"
+      }
+    }
+  },
+  "publication": {
+    "measurement_timestamp": 1793010288,
+    "payload_sha256": "4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd",
+    "series": [
+      "cccc.php_static.analysis.complete",
+      "cccc.php_static.analysis.files",
+      "cccc.php_static.analysis.functions",
+      "cccc.php_static.analysis.last_success_timestamp",
+      "cccc.php_static.analysis.parse_error_files",
+      "cccc.php_static.analysis.parse_errors",
+      "cccc.php_static.cognitive.max",
+      "cccc.php_static.cognitive.over_limit_count",
+      "cccc.php_static.cognitive.over_limit_ratio",
+      "cccc.php_static.cognitive.p95",
+      "cccc.php_static.cyclomatic.max",
+      "cccc.php_static.cyclomatic.over_limit_count",
+      "cccc.php_static.cyclomatic.over_limit_ratio",
+      "cccc.php_static.cyclomatic.p95",
+      "tests.unit.cases.error",
+      "tests.unit.cases.failed",
+      "tests.unit.cases.passed",
+      "tests.unit.cases.selected",
+      "tests.unit.cases.skipped",
+      "tests.unit.ratios.strict_pass",
+      "tests.unit.run.complete",
+      "tests.unit.run.duration_seconds",
+      "tests.unit.run.last_completed_timestamp",
+      "tests.unit.run.report_complete",
+      "tests.unit.run.success"
+    ],
+    "service": "mackerel-seminar-demo",
+    "status": "not_published"
+  },
+  "revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+  "run_id": "20261026T102447Z-776887d0",
+  "schema_version": 1,
+  "service": "mackerel-seminar-demo",
+  "started_at": "2026-10-26T10:24:47.677788Z",
+  "test_wrapper_exit_code": 0,
+  "working_tree_dirty": false
+}

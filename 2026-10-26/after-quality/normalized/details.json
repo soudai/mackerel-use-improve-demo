@@ -1,0 +1,659 @@
+{
+  "profiles": {
+    "php_static": {
+      "records": [
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "3b02a5b5e109e896203256c7fcdc3ff6598449e31a57c9f36fd556c66c4d53e1",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/CheckoutController.php",
+          "kind": "method",
+          "line": 11,
+          "name": "store"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "07089114ce9bfb77750adb06d1fa03025768d85aa4643ca6901600e249a8fa95",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/OrderController.php",
+          "kind": "method",
+          "line": 13,
+          "name": "index"
+        },
+        {
+          "cognitive": 1,
+          "cyclomatic": 2,
+          "entity_id": "4b3392e5ad793aa2c1c0c0531845cc3ee93f217c20ed1350fc3b431467916ecb",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/OrderController.php",
+          "kind": "closure",
+          "line": 17,
+          "name": "<closure>"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "a02fee45954def8cbd8e67ff8726f1f7c10d51e83062b3c7e636efac8e357d24",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/OrderController.php",
+          "kind": "arrow",
+          "line": 19,
+          "name": "<arrow>"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "52433b1bfbff17b84b70302d439f8d16fe40fe4f07fc16c45cdb10e7b00a1b7f",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/OrderController.php",
+          "kind": "method",
+          "line": 31,
+          "name": "search"
+        },
+        {
+          "cognitive": 2,
+          "cyclomatic": 3,
+          "entity_id": "a9f66e543148b1d0ab87837dbe62d72972a1db5fe60e6ecfcee45d3fd87b7aa4",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/OrderController.php",
+          "kind": "closure",
+          "line": 43,
+          "name": "<closure>"
+        },
+        {
+          "cognitive": 1,
+          "cyclomatic": 2,
+          "entity_id": "602bbecfd45db661502a0fbc49741959c4603bbd448dbe91a6a68f951e35a5c2",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/ProductController.php",
+          "kind": "method",
+          "line": 11,
+          "name": "index"
+        },
+        {
+          "cognitive": 1,
+          "cyclomatic": 3,
+          "entity_id": "799feecf63f30e8e8663da055e4085ec2e0f20124a1d345d3fc59e28beb95d99",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/ProductController.php",
+          "kind": "arrow",
+          "line": 16,
+          "name": "<arrow>"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "cc2dee6496e4b866af45be282bf3cef1990f0f590102a62427e0134f01d67342",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/QuoteController.php",
+          "kind": "method",
+          "line": 11,
+          "name": "store"
+        },
+        {
+          "cognitive": 2,
+          "cyclomatic": 3,
+          "entity_id": "48e60371f2d1e4331412edbaf4d7bf51a80990e7dad6c005156fd44283f85872",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Controllers/ReportController.php",
+          "kind": "method",
+          "line": 11,
+          "name": "sales"
+        },
+        {
+          "cognitive": 12,
+          "cyclomatic": 11,
+          "entity_id": "e8c9cf4fd6a9fe8ae33564aa2fb65fa24950c6f5bab2206bd1c56ecbc3d84f2c",
+          "entity_kind": "function",
+          "file": "backend/app/Http/Middleware/ObserveRequest.php",
+          "kind": "method",
+          "line": 17,
+          "name": "handle"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "612f3f9183bf25436172e66592ba9c72cdc96ec806487293bcfc4dc1090c642d",
+          "entity_kind": "function",
+          "file": "backend/app/Models/Customer.php",
+          "kind": "method",
+          "line": 12,
+          "name": "orders"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "0d8700dd38cf9a0bc55dffaf30848c6f016b89dcc11df236b99eb8086589d33f",
+          "entity_kind": "function",
+          "file": "backend/app/Models/Inventory.php",
+          "kind": "method",
+          "line": 12,
+          "name": "product"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "f34ba94fc942940aacf99b8f7a2b1f08c274bf1ce52d3f353dd750f89df20841",
+          "entity_kind": "function",
+          "file": "backend/app/Models/Inventory.php",
+          "kind": "method",
+          "line": 17,
+          "name": "casts"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "3fdc235293b6a59a961cb0d40e89474488e0bcdb939a20780bbc28acc0de6c20",
+          "entity_kind": "function",
+          "file": "backend/app/Models/Order.php",
+          "kind": "method",
+          "line": 13,
+          "name": "customer"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "8c9b760ab08027b8b2d722a7ff90141d06292b06d53a3ce514ce3e30e2558d22",
+          "entity_kind": "function",
+          "file": "backend/app/Models/Order.php",
+          "kind": "method",
+          "line": 18,
+          "name": "items"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "78e030d52224dd53490b7532f5db81e2e93f26a9d1986d0c9dbdfdefcc96e10c",
+          "entity_kind": "function",
+          "file": "backend/app/Models/Order.php",
+          "kind": "method",
+          "line": 23,
+          "name": "casts"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "b41ec6f6196184104cba20f5731bef2883bd60eb95405e867e79b2be25bb4756",
+          "entity_kind": "function",
+          "file": "backend/app/Models/OrderItem.php",
+          "kind": "method",
+          "line": 12,
+          "name": "order"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "40df1c1b7624019314106b833dff15be09011acc567d0b112b46b4bf711d4dcc",
+          "entity_kind": "function",
+          "file": "backend/app/Models/OrderItem.php",
+          "kind": "method",
+          "line": 17,
+          "name": "product"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "8cbc3997dff532ffe10c741624fd2992a2a00b610a4975c00aca0411a7307c6f",
+          "entity_kind": "function",
+          "file": "backend/app/Models/OrderItem.php",
+          "kind": "method",
+          "line": 22,
+          "name": "casts"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "f1c66e3baf372b19ec4f0ef091c75d42d64567bb6d9f0291f9643b78597e408c",
+          "entity_kind": "function",
+          "file": "backend/app/Models/Product.php",
+          "kind": "method",
+          "line": 12,
+          "name": "inventory"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "21183b059fed790c9726ee15c83e5aac605b6df4501de6acf9c3f595b3387b97",
+          "entity_kind": "function",
+          "file": "backend/app/Models/Product.php",
+          "kind": "method",
+          "line": 17,
+          "name": "casts"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "c21b03cdaeddccb3a506877a718cbb0f7a672e51674205de6681682407e66d40",
+          "entity_kind": "function",
+          "file": "backend/app/Models/User.php",
+          "kind": "method",
+          "line": 25,
+          "name": "casts"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "0666a3defd139b31d11641372566135cff8beb2d6e58fefd4fcc9e5099cacbc0",
+          "entity_kind": "function",
+          "file": "backend/app/Providers/AppServiceProvider.php",
+          "kind": "method",
+          "line": 12,
+          "name": "register"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "719568a11d7249cab56957478abf52a479ae07b00c6c3233a9244bb3dd9fcf22",
+          "entity_kind": "function",
+          "file": "backend/app/Providers/AppServiceProvider.php",
+          "kind": "method",
+          "line": 17,
+          "name": "boot"
+        },
+        {
+          "cognitive": 2,
+          "cyclomatic": 3,
+          "entity_id": "ed2619af5b67a56f80e00e27ec8d3bdd886c7418ee5cc840c6ae688260c0c933",
+          "entity_kind": "function",
+          "file": "backend/app/Providers/AppServiceProvider.php",
+          "kind": "closure",
+          "line": 19,
+          "name": "<closure>"
+        },
+        {
+          "cognitive": 2,
+          "cyclomatic": 3,
+          "entity_id": "2d973dcbda5a565a5e20792a2265346bd97d1a5ac4e5b011471da404f6a49d47",
+          "entity_kind": "function",
+          "file": "backend/app/Services/CheckoutService.php",
+          "kind": "method",
+          "line": 16,
+          "name": "checkout"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "1dcb442c90f647f005e2f823914d9734bef8c38232e5357c2b1bf55bbb6700dd",
+          "entity_kind": "function",
+          "file": "backend/app/Services/CheckoutService.php",
+          "kind": "closure",
+          "line": 22,
+          "name": "<closure>"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "d740bdf85f048c1f52c79cfd4890e84a72a48ee668f5ddb1fd21fc51a4891975",
+          "entity_kind": "function",
+          "file": "backend/app/Services/CheckoutService.php",
+          "kind": "closure",
+          "line": 28,
+          "name": "<closure>"
+        },
+        {
+          "cognitive": 1,
+          "cyclomatic": 2,
+          "entity_id": "86d0b285a2d646c5e1ed05cfdcec933c49ab3c2393d71351f31aa126ca7dd75b",
+          "entity_kind": "function",
+          "file": "backend/app/Services/CheckoutService.php",
+          "kind": "method",
+          "line": 51,
+          "name": "ensureStock"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "5f43e6aaf490175dcbc45967b39ee0cb0f7eb58098af2f596ea15c3e21d88486",
+          "entity_kind": "function",
+          "file": "backend/app/Services/CheckoutService.php",
+          "kind": "method",
+          "line": 58,
+          "name": "shippingQuote"
+        },
+        {
+          "cognitive": 2,
+          "cyclomatic": 4,
+          "entity_id": "05b30c9965e8a5aa6161ff850687d50c73db9e8c5b7a91b771e7a5761b13dc8e",
+          "entity_kind": "function",
+          "file": "backend/app/Services/CheckoutService.php",
+          "kind": "closure",
+          "line": 60,
+          "name": "<closure>"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "ed24d68e31612317028ab118cbd085319900b535aef6993512224a89246dc0e1",
+          "entity_kind": "function",
+          "file": "backend/app/Services/PricingService.php",
+          "kind": "method",
+          "line": 10,
+          "name": "calculate"
+        },
+        {
+          "cognitive": 6,
+          "cyclomatic": 7,
+          "entity_id": "941dea54001fd45b83d7237a6d71a91bcd4d42269bf8a36239196d92c63092b5",
+          "entity_kind": "function",
+          "file": "backend/app/Services/PricingService.php",
+          "kind": "closure",
+          "line": 12,
+          "name": "<closure>"
+        },
+        {
+          "cognitive": 5,
+          "cyclomatic": 7,
+          "entity_id": "bb708e603f9278a4a14bfa49891e90f753f4f532eb1983b92d8e30959d1cd43b",
+          "entity_kind": "function",
+          "file": "backend/app/Services/PricingService.php",
+          "kind": "method",
+          "line": 37,
+          "name": "validateInput"
+        },
+        {
+          "cognitive": 3,
+          "cyclomatic": 3,
+          "entity_id": "f212e23f7d1f163640e4a1483d6c83a4a03a6222c868cc890f2556c51bcfee6a",
+          "entity_kind": "function",
+          "file": "backend/app/Services/PricingService.php",
+          "kind": "method",
+          "line": 49,
+          "name": "memberRate"
+        },
+        {
+          "cognitive": 2,
+          "cyclomatic": 3,
+          "entity_id": "c1221c6d6589cd0f91bf698a21c3ca8e7c4bd29098b0788c408262892bd6fbcf",
+          "entity_kind": "function",
+          "file": "backend/app/Services/PricingService.php",
+          "kind": "method",
+          "line": 65,
+          "name": "couponDiscount"
+        },
+        {
+          "cognitive": 8,
+          "cyclomatic": 7,
+          "entity_id": "aa7ab8d9914b733a2a63cdf045f0d92dce549bd506b0d82be0c51015152c7332",
+          "entity_kind": "function",
+          "file": "backend/app/Services/PricingService.php",
+          "kind": "method",
+          "line": 74,
+          "name": "shipping"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "0af44f853b1c862fa7a22d159e87269edc13c97b652c03382ec831e2ff4c21b9",
+          "entity_kind": "function",
+          "file": "backend/app/Services/SalesReportService.php",
+          "kind": "method",
+          "line": 11,
+          "name": "generate"
+        },
+        {
+          "cognitive": 0,
+          "cyclomatic": 1,
+          "entity_id": "77147e9eb2bdeabcc13c6e133340ca995520273c3517b0e548de33e3cdcbfa8b",
+          "entity_kind": "function",
+          "file": "backend/app/Services/SalesReportService.php",
+          "kind": "arrow",
+          "line": 14,
+          "name": "<arrow>"
+        },
+        {
+          "cognitive": 1,
+          "cyclomatic": 2,
+          "entity_id": "6b972e53203c64863868b92b2c7ffac3ebadc01a6bc2ea171347ae856c0aadec",
+          "entity_kind": "function",
+          "file": "backend/app/Services/SalesReportService.php",
+          "kind": "closure",
+          "line": 24,
+          "name": "<closure>"
+        },
+        {
+          "cognitive": 8,
+          "cyclomatic": 9,
+          "entity_id": "9778304eb4651b02ed603ea70121d0f36969f50a0c8746cd72628ee94b32717c",
+          "entity_kind": "function",
+          "file": "backend/app/Support/Telemetry.php",
+          "kind": "method",
+          "line": 14,
+          "name": "span"
+        },
+        {
+          "cognitive": 9,
+          "cyclomatic": 11,
+          "entity_id": "ed982fc207e0f74855eee27e4ad4380bd22d8adbd582be303520718998c09393",
+          "entity_kind": "function",
+          "file": "backend/app/Support/Telemetry.php",
+          "kind": "method",
+          "line": 42,
+          "name": "query"
+        }
+      ],
+      "status": "complete",
+      "summary": {
+        "cognitive": {
+          "max": 12,
+          "median": 0,
+          "p90": 6,
+          "p95": 8,
+          "sum": 68
+        },
+        "cyclomatic": {
+          "max": 11,
+          "median": 1,
+          "p90": 7,
+          "p95": 9,
+          "sum": 110
+        },
+        "file_count": 18,
+        "function_count": 43,
+        "parse_error_count": 0,
+        "parse_error_file_count": 0
+      },
+      "unsupported_metrics": []
+    },
+    "unit": {
+      "records": [
+        {
+          "entity_id": "dd32475b8a0803166a13ae30fb8c4c0c3fad2a8b8992dc039de42ac6767cdef7",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "02d22faaa546a7327fdf341874be20a0049a84453d7fbb7d5f7c33ad1e935b32",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "6e8356496756a7fa41110e59914eef585279bb1f29a0681c04dbc0bf75066156",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "86aaef9eac1212b2125f087c7aa0c9f76e587194e905f5ac7a78b7afdd7eb1fb",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "611005d7e6f37980b6fde819aa0dc42fad8f48233c7e923eaeffa9b3685388eb",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "ba9f8c7604cc1d208805f76a1b8ef6d074031ac4180e446f44e6cb962558633f",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "894239a49192d0e8b6b607dc4f848d93b8e8673ac0b5a2e189e005879227faa2",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "54971cc87384d17d12e9f0a2fb20536c708b19a11ed1ff9445adf6f7623607bb",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "e9adf155ae3907a938b51ba5760b3e9c9edae51f0e6c9a4a2507a0570ba06c17",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "857b23e8fc04b7f8098d7aaf2d45c069bd95e37cd4742d9cb664b56f982742c9",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "579c0bf90fd5acbb32ccd6ab47afb76ab25b463500a65f241f76c7068071eb4b",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "319a8b1c78e6a6f849b96eba606e579162e7d6a6192770492456d97fa42b4ff9",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "f6e80a3b0c248b85700aa57d8fae067dd5a4307ef944f95e1c0be9ae24a33c92",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "e6cd5f7491033253138681d55ca0073cf6f8e1d7d1191e66f9197cf1942e1440",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "f648279d40e3ed49a4bc589f54f4a3b5ff018cc0c44fd9df9b09c7f09565c1d9",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "42b063cb61d5dd46f21c0486206bbad60a7dc7d4488226a9f4e3e9611a9ec87c",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "893208256280019e5e0e025f64bd5ef43a59d652399909718d57f1bac9055125",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "04d7729d4da81ca3c260dbaa78a018df92c1c27725c6c681364c43817fcc2a92",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "9dd796d7d1e444dc2f51c58d93953b3fe510ea9b46794d369d293b4d410bad83",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "476fb341aa102a4624692a99f0022f1bc15ca603338988197bd534ad8777d2e8",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "49aa5ddcccb3d2b23d5bdf46564edb746686cc76b6cb43fc60798bfdb3155875",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "2d462e6f749ff8e705617f6ff08c21ce8b1803c72fc3c424f24ac420343c4c1d",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "37e73a6c863d7f10078e3524d64d346675186ce281aa189a069f0a450fb79df6",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "814d4050eb0d99a2e0ed8b8a698d22aa096afaa0d5ef0fb52cfdf21a4dea1d90",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "63c00eedda8d30bbec2423d054a62f9ec4d0313326e174dbef4f4d42b1bc2356",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "a6b171d3e0a5dcc097c553dfae084f41e8e35a65917b47b96280f870d8aef6f6",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "4a6b42fe9df5ce8b5c4a3985305d417eb7d2f6f83a81e59268370112bd60fa66",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "f3636ef1bb9680777ec51c677083f9482c50a36bada317f7e801289b1249673f",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "8370f7598fb076197851f3c6220964431cca0c4264790164517f946a6e5eee0c",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "012ceaec8dfd749012f9a990c96b61bf1132df30205230b52411de91672e4836",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "e7186f734c6e216b28b2edf9eaa7c51f71fe48ae026e4c521372d7facc7d8bab",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "3df21f8197108d5599e994ebe212aedb57eb6a098b220b639762d1af791a2817",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "e2b174775043653fdf56ce4edd0f9564a6941c412fc2efe2d5ef4789e1222d04",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "4ab389c110257be65cc9d84b0dcbd0aeb9c5dea80a7a7b9de0d35190b233e5d5",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "4f59273a4178c18e1f4939a36d453fa415e3062c802cbfd20fc665fda46fc9ab",
+          "entity_kind": "test_case",
+          "status": "passed"
+        },
+        {
+          "entity_id": "e98f2322a4a0048fdb3150cf4d27b353765ab2c23344cd8857d75905302085ed",
+          "entity_kind": "test_case",
+          "status": "passed"
+        }
+      ],
+      "status": "complete",
+      "strict_pass": {
+        "denominator": 36,
+        "numerator": 36,
+        "value": 1.0
+      },
+      "unsupported_metrics": [
+        "cases.executed",
+        "cases.flaky",
+        "cases.xfail",
+        "cases.xpass",
+        "attempts.executed",
+        "attempts.retries"
+      ]
+    }
+  },
+  "schema_version": 1
+}
