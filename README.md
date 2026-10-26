@@ -3,7 +3,7 @@
 Laravel 13 / PHP 8.4 / PostgreSQL 18 の小規模な受注・在庫管理アプリです。
 **main は改善前の基準実装**です。N+1、ロック待ち、全走査、大量行取得、未使用インデックス候補、複雑な価格計算を、Mackerel Skillで観測してシナリオ別PRで改善します。
 
-説明資料は **[HTMLハンドブック](docs/index.html)** にまとめています。GitHub Pages公開後の予定URLは https://soudai.github.io/mackerel-use-improve-demo/ です。
+説明資料は **[HTMLハンドブック](docs/index.html)** にまとめています。GitHub Pagesの公開URLは https://soudai.github.io/mackerel-use-improve-demo/ です。
 
 実データでの確認結果は **[HTML検証レポート](docs/validation.html)** を参照してください。`demo-before-v2` はMackerel実送信まで検証した基準で、旧 `demo-before` タグは初期状態の記録として残します。
 
