@@ -5,6 +5,8 @@ Laravel 13 / PHP 8.4 / PostgreSQL 18 の小規模な受注・在庫管理アプ�
 
 説明資料は **[HTMLハンドブック](docs/index.html)** にまとめています。GitHub Pages公開後の予定URLは https://soudai.github.io/mackerel-use-improve-demo/ です。
 
+実データでの確認結果は **[HTML検証レポート](docs/validation.html)** を参照してください。`demo-before-v2` はMackerel実送信まで検証した基準で、旧 `demo-before` タグは初期状態の記録として残します。
+
 ## 起動
 
 WSLのリポジトリ内でDocker ComposeとPython 3.12以降を使います。ホストPHPの拡張は不要です。
@@ -22,7 +24,7 @@ cd /home/soudai/work/mackerel/mackerel-use-improve-demo
 ## 改善デモ
 
 ```sh
-git switch -c codex/demo-n-plus-one demo-before
+git switch -c codex/demo-n-plus-one demo-before-v2
 ./scripts/demo restart
 python3 scripts/load.py orders --requests 100 --concurrency 4 --output artifacts/runs/orders-before.json
 python3 scripts/evidence.py --load artifacts/runs/orders-before.json --output artifacts/issues/orders-before

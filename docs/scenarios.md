@@ -1,11 +1,11 @@
 # デモのシナリオ
 
-mainとタグ`demo-before`は、業務上は動くが性能・保守性に問題がある改善前のベースラインです。修正版をフラグで同居させず、各デモでこのタグからブランチを作り、観測・Issue・修正・検証を経てPRにします。この文書の改善案は仮説です。実測と実行計画を確認して採否を決めます。
+mainとタグ`demo-before-v2`は、業務上は動くが性能・保守性に問題がある改善前のベースラインです。修正版をフラグで同居させず、各デモでこのタグからブランチを作り、観測・Issue・修正・検証を経てPRにします。この文書の改善案は仮説です。実測と実行計画を確認して採否を決めます。
 
 ## 共通の進め方
 
 ```sh
-git switch -c codex/demo-n-plus-one demo-before
+git switch -c codex/demo-n-plus-one demo-before-v2
 ./scripts/demo setup
 python3 scripts/load.py orders --requests 100 --concurrency 4 --warmup 3 --output artifacts/runs/orders-before.json
 python3 scripts/evidence.py --load artifacts/runs/orders-before.json --output artifacts/issues/orders-before

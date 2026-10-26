@@ -29,13 +29,13 @@
   <p class="sidebar-note">Laravel · PostgreSQL<br>OpenTelemetry · Mackerel</p>
 </aside>
 <div class="document">
-<header class="topbar"><span>実践デモ / 開発改善</span><a href="https://github.com/soudai/mackerel-use-improve-demo">ソースを見る <span aria-hidden="true">↗</span></a></header>
+<header class="topbar"><span>実践デモ / 開発改善</span><a href="validation.html">実検証レポート <span aria-hidden="true">↗</span></a><a href="https://github.com/soudai/mackerel-use-improve-demo">ソースを見る <span aria-hidden="true">↗</span></a></header>
 <main id="content">
 <section class="hero" id="top">
   <div><p class="eyebrow"><span></span> OBSERVE. UNDERSTAND. IMPROVE.</p><h1>観測から、<br><em>改善のPR</em>へ。</h1><p class="hero-lead">「遅い」を見つけて終わらない。<br>Laravelの小さな受注アプリで、証拠を集め、コードを直し、同じ条件で効果を確かめる。</p><div class="hero-actions"><a class="button" href="#quickstart">デモを起動する <span aria-hidden="true">↓</span></a><a class="text-link" href="#scenarios">シナリオを選ぶ <span aria-hidden="true">→</span></a></div></div>
   <div class="hero-card"><div class="hero-card-label">ONE IMPROVEMENT LOOP</div><ol><li><span>01</span><div><strong>観測する</strong><small>メトリックス・ログ・トレース</small></div></li><li><span>02</span><div><strong>原因を確かめる</strong><small>実行計画・対象commitのコード</small></div></li><li><span>03</span><div><strong>IssueからPRへ</strong><small>一つの仮説、一つの変更</small></div></li><li><span>04</span><div><strong>同条件で検証する</strong><small>性能・挙動・品質の前後比較</small></div></li></ol><div class="hero-card-foot"><span class="status-dot"></span> main = 改善前のベースライン</div></div>
 </section>
-<div class="principle-strip"><div><strong>6</strong><span>改善シナリオ</span></div><div><strong>1</strong><span>共通の基準commit</span></div><div><strong>0</strong><span>事前に埋め込む修正版</span></div><p>各シナリオは <code>demo-before</code> から始め、<br>独立したブランチとPRで改善します。</p></div>
+<div class="principle-strip"><div><strong>6</strong><span>改善シナリオ</span></div><div><strong>1</strong><span>共通の基準commit</span></div><div><strong>0</strong><span>事前に埋め込む修正版</span></div><p>各シナリオは <code>demo-before-v2</code> から始め、<br>独立したブランチとPRで改善します。</p></div>
 <section class="section" id="overview"><div class="section-head"><span class="section-no">01</span><div><h2>一つのアプリで、観測をつなぐ</h2><p>購入・検索・売上集計の実際の操作を、実行時の挙動とコードの品質に結び付けます。</p></div></div>
 <p>題材は「ミニEC＋受注・在庫管理」です。注文一覧のN+1、人気商品のロック待ち、検索SQL、大量データの集計、複雑な割引ロジックを含みます。mainには業務上動作する改善前コードを置き、完成済みの修正版へ切り替えるフラグは設けません。</p>
 <div class="architecture" role="img" aria-label="負荷生成からLaravel、PostgreSQLと配送モックへ。実行時のデータはOpenTelemetry Collectorでローカルに保存し、設定時のみMackerelへ送信。PHPUnitとCCCCの品質結果も別経路で保存・投稿する。">
@@ -44,7 +44,7 @@
   <div class="arch-row"><div class="arch-node"><small>COLLECT</small><strong>OTel Collector</strong><span>トレース / ログ / DB統計</span></div><span class="arch-arrow" aria-hidden="true">→</span><div class="arch-node storage-node"><small>DEFAULT</small><strong>ローカル成果物</strong><span>artifacts/otel/*.jsonl</span></div><span class="arch-arrow optional" aria-hidden="true">⇢</span><div class="arch-node optional-node"><small>OPT-IN</small><strong>Mackerel</strong><span>接続を設定して送信</span></div></div>
   <div class="arch-quality"><span>PHPUnit + CCCC</span><span aria-hidden="true">→</span><span>品質bundle・詳細レポート</span><span aria-hidden="true">→</span><span>Mackerelサービスメトリックス</span></div>
 </div>
-<div class="two-column"><div class="note"><h3>このデモで扱う5つの目的</h3><ol class="compact-list"><li>N+1・ロック待ちなどの性能改善</li><li>認知複雑度・循環的複雑度の継続監視</li><li>全走査・未使用索引・大量行取得の調査</li><li>ログから遅いAPIを抽出し、内部処理へ進む</li><li>トレースとソースを照合し、Issue・改善PRへ</li></ol></div><div class="note"><h3>基準を固定する</h3><p><code>demo-before</code> は初期実装を指す不変のタグです。別の改善を試すたびにこのタグから分岐します。品質の対象は <code>backend/app/</code>。実行していない問題版も静的解析されるため、問題版と修正版を同じコードに共存させません。</p></div></div>
+<div class="two-column"><div class="note"><h3>このデモで扱う5つの目的</h3><ol class="compact-list"><li>N+1・ロック待ちなどの性能改善</li><li>認知複雑度・循環的複雑度の継続監視</li><li>全走査・未使用索引・大量行取得の調査</li><li>ログから遅いAPIを抽出し、内部処理へ進む</li><li>トレースとソースを照合し、Issue・改善PRへ</li></ol></div><div class="note"><h3>基準を固定する</h3><p><code>demo-before-v2</code> は初期実装を指す不変のタグです。別の改善を試すたびにこのタグから分岐します。品質の対象は <code>backend/app/</code>。実行していない問題版も静的解析されるため、問題版と修正版を同じコードに共存させません。</p></div></div>
 </section><section class="section" id="quickstart"><div class="section-head"><span class="section-no">02</span><div><h2>起動して、改善前を測る</h2><p>WSLのリポジトリルートで実行します。Docker Engine / Docker Desktop、Compose、Python 3が必要です。</p></div></div>
 <div class="step-title"><span>1</span><h3>デモ環境を起動</h3></div>
 <div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>cd /home/soudai/work/mackerel/mackerel-use-improve-demo
@@ -54,8 +54,8 @@ curl -fsS http://localhost:18080/up</code></pre></div>
 <p><code>setup</code> は依存インストール、APP_KEY生成、migration、固定seedの投入、各サービスの起動を行います。画面は <a href="http://localhost:18080">http://localhost:18080</a>。フロントエンドのビルド工程はありません。</p>
 <div class="table-wrap" tabindex="0" aria-label="横にスクロールできる表"><table><caption>実行環境と成果物</caption><thead><tr><th>対象</th><th>設定・保存先</th></tr></thead><tbody><tr><td>アプリ画面 / API</td><td><code>localhost:18080</code></td></tr><tr><td>PostgreSQL</td><td><code>localhost:55432</code> / DB・ユーザー・パスワードは各 <code>demo</code></td></tr><tr><td>トレース / ログ / DBメトリックス</td><td><code>artifacts/otel/traces.jsonl</code> / <code>logs.jsonl</code> / <code>metrics.jsonl</code></td></tr><tr><td>アクセスログの元データ</td><td><code>backend/storage/logs/access.jsonl</code></td></tr><tr><td>データ規模</td><td>顧客・商品 各1,000件 / 注文20,000件 / 明細60,000件</td></tr><tr><td>条件の調整</td><td><code>.env</code> の <code>DEMO_SEED_ORDERS</code>、<code>SHIPPING_DELAY_MS</code></td></tr></tbody></table></div>
 <div class="step-title"><span>2</span><h3>基準タグからブランチを作る</h3></div>
-<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>git show --no-patch demo-before
-git switch -c codex/demo-n-plus-one demo-before
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>git show --no-patch demo-before-v2
+git switch -c codex/demo-n-plus-one demo-before-v2
 export APP_REVISION=&quot;$(git rev-parse HEAD)&quot;
 ./scripts/demo up</code></pre></div>
 <p>コードを切り替えたらアプリを更新し、レスポンスの <code>X-App-Revision</code> と対象commitを照合します。未コミットの変更を、commitと同一のコードとして扱わないでください。修正後の最終測定はcommitしてから行います。</p>
@@ -137,19 +137,19 @@ docs/index.htmlのN+1シナリオを再現し、MackerelのHTTP/DB統計、代�
 Mackerelへ接続できない場合はローカルOTLPファイルと負荷結果を使い、未接続を明記してください。
 対象commitのソースを確認し、観測期間、負荷条件、根拠、原因仮説、受入条件を含むGitHub Issueをこのリポジトリに作成してください。
 この段階では実装を修正しないでください。</code></pre></div></div></details><details class="details prompt"><summary>N+1の改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、注文一覧のN+1を改善してください。
-demo-beforeからcodex/demo-n-plus-oneを作り、対象Issueと実際のコードを確認してください。
+demo-before-v2からcodex/demo-n-plus-oneを作り、対象Issueと実際のコードを確認してください。
 APIの返却内容・順番を保持し、クエリ数の増え方を確認する回帰テストを追加してください。
 修正前後を同じseed・負荷・計装条件で測定し、クエリ数、HTTP p95、失敗率とメモリを比較してください。
-根拠付きの比較と未検証事項を記載して、このリポジトリにPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>ロック待ちの改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-beforeからcodex/demo-lock-waitを作り、同一商品の同時購入時のロック待ちを改善してください。
+根拠付きの比較と未検証事項を記載して、このリポジトリにPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>ロック待ちの改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-before-v2からcodex/demo-lock-waitを作り、同一商品の同時購入時のロック待ちを改善してください。
 負荷中のDB待機・blocking情報と、trace内の在庫ロック・配送見積りを照合してください。
 在庫不足、配送失敗、同時購入時の整合性を保持し、短いトランザクションへ改善してください。
-成功注文数と在庫減少数、ロック待ち、p95、失敗率を検証し、Issueを参照するPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>DB検索・集計の改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-beforeから新しいブランチを作り、注文検索の全走査または売上集計の大量行取得の一つを改善してください。
+成功注文数と在庫減少数、ロック待ち、p95、失敗率を検証し、Issueを参照するPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>DB検索・集計の改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-before-v2から新しいブランチを作り、注文検索の全走査または売上集計の大量行取得の一つを改善してください。
 対象SQL、pg_stat_statements、実行計画、返却行数、アプリの処理スパンを保存してください。
 日付境界、状態、並び順、集計値を保持し、一つの原因仮説に対応する変更とテストを実装してください。
-同じ条件の実測値で採否を判断してPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>未使用索引の調査と改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-beforeからcodex/demo-unused-indexを作り、orders_legacy_reference_idxを調査してください。
+同じ条件の実測値で採否を判断してPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>未使用索引の調査と改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-before-v2からcodex/demo-unused-indexを作り、orders_legacy_reference_idxを調査してください。
 代表的な全業務負荷の前後で、利用統計・サイズ・観測期間・統計reset・制約用途を確認してください。
 短時間の利用0回だけで不要と断定せず、月次・外部利用も含めた確認事項をIssueに残してください。
-削除可能と判断できた場合は削除と復元のmigrationを作り、全業務と制約の動作を確認したPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>コード品質の改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-beforeからcodex/demo-pricing-complexityを作り、PricingServiceの保守性を改善してください。
+削除可能と判断できた場合は削除と復元のmigrationを作り、全業務と制約の動作を確認したPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>コード品質の改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-before-v2からcodex/demo-pricing-complexityを作り、PricingServiceの保守性を改善してください。
 CCCCの測定完全性と全関数明細、価格計算の仕様テストを確認してください。
 認知複雑度と循環的複雑度を別々に測定し、価格計算の振る舞いを保持してリファクタリングしてください。
 品質bundle・テスト・差分を照合し、複雑度の移動や対象除外による見かけの改善がないことを確認してPRを作成してください。

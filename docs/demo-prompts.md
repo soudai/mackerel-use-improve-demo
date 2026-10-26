@@ -1,6 +1,6 @@
 # デモでエージェントへ渡す依頼例
 
-最初に`demo-before`のcommitを確認し、各シナリオを別ブランチで行います。以下は実際に調査・修正を依頼するときのプロンプト例です。mainは改善前として残します。
+最初に`demo-before-v2`のcommitを確認し、各シナリオを別ブランチで行います。以下は実際に調査・修正を依頼するときのプロンプト例です。mainは改善前として残します。
 
 ## 観測・原因調査
 
@@ -16,7 +16,7 @@ Mackerelへ接続できない場合はローカルOTLPファイルと負荷結�
 
 ```text
 mackerel-dev-improveを使い、注文一覧のN+1を改善してください。
-demo-beforeからcodex/demo-n-plus-oneブランチを作り、対象Issueと実際のコードを確認してください。
+demo-before-v2からcodex/demo-n-plus-oneブランチを作り、対象Issueと実際のコードを確認してください。
 APIの返却内容・順番を保持し、クエリ数の増え方を確認する回帰テストを追加してください。
 修正前後を同じseed・負荷・計装条件で測定し、クエリ数、HTTP p95、失敗率とメモリを比較してください。
 根拠付きの比較と未検証事項を記載して、このリポジトリにPRを作成してください。
@@ -25,7 +25,7 @@ APIの返却内容・順番を保持し、クエリ数の増え方を確認す�
 ## ロック待ちの改善PR
 
 ```text
-mackerel-dev-improveを使い、demo-beforeからcodex/demo-lock-waitを作って、同一商品の同時購入時のロック待ちを改善してください。
+mackerel-dev-improveを使い、demo-before-v2からcodex/demo-lock-waitを作って、同一商品の同時購入時のロック待ちを改善してください。
 checkoutの負荷中にDBの待機・blocking情報を取得し、trace内の在庫ロックと配送見積り呼出しを調べてください。
 在庫不足、配送失敗、同時購入時の整合性を維持し、短いトランザクションへ改善してください。
 成功注文数と在庫減少数、ロック待ち、p95、失敗率を検証し、対象Issueを参照するPRを作成してください。
@@ -34,7 +34,7 @@ checkoutの負荷中にDBの待機・blocking情報を取得し、trace内の在
 ## DB検索・大量取得の改善PR
 
 ```text
-mackerel-dev-improveを使い、demo-beforeから新しいブランチを作り、注文検索の全走査、または売上集計の大量行取得のうち一つを改善してください。
+mackerel-dev-improveを使い、demo-before-v2から新しいブランチを作り、注文検索の全走査、または売上集計の大量行取得のうち一つを改善してください。
 対象SQL、pg_stat_statements、実行計画、返却行数、アプリの処理スパンを保存してください。
 日付境界、ステータス、並び順、集計値を維持し、一つの原因仮説に対応する変更とテストを実装してください。
 同じ条件の実測値で採否を判断してPRを作成してください。
@@ -43,7 +43,7 @@ mackerel-dev-improveを使い、demo-beforeから新しいブランチを作り�
 ## コード品質の改善PR
 
 ```text
-mackerel-dev-improveを使い、demo-beforeからcodex/demo-pricing-complexityを作り、PricingServiceの保守性を改善してください。
+mackerel-dev-improveを使い、demo-before-v2からcodex/demo-pricing-complexityを作り、PricingServiceの保守性を改善してください。
 最初にCCCCの測定完全性と全関数明細、価格計算の仕様テストを確認してください。
 認知複雑度と循環的複雑度を別々に測定し、価格計算の振る舞いを維持してリファクタリングしてください。
 修正前後の品質bundle・テスト・差分を照合し、複雑度の移動や対象除外による見かけの改善がないことを確認してPRを作成してください。
