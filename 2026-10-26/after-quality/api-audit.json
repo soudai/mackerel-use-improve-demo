@@ -1,0 +1,911 @@
+{
+  "requests": [
+    {
+      "requested_at": "2026-10-26T10:26:16.349286+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/org",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "name": "mackerel-seminar",
+        "displayName": null
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.394097+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/org",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "name": "mackerel-seminar",
+        "displayName": null
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.443006+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "services": [
+          {
+            "name": "blog",
+            "memo": "",
+            "roles": [
+              "web"
+            ]
+          },
+          {
+            "name": "mackerel-seminar-demo",
+            "memo": "",
+            "roles": []
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.494332+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metadata/dev-quality",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "environment": "development",
+        "profiles": {
+          "php_static": {
+            "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+            "attempt_id": "1",
+            "comparison_key": "c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c",
+            "measured_at": 1793008677,
+            "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18",
+            "published_status": "verified",
+            "report_completeness": "complete",
+            "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+            "run_id": "20261026T095756Z-a8bfaae1"
+          },
+          "unit": {
+            "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+            "attempt_id": "1",
+            "comparison_key": "2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72",
+            "measured_at": 1793008677,
+            "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18",
+            "published_status": "verified",
+            "report_completeness": "complete",
+            "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+            "run_id": "20261026T095756Z-a8bfaae1"
+          }
+        },
+        "schema_version": 1,
+        "service": "mackerel-seminar-demo"
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.591503+00:00",
+      "method": "POST",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/tsdb",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "request_body": [
+        {
+          "name": "cccc.php_static.analysis.complete",
+          "time": 1793010288,
+          "value": 1
+        },
+        {
+          "name": "cccc.php_static.analysis.files",
+          "time": 1793010288,
+          "value": 18
+        },
+        {
+          "name": "cccc.php_static.analysis.functions",
+          "time": 1793010288,
+          "value": 43
+        },
+        {
+          "name": "cccc.php_static.analysis.last_success_timestamp",
+          "time": 1793010288,
+          "value": 1793010288
+        },
+        {
+          "name": "cccc.php_static.analysis.parse_error_files",
+          "time": 1793010288,
+          "value": 0
+        },
+        {
+          "name": "cccc.php_static.analysis.parse_errors",
+          "time": 1793010288,
+          "value": 0
+        },
+        {
+          "name": "cccc.php_static.cognitive.max",
+          "time": 1793010288,
+          "value": 12
+        },
+        {
+          "name": "cccc.php_static.cognitive.over_limit_count",
+          "time": 1793010288,
+          "value": 0
+        },
+        {
+          "name": "cccc.php_static.cognitive.over_limit_ratio",
+          "time": 1793010288,
+          "value": 0.0
+        },
+        {
+          "name": "cccc.php_static.cognitive.p95",
+          "time": 1793010288,
+          "value": 8
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.max",
+          "time": 1793010288,
+          "value": 11
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.over_limit_count",
+          "time": 1793010288,
+          "value": 2
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.over_limit_ratio",
+          "time": 1793010288,
+          "value": 0.046511627906976744
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.p95",
+          "time": 1793010288,
+          "value": 9
+        },
+        {
+          "name": "tests.unit.cases.error",
+          "time": 1793010288,
+          "value": 0
+        },
+        {
+          "name": "tests.unit.cases.failed",
+          "time": 1793010288,
+          "value": 0
+        },
+        {
+          "name": "tests.unit.cases.passed",
+          "time": 1793010288,
+          "value": 36
+        },
+        {
+          "name": "tests.unit.cases.selected",
+          "time": 1793010288,
+          "value": 36
+        },
+        {
+          "name": "tests.unit.cases.skipped",
+          "time": 1793010288,
+          "value": 0
+        },
+        {
+          "name": "tests.unit.ratios.strict_pass",
+          "time": 1793010288,
+          "value": 1.0
+        },
+        {
+          "name": "tests.unit.run.complete",
+          "time": 1793010288,
+          "value": 1
+        },
+        {
+          "name": "tests.unit.run.duration_seconds",
+          "time": 1793010288,
+          "value": 0.6098110675811768
+        },
+        {
+          "name": "tests.unit.run.last_completed_timestamp",
+          "time": 1793010288,
+          "value": 1793010288
+        },
+        {
+          "name": "tests.unit.run.report_complete",
+          "time": 1793010288,
+          "value": 1
+        },
+        {
+          "name": "tests.unit.run.success",
+          "time": 1793010288,
+          "value": 1
+        }
+      ],
+      "response_body": {
+        "success": true
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.660016+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.complete&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": []
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.726797+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.files&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": []
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.781100+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.functions&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": []
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.846049+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.last_success_timestamp&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": []
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.908047+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.parse_error_files&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": []
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:16.966862+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.parse_errors&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": []
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.024233+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cognitive.max&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": []
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.083413+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cognitive.over_limit_count&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": []
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.145131+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cognitive.over_limit_ratio&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.205412+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cognitive.p95&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 8
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.266768+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cyclomatic.max&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 11
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.326456+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cyclomatic.over_limit_count&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 2
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.381351+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cyclomatic.over_limit_ratio&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 0.046511627906976744
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.455781+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cyclomatic.p95&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 9
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.541488+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.cases.error&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.602048+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.cases.failed&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.669052+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.cases.passed&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 36
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.866836+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.cases.selected&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 36
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.921927+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.cases.skipped&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:17.993848+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.ratios.strict_pass&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:18.095595+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.run.complete&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:18.174534+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.run.duration_seconds&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 0.6098110675811768
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:18.308131+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.run.last_completed_timestamp&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 1793010288
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:18.647081+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.run.report_complete&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:18.704619+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=tests.unit.run.success&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:20.970763+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.complete&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:21.047199+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.files&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 18
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:22.341347+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.functions&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 43
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:22.423151+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.last_success_timestamp&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 1793010288
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:22.549985+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.parse_error_files&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:22.777778+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.analysis.parse_errors&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:22.841972+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cognitive.max&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 12
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:22.997236+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metrics?name=cccc.php_static.cognitive.over_limit_count&from=1793010168&to=1793010408",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "metrics": [
+          {
+            "time": 1793010240,
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:23.050803+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metadata/dev-quality",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "environment": "development",
+        "profiles": {
+          "php_static": {
+            "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+            "attempt_id": "1",
+            "comparison_key": "c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c",
+            "measured_at": 1793008677,
+            "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18",
+            "published_status": "verified",
+            "report_completeness": "complete",
+            "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+            "run_id": "20261026T095756Z-a8bfaae1"
+          },
+          "unit": {
+            "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+            "attempt_id": "1",
+            "comparison_key": "2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72",
+            "measured_at": 1793008677,
+            "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18",
+            "published_status": "verified",
+            "report_completeness": "complete",
+            "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+            "run_id": "20261026T095756Z-a8bfaae1"
+          }
+        },
+        "schema_version": 1,
+        "service": "mackerel-seminar-demo"
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:23.114561+00:00",
+      "method": "PUT",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metadata/dev-quality",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "request_body": {
+        "environment": "development",
+        "profiles": {
+          "php_static": {
+            "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality",
+            "attempt_id": "1",
+            "comparison_key": "c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c",
+            "measured_at": 1793010288,
+            "payload_sha256": "4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd",
+            "published_status": "verified",
+            "report_completeness": "complete",
+            "revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+            "run_id": "20261026T102447Z-776887d0"
+          },
+          "unit": {
+            "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality",
+            "attempt_id": "1",
+            "comparison_key": "2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72",
+            "measured_at": 1793010288,
+            "payload_sha256": "4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd",
+            "published_status": "verified",
+            "report_completeness": "complete",
+            "revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+            "run_id": "20261026T102447Z-776887d0"
+          }
+        },
+        "schema_version": 1,
+        "service": "mackerel-seminar-demo"
+      },
+      "response_body": {
+        "success": true
+      }
+    },
+    {
+      "requested_at": "2026-10-26T10:26:23.189295+00:00",
+      "method": "GET",
+      "url": "https://api.mackerelio.com/api/v0/services/mackerel-seminar-demo/metadata/dev-quality",
+      "request_headers": {
+        "X-Api-Key": "[REDACTED]",
+        "Content-Type": "application/json"
+      },
+      "http_status": 200,
+      "response_body": {
+        "environment": "development",
+        "profiles": {
+          "php_static": {
+            "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality",
+            "attempt_id": "1",
+            "comparison_key": "c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c",
+            "measured_at": 1793010288,
+            "payload_sha256": "4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd",
+            "published_status": "verified",
+            "report_completeness": "complete",
+            "revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+            "run_id": "20261026T102447Z-776887d0"
+          },
+          "unit": {
+            "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality",
+            "attempt_id": "1",
+            "comparison_key": "2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72",
+            "measured_at": 1793010288,
+            "payload_sha256": "4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd",
+            "published_status": "verified",
+            "report_completeness": "complete",
+            "revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+            "run_id": "20261026T102447Z-776887d0"
+          }
+        },
+        "schema_version": 1,
+        "service": "mackerel-seminar-demo"
+      }
+    }
+  ]
+}

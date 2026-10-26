@@ -1,7 +1,0 @@
-usage: publish.py [-h] (--bundle BUNDLE | --check-connection)
-                  [--service SERVICE] [--send] [--create-service]
-                  [--expected-org EXPECTED_ORG | --use-key-organization]
-                  [--expected-revision EXPECTED_REVISION]
-                  [--expected-run-id EXPECTED_RUN_ID]
-                  [--expected-attempt-id EXPECTED_ATTEMPT_ID]
-publish.py: error: --service is only valid with --check-connection

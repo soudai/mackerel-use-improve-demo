@@ -9,9 +9,25 @@
   "service": "mackerel-seminar-demo",
   "stages": [
     {
-      "at": "2026-10-26T10:24:48.660576+00:00",
-      "status": "dry_run"
+      "at": "2026-10-26T10:26:16.494859+00:00",
+      "status": "preflight_complete"
+    },
+    {
+      "at": "2026-10-26T10:26:16.495080+00:00",
+      "status": "posting"
+    },
+    {
+      "at": "2026-10-26T10:26:16.591951+00:00",
+      "status": "published_unverified"
+    },
+    {
+      "at": "2026-10-26T10:26:22.998199+00:00",
+      "status": "metrics_verified"
+    },
+    {
+      "at": "2026-10-26T10:26:23.190114+00:00",
+      "status": "verified"
     }
   ],
-  "status": "dry_run"
+  "status": "verified"
 }
