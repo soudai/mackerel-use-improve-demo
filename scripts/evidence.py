@@ -8,7 +8,8 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-MAX_FILE_BYTES = 64 * 1024 * 1024
+MAX_SCAN_BYTES = 256 * 1024 * 1024
+MAX_LINE_BYTES = 16 * 1024 * 1024
 
 
 def attrs(items):
@@ -76,26 +77,54 @@ def resolve_database_spans(spans):
     return sorted(groups.values(), key=lambda group: group["total_execute_ms"], reverse=True)
 
 
-def read_spans(directory, max_spans=20000):
+def read_spans(directory, max_spans=20000, trace_ids=None, expected_revision=None,
+               max_scan_bytes=MAX_SCAN_BYTES, max_line_bytes=MAX_LINE_BYTES):
+    """Filter while streaming so older runs cannot consume the matching-span budget."""
     spans, warnings = [], []
+    scanned_bytes = 0
+    wanted = None if trace_ids is None else {str(value).lower() for value in trace_ids}
     if not directory.is_dir():
         return [], ["trace directory does not exist"]
+    if wanted == set():
+        return [], []
+    if max_spans < 1 or max_scan_bytes < 1 or max_line_bytes < 1:
+        raise ValueError("trace collection limits must be positive")
     for path in sorted(directory.rglob("*")):
         if not path.is_file() or path.suffix not in (".json", ".jsonl"):
             continue
-        if path.stat().st_size > MAX_FILE_BYTES:
-            warnings.append(f"skipped oversized file: {path.name}")
-            continue
-        with path.open(encoding="utf-8") as stream:
-            for line in stream:
+        with path.open("rb") as stream:
+            while True:
+                remaining = max_scan_bytes - scanned_bytes
+                line = stream.readline(min(max_line_bytes, remaining) + 1)
+                if not line:
+                    break
+                scanned_bytes += len(line)
+                if scanned_bytes > max_scan_bytes:
+                    return spans, warnings + ["trace scan byte limit reached; collection is partial; narrow the trace directory or increase --max-scan-mib"]
+                if len(line) > max_line_bytes:
+                    warnings.append(f"skipped oversized OTLP JSON line in {path.name}; collection is partial")
+                    while line and not line.endswith(b"\n"):
+                        remaining = max_scan_bytes - scanned_bytes
+                        line = stream.readline(min(max_line_bytes, remaining) + 1)
+                        scanned_bytes += len(line)
+                        if scanned_bytes > max_scan_bytes:
+                            return spans, warnings + ["trace scan byte limit reached; collection is partial; narrow the trace directory or increase --max-scan-mib"]
+                    continue
                 if not line.strip():
                     continue
                 try:
-                    spans.extend(extract_spans(json.loads(line)))
-                except (json.JSONDecodeError, AttributeError, TypeError):
+                    candidates = extract_spans(json.loads(line))
+                except (json.JSONDecodeError, UnicodeDecodeError, AttributeError, TypeError):
                     warnings.append(f"invalid OTLP JSON line in {path.name}")
-                if len(spans) >= max_spans:
-                    return spans[:max_spans], warnings + ["span limit reached; collection is partial"]
+                    continue
+                for span in candidates:
+                    if wanted is not None and str(span["trace_id"]).lower() not in wanted:
+                        continue
+                    if expected_revision is not None and span["resource"].get("service.version") != expected_revision:
+                        continue
+                    if len(spans) >= max_spans:
+                        return spans, warnings + ["matching span limit reached; collection is partial"]
+                    spans.append(span)
     return spans, warnings
 
 
@@ -168,11 +197,14 @@ def main():
     parser.add_argument("--output", type=Path, required=True, help="fresh output directory")
     parser.add_argument("--title", default="観測結果に基づく性能改善候補")
     parser.add_argument("--trace-id", help="restrict to a 32-character hexadecimal trace id")
+    parser.add_argument("--max-scan-mib", type=int, default=256, help="bound streaming input to 1..1024 MiB; hitting the limit is partial")
     parser.add_argument("--create-issue", action="store_true")
     parser.add_argument("--repo", help="required only for explicit GitHub issue publication")
     args = parser.parse_args()
     if args.output.exists():
         parser.error("output already exists; use a fresh path")
+    if not 1 <= args.max_scan_mib <= 1024:
+        parser.error("--max-scan-mib must be between 1 and 1024")
     if args.trace_id and not re.fullmatch(r"[0-9a-fA-F]{32}", args.trace_id):
         parser.error("invalid trace id")
     if args.create_issue and args.repo != "soudai/mackerel-use-improve-demo":
@@ -182,16 +214,15 @@ def main():
     dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=normal"], cwd=ROOT, capture_output=True, text=True)
     clean = dirty.returncode == 0 and not dirty.stdout.strip()
     load = json.loads(args.load.read_text(encoding="utf-8")) if args.load else None
-    spans, warnings = read_spans(args.traces)
+    trace_ids = None
     if args.trace_id:
-        spans = [span for span in spans if span["trace_id"] == args.trace_id]
+        trace_ids = {args.trace_id.lower()}
     elif load:
         trace_ids = {sample.get("trace_id") for sample in load.get("samples", [])} - {None, ""}
-        if trace_ids:
-            spans = [span for span in spans if span["trace_id"] in trace_ids]
-        else:
-            spans = []
-            warnings.append("load samples contain no trace ids; no automatic trace attribution")
+    spans, warnings = read_spans(args.traces, trace_ids=trace_ids,
+                                max_scan_bytes=args.max_scan_mib * 1024 * 1024)
+    if load and trace_ids == set():
+        warnings.append("load samples contain no trace ids; no automatic trace attribution")
     if not spans:
         warnings.append("no matching spans; bottleneck identification is incomplete")
     if not clean:

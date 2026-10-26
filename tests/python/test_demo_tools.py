@@ -49,6 +49,59 @@ class LoadTests(unittest.TestCase):
 
 
 class EvidenceTests(unittest.TestCase):
+    @staticmethod
+    def document(trace_id, revision="a" * 40, count=1):
+        return {"resourceSpans": [{"resource": {"attributes": [{"key": "service.version", "value": {"stringValue": revision}}]},
+                "scopeSpans": [{"spans": [{"traceId": trace_id, "spanId": str(index), "name": "orders.list",
+                                          "startTimeUnixNano": "1", "endTimeUnixNano": "2"} for index in range(count)]}]}]}
+
+    def test_old_runs_do_not_exhaust_the_matching_span_budget(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary)
+            (path / "traces.jsonl").write_text(json.dumps(self.document("old", count=5)) + "\n" + json.dumps(self.document("target")) + "\n", encoding="utf-8")
+            spans, warnings = evidence.read_spans(path, max_spans=2, trace_ids={"TARGET"})
+        self.assertEqual([span["trace_id"] for span in spans], ["target"])
+        self.assertEqual(warnings, [])
+
+    def test_matching_span_overflow_is_partial_but_exact_capacity_is_complete(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary)
+            file = path / "traces.jsonl"
+            file.write_text(json.dumps(self.document("target", count=2)) + "\n", encoding="utf-8")
+            spans, warnings = evidence.read_spans(path, max_spans=2, trace_ids={"target"})
+            self.assertEqual(len(spans), 2)
+            self.assertEqual(warnings, [])
+            file.write_text(json.dumps(self.document("target", count=3)) + "\n", encoding="utf-8")
+            spans, warnings = evidence.read_spans(path, max_spans=2, trace_ids={"target"})
+        self.assertEqual(len(spans), 2)
+        self.assertTrue(any("matching span limit" in warning for warning in warnings))
+
+    def test_revision_filter_runs_before_matching_span_budget(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary)
+            (path / "traces.jsonl").write_text(json.dumps(self.document("target", revision="old", count=5)) + "\n" + json.dumps(self.document("target", revision="new")) + "\n", encoding="utf-8")
+            spans, warnings = evidence.read_spans(path, max_spans=1, trace_ids={"target"}, expected_revision="new")
+        self.assertEqual(len(spans), 1)
+        self.assertEqual(spans[0]["resource"]["service.version"], "new")
+        self.assertEqual(warnings, [])
+
+    def test_input_byte_limit_never_claims_a_complete_collection(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary)
+            (path / "traces.jsonl").write_text(json.dumps(self.document("target")) + "\n", encoding="utf-8")
+            spans, warnings = evidence.read_spans(path, trace_ids={"target"}, max_scan_bytes=20)
+        self.assertEqual(spans, [])
+        self.assertTrue(any("scan byte limit" in warning for warning in warnings))
+
+    def test_oversized_line_is_skipped_and_later_evidence_is_found(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary)
+            valid = json.dumps(self.document("target")) + "\n"
+            (path / "traces.jsonl").write_text("x" * (len(valid) + 30) + "\n" + valid, encoding="utf-8")
+            spans, warnings = evidence.read_spans(path, trace_ids={"target"}, max_line_bytes=len(valid))
+        self.assertEqual(len(spans), 1)
+        self.assertTrue(any("oversized" in warning for warning in warnings))
+
     def test_missing_trace_directory_remains_missing(self):
         with tempfile.TemporaryDirectory() as temporary:
             spans, warnings = evidence.read_spans(Path(temporary) / "missing")

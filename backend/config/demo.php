@@ -5,5 +5,5 @@ return [
     'shipping_delay_ms' => (int) env('SHIPPING_DELAY_MS', 300),
     'revision' => env('APP_REVISION', 'unversioned'),
     'environment' => env('OTEL_DEPLOYMENT_ENVIRONMENT', 'development'),
-    'service_name' => env('OTEL_SERVICE_NAME', 'mackerel-improve-demo'),
+    'service_name' => env('OTEL_SERVICE_NAME', 'mackerel-seminar-demo'),
 ];

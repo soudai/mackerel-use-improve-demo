@@ -106,7 +106,7 @@ python3 scripts/evidence.py \
 <div class="step-title"><span>A</span><h3>Mackerelへ実行時データを送る</h3></div><p>デモ用の送信先組織を確認し、Write権限のAPIキーを <code>.env</code> の <code>MACKEREL_APIKEY</code> に設定します。キーをcommitしないでください。追加Composeの起動と同時に外部への送信が始まります。</p>
 <div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>DEMO_MACKEREL=1 ./scripts/demo up
 DEMO_MACKEREL=1 ./scripts/demo logs --tail=100 collector</code></pre></div>
-<p>service.name は <code>mackerel-improve-demo</code>、namespace は <code>demo</code>、環境は <code>development</code>。traces/logsはOTLP HTTP、DBメトリックスはOTLP gRPCを使います。Mackerel側でservice・version・観測期間とデータの到着を確認してください。<strong>この資料は実組織への送信・保存・画面表示の検証済みを意味しません。</strong></p>
+<p>service.name は <code>mackerel-seminar-demo</code>、namespace は <code>demo</code>、環境は <code>development</code>。traces/logsはOTLP HTTP、DBメトリックスはOTLP gRPCを使います。Mackerel側でservice・version・観測期間とデータの到着を確認してください。<strong>この資料は実組織への送信・保存・画面表示の検証済みを意味しません。</strong></p>
 <div class="step-title"><span>B</span><h3>品質レポートを取得する</h3></div>
 <div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>./scripts/install-tools
 python3 scripts/quality.py</code></pre></div>

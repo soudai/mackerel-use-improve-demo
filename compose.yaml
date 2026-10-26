@@ -27,7 +27,7 @@ services:
       SHIPPING_URL: http://shipping:8081
       SHIPPING_DELAY_MS: ${SHIPPING_DELAY_MS:-300}
       APP_REVISION: ${APP_REVISION:-baseline}
-      OTEL_SERVICE_NAME: mackerel-improve-demo
+      OTEL_SERVICE_NAME: ${MACKEREL_SERVICE:-mackerel-seminar-demo}
       OTEL_RESOURCE_ATTRIBUTES: service.namespace=demo,deployment.environment.name=development,service.version=${APP_REVISION:-baseline}
       OTEL_PHP_AUTOLOAD_ENABLED: "true"
       OTEL_PHP_DISABLED_INSTRUMENTATIONS: laravel
@@ -78,6 +78,8 @@ services:
       timeout: 2s
       retries: 20
   collector:
+    environment:
+      MACKEREL_SERVICE: ${MACKEREL_SERVICE:-mackerel-seminar-demo}
     image: otel/opentelemetry-collector-contrib:0.163.2
     command: ["--config=/etc/otelcol/local.yaml"]
     user: "0:0"

@@ -47,6 +47,7 @@ def main():
     parser.add_argument("--output", type=Path, help="fresh directory below repository artifacts/")
     parser.add_argument("--cccc", type=Path, default=ROOT / ".tools/cccc")
     parser.add_argument("--artifact-uri", help="actual HTTPS URL of the uploaded run, required later for real publication")
+    parser.add_argument("--service", default="mackerel-seminar-demo", help="Mackerel service receiving this quality baseline")
     args = parser.parse_args()
     revision = run(["git", "rev-parse", "HEAD"])
     if revision.returncode:
@@ -93,8 +94,8 @@ def main():
     expected_count, actual_count = test_counts(raw / "test-plan.xml", raw / "phpunit.xml")
     sources_unchanged = source_hashes == {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest() for path in ROOT.glob("backend/app/**/*.php")}
     dirty = run(["git", "status", "--porcelain", "--untracked-files=normal"])
-    config = {"schema_version": 1, "service": "mackerel-improve-demo", "environment": "development",
-              "mackerel_service": "mackerel-improve-demo-quality", "profiles": {
+    config = {"schema_version": 1, "service": args.service, "environment": "development",
+              "mackerel_service": args.service, "profiles": {
                   "unit": {"kind": "junit", "producer": "phpunit", "version": version_match.group(1), "selection": "full PHPUnit suite, one invocation, no retries; independent --list-tests-xml plan"},
                   "php_static": {"kind": "cccc", "producer": "moznion/cccc", "version": "1.8.3", "language": "php", "selection": "backend/app PHP sources; full JSON; min=0; no config; no cache", "cognitive_limit": 15, "cyclomatic_limit": 10}}}
     test_complete = plan.returncode == 0 and tests.returncode in (0, 1, 2) and expected_count is not None and expected_count > 0 and expected_count == actual_count

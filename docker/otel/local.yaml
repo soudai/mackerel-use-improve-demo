@@ -27,9 +27,9 @@ receivers:
           parse_from: attributes.trace_id
         span_id:
           parse_from: attributes.span_id
-      - type: add
-        field: resource["service.name"]
-        value: mackerel-improve-demo
+      - type: move
+        from: attributes.service_name
+        to: resource["service.name"]
       - type: add
         field: resource["service.namespace"]
         value: demo
@@ -74,7 +74,7 @@ processors:
   resource/db:
     attributes:
       - key: service.name
-        value: mackerel-improve-demo-db
+        value: ${env:MACKEREL_SERVICE}-db
         action: insert
       - key: service.namespace
         value: demo
