@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "captured_date": "2026-10-26",
+  "description": "Actual authenticated Mackerel UI and local synthetic demo screenshots. Displayed graph ranges may be normalized by the UI; API aggregation windows are recorded separately.",
+  "service": "mackerel-seminar-demo",
+  "before_version": "99b7ef70d97f809c80f751d6b338518fb59588f6",
+  "after_version": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+  "files": [
+    {
+      "file": "after-database.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "d573e7be6f77f4e832e4cdf10015ee0fef46f4302190fe6e083ead226ef3e07a"
+    },
+    {
+      "file": "after-lock-log.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "25e2d85912a93fa99ae8ea22fbc289a45955bbff1256872ad865ab54559e30e0"
+    },
+    {
+      "file": "after-lock-trace.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "15f7ff7f80d618ff0ea3c6144e044086938a0a5621740e504a31c254b302c77c"
+    },
+    {
+      "file": "after-n-plus-one.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "72c27045efdc9d4ca0afedf64f5ec539ce5a3409b8e899804631680cb2f1dd3a"
+    },
+    {
+      "file": "after-quality.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "9406155ce9b8a32f7b665fc11bd3552577574bffa99514c221e313675731e98b"
+    },
+    {
+      "file": "before-lock-log.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "4e235f9caa6042866ea36b5d6ccf266c23053074d92dd29ef7ed0fc669365366"
+    },
+    {
+      "file": "before-lock-trace.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "b6a415e957f2c4ad8c178190bd0bd539b1952d5d518d279305db734db3795917"
+    },
+    {
+      "file": "before-quality.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "778fef71d9de72069d29c4960446c82bf7319b86daf3973f20d0c4b4b4aa32f6"
+    },
+    {
+      "file": "before-read-database.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "7e3faf7a0defd275329785cf155247639fb8b8a42f003a85480ba5e75a1c3ba3"
+    },
+    {
+      "file": "demo-after.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "c8d3f490c3d44612e0cc367e1bccd822e45af5372efd775c06558c84c8222ede"
+    },
+    {
+      "file": "demo-before.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "e62562208c59b1afbf29e2f2b03efb4f43916928154359889989532258f26b34"
+    }
+  ]
+}

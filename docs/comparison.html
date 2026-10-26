@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="デモ画面・ソースコード・Mackerelの実画面を対応付ける、改善前後の比較レポート。">
+  <title>Mackerel Improvement Lab — シナリオ別の改善前後</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/comparison.css">
+</head>
+<body>
+<a class="skip-link" href="#content">本文へ移動</a>
+<aside class="sidebar" aria-label="比較レポートのナビゲーション">
+  <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">m</span><span>Mackerel<br><small>Improvement Lab</small></span></a>
+  <div class="nav-label">BEFORE / AFTER</div>
+  <nav id="scenario-nav"><a href="#overview">比較の読み方</a></nav>
+  <a class="repo-link" href="api-verification.html">APIリクエストの根拠 <span aria-hidden="true">↗</span></a>
+  <p class="sidebar-note">画面・コード・観測結果を<br>同じシナリオで照合します。</p>
+</aside>
+<div class="document">
+  <header class="topbar"><span>シナリオ別 / 改善前後のレポート</span><a href="validation.html">検証の全体像 ↗</a></header>
+  <main id="content" class="comparison-main">
+    <section id="overview" class="comparison-intro">
+      <p class="eyebrow"><span></span> DEMO → SOURCE → OBSERVATION</p>
+      <h1>問題の場所から、<br><em>改善後の証拠</em>まで。</h1>
+      <p id="report-summary">各シナリオについて、問題を再現する画面、改善前後のコード、Mackerelで観測した実データを並べます。</p>
+      <dl class="report-meta" id="report-meta"></dl>
+      <div class="note comparison-guide">
+        <h3>このレポートの読み方</h3>
+        <ol><li>デモ画面で、どの操作に問題があるかを確認する。</li><li>BEFOREのコードとMackerelの実画面を照合する。</li><li>AFTERのコード・計測条件・実画面を確認し、同じ条件の結果を比較する。</li></ol>
+        <p>画面や測定が未取得の欄は「未確認」と表示します。改善後の値やリンクを、実行前に補ってはいません。Mackerelのリンクを開くには対象組織へのログインが必要です。</p>
+      </div>
+      <p class="measurement-note">SQLの時間はLaravelが観測したprepare・execute・fetchを含む成功クエリの経過時間です。DBサーバー内部の実行時間だけを表す値ではありません。APMのp95は近似値で、区間をまたいで単純平均しません。</p>
+    </section>
+    <div id="loading-state" class="note" role="status">比較データを読み込んでいます。</div>
+    <div id="scenario-list"></div>
+    <footer class="footer"><a href="index.html">デモハンドブック</a><a href="api-verification.html">API監査レポート</a><a href="comparison-data.json">比較データJSON</a></footer>
+  </main>
+</div>
+<script>
+(() => {
+  'use strict';
+  const defaults = [
+    {id:'n-plus-one',title:'注文一覧のN+1'},
+    {id:'lock-wait',title:'在庫引当のロック待ち'},
+    {id:'search',title:'注文検索とインデックス'},
+    {id:'sales',title:'売上集計の大量行取得'},
+    {id:'complexity',title:'割引計算の複雑度'},
+    {id:'trace-to-source',title:'ログからトレース・コード・Issueへ'}
+  ];
+  const list = document.getElementById('scenario-list');
+  const nav = document.getElementById('scenario-nav');
+  const loading = document.getElementById('loading-state');
+
+  function node(tag,className,text) {
+    const element=document.createElement(tag);
+    if(className) element.className=className;
+    if(text!==undefined && text!==null) element.textContent=String(text);
+    return element;
+  }
+  function array(value) { return Array.isArray(value)?value:[]; }
+  function present(value) { return value!==undefined && value!==null && value!==''; }
+  function value(value) {
+    if(!present(value)) return '未確認';
+    return typeof value==='object'?JSON.stringify(value):String(value);
+  }
+  function link(url,label,localImage=false) {
+    if(typeof url!=='string'||!url.trim()) return null;
+    let parsed;
+    try { parsed=new URL(url,document.baseURI); } catch { return null; }
+    if(!['http:','https:'].includes(parsed.protocol)) return null;
+    if(localImage && parsed.origin!==location.origin) return null;
+    const a=node('a','',label||url);
+    a.href=parsed.href;
+    if(parsed.origin!==location.origin || localImage) {
+      a.target='_blank'; a.rel='noopener noreferrer';
+    }
+    return a;
+  }
+  function timeText(raw) {
+    if(!present(raw)) return '未確認';
+    if(typeof raw==='string' && !/(Z|[+-]\d\d:\d\d)$/.test(raw)) return '未確認（タイムゾーン付き時刻が必要）';
+    const date=new Date(typeof raw==='number'?raw*1000:raw);
+    if(Number.isNaN(date.getTime())) return '未確認（時刻の形式が不正）';
+    const jst=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(date);
+    return date.toISOString()+' / JST '+jst;
+  }
+  function pending(message) { return node('p','evidence-pending',message||'未確認：この証拠はまだ登録されていません。'); }
+  function bullets(parent,items,className) {
+    if(!array(items).length) return;
+    const ul=node('ul',className||'');
+    items.forEach(text=>ul.append(node('li','',value(text))));
+    parent.append(ul);
+  }
+  function screenshots(parent,items,prefix) {
+    if(!array(items).length) { parent.append(pending('未確認：'+prefix+'のスクリーンショットは未取得です。')); return; }
+    const gallery=node('div','evidence-gallery');
+    for(const item of items) {
+      const anchor=link(item.src,item.alt,true);
+      if(!anchor) { gallery.append(pending('未確認：表示できる画像URLがありません。')); continue; }
+      const figure=node('figure','evidence-image');
+      const img=node('img'); img.src=anchor.href; img.alt=item.alt||prefix+'の実画面'; img.loading='lazy';
+      anchor.replaceChildren(img); figure.append(anchor);
+      figure.append(node('figcaption','',item.caption||prefix+'の実画面。画像を開くと全体を確認できます。'));
+      gallery.append(figure);
+    }
+    parent.append(gallery);
+  }
+  function source(parent,data) {
+    const section=node('div','source-evidence');
+    section.append(node('h4','','該当ソース'));
+    const location=node('p','source-location');
+    const label=value(data?.path)+(Number.isInteger(data?.start_line)&&data.start_line>0?':'+data.start_line:'');
+    const anchor=link(data?.url,label);
+    location.append(anchor||node('span','',label)); section.append(location);
+    if(present(data?.code)) {
+      const block=node('div','code-block'); const pre=node('pre'); pre.tabIndex=0;
+      pre.setAttribute('aria-label',label+'のコード'); pre.append(node('code','',data.code));
+      block.append(pre); section.append(block);
+    } else section.append(pending('未確認：この段階のソースコードは未登録です。'));
+    parent.append(section);
+  }
+  function evidenceLinks(parent,items) {
+    const ul=node('ul','evidence-links');
+    for(const item of array(items)) {
+      const anchor=link(item.url,item.label||'Mackerelの実画面を開く');
+      if(!anchor) continue;
+      const li=node('li'); li.append(anchor);
+      if(item.note) li.append(node('small','',item.note));
+      ul.append(li);
+    }
+    if(ul.children.length) parent.append(ul);
+    else parent.append(pending('未確認：Mackerel実画面へのリンクは未登録です。'));
+  }
+  function phase(parent,data,label) {
+    data=data||{};
+    const box=node('section','phase phase-'+label.toLowerCase());
+    const heading=node('div','phase-heading'); heading.append(node('span','phase-label',label));
+    heading.append(node('h3','',label==='BEFORE'?'改善前のコードと観測':'改善後のコードと観測')); box.append(heading);
+    const metadata=node('dl','phase-meta');
+    [['revision',value(data.revision)],['from',timeText(data.from)],['to',timeText(data.to)]].forEach(([key,text])=>{metadata.append(node('dt','',key),node('dd','',text));});
+    box.append(metadata);
+    if(data.description) box.append(node('p','',data.description));
+    source(box,data.source);
+    box.append(node('h4','','Mackerelの実画面・根拠'));
+    screenshots(box,data.screenshots,label+'のMackerel');
+    evidenceLinks(box,data.links);
+    bullets(box,data.notes,'phase-notes');
+    parent.append(box);
+  }
+  function metricsTable(parent,before,after) {
+    const left=new Map(array(before?.metrics).map(m=>[m.name,m]));
+    const right=new Map(array(after?.metrics).map(m=>[m.name,m]));
+    const names=[...new Set([...left.keys(),...right.keys()])];
+    if(!names.length) { parent.append(pending('未確認：比較指標はまだ登録されていません。')); return; }
+    const wrap=node('div','table-wrap'); wrap.tabIndex=0;
+    const table=node('table'); table.append(node('caption','','同じ条件で比較する指標'));
+    const thead=node('thead'); const tr=node('tr'); ['指標','BEFORE','AFTER'].forEach(x=>tr.append(node('th','',x))); thead.append(tr); table.append(thead);
+    const tbody=node('tbody');
+    for(const name of names) {
+      const row=node('tr'); row.append(node('td','',name));
+      for(const m of [left.get(name),right.get(name)]) row.append(node('td','',present(m?.value)?value(m.value)+(m.unit?' '+m.unit:''):'未測定'));
+      tbody.append(row);
+    }
+    table.append(tbody); wrap.append(table); parent.append(wrap);
+  }
+  function conditionsTable(parent,items) {
+    if(!array(items).length) { parent.append(pending('未確認：データ件数・負荷・計装条件の対応は未登録です。')); return; }
+    const wrap=node('div','table-wrap'); wrap.tabIndex=0;
+    const table=node('table'); table.append(node('caption','','測定条件の対応'));
+    const head=node('thead'); const tr=node('tr'); ['条件','BEFORE','AFTER'].forEach(x=>tr.append(node('th','',x))); head.append(tr); table.append(head);
+    const body=node('tbody');
+    items.forEach(item=>{const row=node('tr');[item.name,item.before,item.after].forEach(x=>row.append(node('td','',value(x))));body.append(row);});
+    table.append(body);wrap.append(table);parent.append(wrap);
+  }
+  function scenario(data,index) {
+    const id=typeof data.id==='string'&&/^[a-z0-9-]+$/.test(data.id)?data.id:'scenario-'+(index+1);
+    const section=node('section','comparison-scenario'); section.id=id;
+    const header=node('header','comparison-scenario-heading');
+    header.append(node('span','scenario-number',String(index+1).padStart(2,'0')));
+    header.append(node('h2','',data.title||'シナリオ '+(index+1)));
+    const labels={verified:'検証済み',partial:'一部確認',pending:'未確認'};
+    const decision=Object.hasOwn(labels,data.decision)?data.decision:'pending';
+    header.append(node('span','decision decision-'+decision,labels[decision]));section.append(header);
+    section.append(node('h3','problem-heading','問題がある場所とデモ操作'));
+    section.append(present(data.problem)?node('p','problem-text',value(data.problem)):pending('未確認：問題の説明は未登録です。'));
+    const demo=node('div','demo-evidence');
+    if(data.demo?.description) demo.append(node('p','',data.demo.description));
+    const demoLink=link(data.demo?.url,'デモの該当画面を開く');if(demoLink)demo.append(demoLink);
+    screenshots(demo,data.demo?.screenshots,'問題を再現するデモ画面');section.append(demo);
+    const phases=node('div','phase-grid');phase(phases,data.before,'BEFORE');phase(phases,data.after,'AFTER');section.append(phases);
+    const evaluation=node('section','comparison-evaluation');evaluation.append(node('h3','','比較結果と条件'));
+    metricsTable(evaluation,data.before,data.after);conditionsTable(evaluation,data.conditions);
+    if(array(data.findings).length){evaluation.append(node('h4','','確認できたこと'));bullets(evaluation,data.findings);}
+    if(array(data.limitations).length){evaluation.append(node('h4','','未確認・比較の限界'));bullets(evaluation,data.limitations,'measurement-note');}
+    section.append(evaluation);list.append(section);
+    const a=node('a','',data.title||id);a.href='#'+id;a.append(node('span','',String(index+1).padStart(2,'0')));nav.append(a);
+  }
+  function render(data) {
+    if(data.schema_version!==1) throw new Error('対応していない比較データ形式です。');
+    if(data.summary) document.getElementById('report-summary').textContent=data.summary;
+    const meta=document.getElementById('report-meta');
+    [['組織',data.organization],['サービス',data.service],['レポート更新',timeText(data.generated_at)]].forEach(([key,text])=>meta.append(node('dt','',key),node('dd','',value(text))));
+    const scenarios=array(data.scenarios);
+    (scenarios.length?scenarios:defaults).forEach(scenario);
+    loading.remove();
+  }
+  fetch('comparison-data.json',{cache:'no-cache'}).then(response=>{
+    if(!response.ok) throw new Error('比較データのHTTP '+response.status);
+    return response.json();
+  }).then(render).catch(error=>{
+    loading.textContent='比較データを表示できません。'+error.message+' 各欄は未確認として表示します。';
+    defaults.forEach(scenario);
+  });
+})();
+</script>
+</body>
+</html>

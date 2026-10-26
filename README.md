@@ -5,7 +5,7 @@ Laravel 13 / PHP 8.4 / PostgreSQL 18 の小規模な受注・在庫管理アプ�
 
 説明資料は **[HTMLハンドブック](docs/index.html)** にまとめています。GitHub Pagesの公開URLは https://soudai.github.io/mackerel-use-improve-demo/ です。
 
-実データでの確認結果は **[HTML検証レポート](docs/validation.html)** を参照してください。`demo-before-v2` はMackerel実送信まで検証した基準で、旧 `demo-before` タグは初期状態の記録として残します。
+実データでの確認結果は **[改善前後の実測レポート](docs/comparison.html)**（[APIリクエストの記録](docs/api-verification.html#ab-api)） を参照してください。`demo-before-v2` はMackerel実送信まで検証した基準で、旧 `demo-before` タグは初期状態の記録として残します。
 
 ## 起動
 
@@ -76,3 +76,13 @@ Collectorはトレース・ログ・DBメトリックスを送ります。品質
 
 `.agents/skills/mackerel-dev-improve/` は同名Skillのスナップショットを同梱しています。
 品質解析器は [moznion/cccc](https://github.com/moznion/cccc) 1.8.3、計装はOpenTelemetry PHP、Collector Contribは0.163.2を使います。アプリのComposer依存は `backend/composer.lock` に固定します。
+
+## 実測済みの改善例
+
+`main` は改善前を保持し、`codex/demo-improved`（`fbf320b4d777e0520afb1f52948853ba2e2f5406`）に改善例を置いています。前後のアプリを別DBで実行し、同じデータ・負荷で比較しました。改善例は複数シナリオをまとめた参照実装です。セミナーで参加者が改善する際は、`demo-before-v2` からシナリオごとにブランチを作成してください。
+
+- [公開された比較レポート](https://soudai.github.io/mackerel-use-improve-demo/comparison.html)
+- [Mackerel APIのリクエスト・応答・投稿記録](https://soudai.github.io/mackerel-use-improve-demo/api-verification.html#ab-api)
+- [改善コード](https://github.com/soudai/mackerel-use-improve-demo/tree/codex/demo-improved)
+
+Mackerelの画面リンクには対象組織へのログインが必要です。画像は2026年10月26日の実画面で、APIの集計窓と画面の表示窓の違いはレポートに記載しています。

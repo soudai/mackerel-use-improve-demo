@@ -1,0 +1,2851 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mackerel API検証のリクエストと根拠</title><link rel="stylesheet" href="assets/style.css"><link rel="icon" href="assets/favicon.svg"></head><body><aside class="sidebar"><a class="brand" href="index.html"><span class="brand-mark">m</span><span>Mackerel<br><small>API Evidence</small></span></a><div class="nav-label">REQUEST AUDIT</div><nav><a href="#summary">確認範囲</a><a href="#windows">対象期間</a><a href="#requests">実行したAPI</a><a href="#writes">過去の投稿API</a><a href="#ab-api">改善前後のAPI照合</a><a href="validation.html">検証レポートへ</a></nav></aside><div class="document"><header class="topbar"><span>API監査 / 2026-10-26</span><a href="validation.html">検証結果へ戻る ↗</a></header><main><section class="section" id="summary"><p class="eyebrow">REAL API REQUEST EVIDENCE</p><h1>Mackerel APIの条件と、<br>根拠になったデータ。</h1><p>対象組織 <code>mackerel-seminar</code>、対象サービス <code>mackerel-seminar-demo</code>。APIキーは記録せず、同じ期間・versionを指定して読取りAPIを再実行しました。</p><p>再確認時刻（UTC）: <code>2026-10-26T10:20:22.060860Z</code>。このページの成功HTTPステータスは、クライアントがHTTP 200を確認した応答です。認証情報や全ログ本文は保存していません。過去の書込みは再実行していません。</p><p>品質系列の再取得値一致: <strong>25 / 25</strong>。</p><div class="note"><h3>Mackerelの実画面で確認する</h3><ul><li><a href="https://mackerel.io/orgs/mackerel-seminar/apm/mackerel-seminar-demo?tab=http&amp;serviceNamespace=demo&amp;env=development&amp;version=3cad843ef08bd225f79255c84dc94a625d4d57c1#t=2026-10-26T09:57:00Z,2026-10-26T10:00:00Z">BEFORE：同時購入のHTTP統計（24件）</a></li><li><a href="https://mackerel.io/orgs/mackerel-seminar/apm/mackerel-seminar-demo?tab=database&amp;serviceNamespace=demo&amp;env=development&amp;version=3cad843ef08bd225f79255c84dc94a625d4d57c1#t=2026-10-26T09:57:00Z,2026-10-26T10:00:00Z">BEFORE：データベースクエリ統計</a></li><li><a href="https://mackerel.io/orgs/mackerel-seminar/apm/mackerel-seminar-demo?tab=traces&amp;serviceNamespace=demo&amp;env=development&amp;version=3cad843ef08bd225f79255c84dc94a625d4d57c1#t=2026-10-26T09:57:00Z,2026-10-26T10:00:00Z">BEFORE：同時購入のトレース一覧</a></li><li><a href="https://mackerel.io/orgs/mackerel-seminar/traces/5b3f601840d31ad1c2f8051ebba6ffa1">BEFORE：代表トレース（在庫ロック待ち）</a></li></ul></div><p><a href="api-evidence.json">全リクエスト条件と応答抜粋のJSON</a> / <a href="https://mackerel.io/orgs/mackerel-seminar/apm/mackerel-seminar-demo?tab=traces&amp;serviceNamespace=demo">MackerelのAPM・トレース一覧</a></p><div class="note"><h3>読み取りと書込みの区別</h3><p><code>POST /api/v0/logs</code> はログ検索で、Mackerel上のデータを変更しません。今回の監査はGETとこのログ検索だけです。<code>POST .../tsdb</code> と <code>PUT .../metadata/dev-quality</code> は過去の投稿証跡を示しています。</p></div></section><section class="section" id="windows"><h2>取得した期間と実行版</h2><div class="table-wrap"><table><thead><tr><th>区間</th><th>service.version</th><th>UTC from / to</th><th>JST from / to</th></tr></thead><tbody><tr><td>HTTP・検索・売上集計</td><td><code>cb761900245b74b02ab49224cffedf517f717fc3</code></td><td>2026-10-26T09:54:56Z<br>2026-10-26T09:56:23Z</td><td>2026-10-26T18:54:56+09:00<br>2026-10-26T18:56:23+09:00</td></tr><tr><td>同時購入・品質系列</td><td><code>3cad843ef08bd225f79255c84dc94a625d4d57c1</code></td><td>2026-10-26T09:56:00Z<br>2026-10-26T10:00:06Z</td><td>2026-10-26T18:56:00+09:00<br>2026-10-26T19:00:06+09:00</td></tr></tbody></table></div><p>namespaceは <code>demo</code>、環境は <code>development</code>。APMは両方をAPI条件に指定し、ログは返却resource属性で環境・versionを照合しています。サービスメトリックス自体にはversionフィルターがないため、投稿metadataとrunを照合します。</p></section><section class="section" id="requests"><h2>今回再実行した読取りAPI</h2><p>APIホストは <code>https://api.mackerelio.com</code>。認証ヘッダー名は <code>X-Api-Key</code>、値は非記録です。1.1秒以上の間隔を空け、各取得を最大3ページで制限しています。以下は論理リクエストの監査で、既存クライアント内部のGET再試行は個別の通信ログとしては分離していません。</p><div class="table-wrap"><table><thead><tr><th>#</th><th>区間</th><th>API</th><th>HTTP</th><th>応答の要点</th></tr></thead><tbody><tr><td>1</td><td>preflight</td><td><code>GET /api/v0/org</code></td><td>200</td><td>organization match: True</td></tr><tr><td>2</td><td>preflight</td><td><code>GET /api/v0/services</code></td><td>200</td><td>target service exists: True</td></tr><tr><td>3</td><td>HTTP・検索・売上集計</td><td><code>GET /api/v0/org</code></td><td>200</td><td>organization match: True</td></tr><tr><td>4</td><td>HTTP・検索・売上集計</td><td><code>GET /api/v0/apm/http-server-stats</code></td><td>200</td><td>3 groups</td></tr><tr><td>5</td><td>HTTP・検索・売上集計</td><td><code>GET /api/v0/apm/db-query-stats</code></td><td>200</td><td>4 groups</td></tr><tr><td>6</td><td>HTTP・検索・売上集計</td><td><code>POST /api/v0/logs</code></td><td>200</td><td>scope一致 62 / 取得 62; trace ID 62</td></tr><tr><td>7</td><td>同時購入・品質系列</td><td><code>GET /api/v0/org</code></td><td>200</td><td>organization match: True</td></tr><tr><td>8</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.analysis.complete: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 1}]</td></tr><tr><td>9</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.analysis.files: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 18}]</td></tr><tr><td>10</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.analysis.functions: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 37}]</td></tr><tr><td>11</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.analysis.last_success_timestamp: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 1793008677}]</td></tr><tr><td>12</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.analysis.parse_error_files: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 0}]</td></tr><tr><td>13</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.analysis.parse_errors: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 0}]</td></tr><tr><td>14</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.cognitive.max: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 51}]</td></tr><tr><td>15</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.cognitive.over_limit_count: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 1}]</td></tr><tr><td>16</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.cognitive.over_limit_ratio: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 0.02702702702702703}]</td></tr><tr><td>17</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.cognitive.p95: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 12}]</td></tr><tr><td>18</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.cyclomatic.max: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 29}]</td></tr><tr><td>19</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.cyclomatic.over_limit_count: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 3}]</td></tr><tr><td>20</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.cyclomatic.over_limit_ratio: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 0.08108108108108109}]</td></tr><tr><td>21</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>cccc.php_static.cyclomatic.p95: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 11}]</td></tr><tr><td>22</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.cases.error: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 0}]</td></tr><tr><td>23</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.cases.failed: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 0}]</td></tr><tr><td>24</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.cases.passed: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 28}]</td></tr><tr><td>25</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.cases.selected: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 28}]</td></tr><tr><td>26</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.cases.skipped: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 0}]</td></tr><tr><td>27</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.ratios.strict_pass: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 1}]</td></tr><tr><td>28</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.run.complete: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 1}]</td></tr><tr><td>29</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.run.duration_seconds: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 0.5501420497894287}]</td></tr><tr><td>30</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.run.last_completed_timestamp: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 1793008677}]</td></tr><tr><td>31</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.run.report_complete: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 1}]</td></tr><tr><td>32</td><td>同時購入・品質系列</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td><td>tests.unit.run.success: [{&#x27;time&#x27;: 1793008620, &#x27;value&#x27;: 1}]</td></tr><tr><td>33</td><td>同時購入・品質系列</td><td><code>GET /api/v0/apm/http-server-stats</code></td><td>200</td><td>1 groups</td></tr><tr><td>34</td><td>同時購入・品質系列</td><td><code>GET /api/v0/apm/db-query-stats</code></td><td>200</td><td>7 groups</td></tr><tr><td>35</td><td>同時購入・品質系列</td><td><code>POST /api/v0/logs</code></td><td>200</td><td>scope一致 24 / 取得 24; trace ID 24</td></tr><tr><td>36</td><td>品質投稿metadataの再確認</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metadata/dev-quality</code></td><td>200</td><td>metadata profiles: php_static, unit</td></tr></tbody></table></div><details><summary>#1 GET /api/v0/org — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  }
+}</code></pre></div></details><details><summary>#2 GET /api/v0/services — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_count&quot;: 2,
+    &quot;selected_service_exists&quot;: true
+  }
+}</code></pre></div></details><details><summary>#3 GET /api/v0/org — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  }
+}</code></pre></div></details><details><summary>#4 GET /api/v0/apm/http-server-stats — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/http-server-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008496&quot;,
+    &quot;to&quot;: &quot;1793008583&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;cb761900245b74b02ab49224cffedf517f717fc3&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 3,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;method&quot;: &quot;GET&quot;,
+        &quot;route&quot;: &quot;/api/orders&quot;,
+        &quot;totalMillis&quot;: 1521,
+        &quot;averageMillis&quot;: 47.54309375,
+        &quot;approxP95Millis&quot;: 49.067,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 32
+      },
+      {
+        &quot;method&quot;: &quot;GET&quot;,
+        &quot;route&quot;: &quot;/api/reports/sales&quot;,
+        &quot;totalMillis&quot;: 566,
+        &quot;averageMillis&quot;: 62.93622222222222,
+        &quot;approxP95Millis&quot;: 64.054,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 9
+      },
+      {
+        &quot;method&quot;: &quot;GET&quot;,
+        &quot;route&quot;: &quot;/api/orders/search&quot;,
+        &quot;totalMillis&quot;: 273,
+        &quot;averageMillis&quot;: 13.03542857142857,
+        &quot;approxP95Millis&quot;: 14.259,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 21
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#5 GET /api/v0/apm/db-query-stats — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/db-query-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008496&quot;,
+    &quot;to&quot;: &quot;1793008583&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;cb761900245b74b02ab49224cffedf517f717fc3&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 4,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;query&quot;: &quot;select * from \&quot;customers\&quot; where \&quot;customers\&quot;.\&quot;id\&quot; = ? limit 1&quot;,
+        &quot;executionCount&quot;: 1600,
+        &quot;totalMillis&quot;: 751,
+        &quot;averageMillis&quot;: 0.4695375,
+        &quot;approxP95Millis&quot;: 0.58409763539283
+      },
+      {
+        &quot;query&quot;: &quot;select \&quot;orders\&quot;.\&quot;id\&quot; as \&quot;order_id\&quot;, \&quot;orders\&quot;.\&quot;created_at\&quot;, \&quot;order_items\&quot;.\&quot;quantity\&quot;, \&quot;order_items\&quot;.\&quot;unit_price_cents\&quot; from \&quot;order_items\&quot; inner join \&quot;orders\&quot; on \&quot;orders\&quot;.\&quot;id\&quot; = \&quot;order_items\&quot;.\&quot;order_id\&quot; where \&quot;orders\&quot;.\&quot;status\&quot; = ? and \&quot;orders\&quot;.\&quot;created_at\&quot; &gt;= ? and \&quot;orders\&quot;.\&quot;created_at\&quot; &lt; ?&quot;,
+        &quot;executionCount&quot;: 9,
+        &quot;totalMillis&quot;: 415,
+        &quot;averageMillis&quot;: 46.20777777777778,
+        &quot;approxP95Millis&quot;: 47.32
+      },
+      {
+        &quot;query&quot;: &quot;select * from \&quot;orders\&quot; order by \&quot;id\&quot; desc limit 50&quot;,
+        &quot;executionCount&quot;: 32,
+        &quot;totalMillis&quot;: 273,
+        &quot;averageMillis&quot;: 8.541875,
+        &quot;approxP95Millis&quot;: 9.97
+      },
+      {
+        &quot;query&quot;: &quot;select \&quot;id\&quot;, \&quot;customer_id\&quot;, \&quot;status\&quot;, \&quot;total_cents\&quot;, \&quot;created_at\&quot; from \&quot;orders\&quot; where \&quot;status\&quot; = ? and \&quot;created_at\&quot;::date &gt;= ? and \&quot;created_at\&quot;::date &lt;= ? order by \&quot;created_at\&quot; desc, \&quot;id\&quot; desc limit 50&quot;,
+        &quot;executionCount&quot;: 21,
+        &quot;totalMillis&quot;: 173,
+        &quot;averageMillis&quot;: 8.247142857142856,
+        &quot;approxP95Millis&quot;: 8.69
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#6 POST /api/v0/logs — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;POST&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/logs&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: {
+    &quot;from&quot;: 1793008496,
+    &quot;to&quot;: 1793008583,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;severities&quot;: [
+      &quot;INFO&quot;,
+      &quot;WARN&quot;,
+      &quot;ERROR&quot;,
+      &quot;FATAL&quot;
+    ],
+    &quot;order&quot;: {
+      &quot;column&quot;: &quot;TIMESTAMP&quot;,
+      &quot;direction&quot;: &quot;DESC&quot;
+    },
+    &quot;perPage&quot;: 100
+  },
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_count&quot;: 62,
+    &quot;matched_scope_count&quot;: 62,
+    &quot;matched_with_trace_id&quot;: 62,
+    &quot;has_next_page&quot;: false,
+    &quot;sample_records&quot;: [
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T09:54:59Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;c6f211363d917d6aac7f5b26af2ff3e2&quot;,
+        &quot;span_id&quot;: &quot;990db75c499dc696&quot;,
+        &quot;service_version&quot;: &quot;cb761900245b74b02ab49224cffedf517f717fc3&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;GET&quot;,
+          &quot;route&quot;: &quot;/api/reports/sales&quot;,
+          &quot;status&quot;: 200,
+          &quot;request_time&quot;: 0.062795,
+          &quot;query_count&quot;: 1,
+          &quot;peak_memory_bytes&quot;: 27262976
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T09:54:59Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;65b4fdd4fa08f1581b223e74eb64ff75&quot;,
+        &quot;span_id&quot;: &quot;3fe1ca2e96bb071a&quot;,
+        &quot;service_version&quot;: &quot;cb761900245b74b02ab49224cffedf517f717fc3&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;GET&quot;,
+          &quot;route&quot;: &quot;/api/reports/sales&quot;,
+          &quot;status&quot;: 200,
+          &quot;request_time&quot;: 0.062018,
+          &quot;query_count&quot;: 1,
+          &quot;peak_memory_bytes&quot;: 27262976
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T09:54:59Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;2aeb720711322681991b3f885567410c&quot;,
+        &quot;span_id&quot;: &quot;cf1c46e0e9386bdb&quot;,
+        &quot;service_version&quot;: &quot;cb761900245b74b02ab49224cffedf517f717fc3&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;GET&quot;,
+          &quot;route&quot;: &quot;/api/reports/sales&quot;,
+          &quot;status&quot;: 200,
+          &quot;request_time&quot;: 0.064763,
+          &quot;query_count&quot;: 1,
+          &quot;peak_memory_bytes&quot;: 27262976
+        }
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#7 GET /api/v0/org — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  }
+}</code></pre></div></details><details><summary>#8 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.analysis.complete&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 1
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#9 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.analysis.files&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 18
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#10 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.analysis.functions&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 37
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#11 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.analysis.last_success_timestamp&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 1793008677
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#12 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.analysis.parse_error_files&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 0
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#13 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.analysis.parse_errors&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 0
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#14 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.cognitive.max&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 51
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#15 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.cognitive.over_limit_count&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 1
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#16 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.cognitive.over_limit_ratio&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 0.02702702702702703
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#17 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.cognitive.p95&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 12
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#18 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.cyclomatic.max&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 29
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#19 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.cyclomatic.over_limit_count&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 3
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#20 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.cyclomatic.over_limit_ratio&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 0.08108108108108109
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#21 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;cccc.php_static.cyclomatic.p95&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 11
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#22 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.cases.error&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 0
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#23 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.cases.failed&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 0
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#24 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.cases.passed&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 28
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#25 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.cases.selected&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 28
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#26 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.cases.skipped&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 0
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#27 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.ratios.strict_pass&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 1
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#28 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.run.complete&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 1
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#29 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.run.duration_seconds&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 0.5501420497894287
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#30 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.run.last_completed_timestamp&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 1793008677
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#31 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.run.report_complete&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 1
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#32 GET /api/v0/services/mackerel-seminar-demo/metrics — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;name&quot;: &quot;tests.unit.run.success&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793008620,
+        &quot;value&quot;: 1
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#33 GET /api/v0/apm/http-server-stats — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/http-server-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;3cad843ef08bd225f79255c84dc94a625d4d57c1&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 1,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;method&quot;: &quot;POST&quot;,
+        &quot;route&quot;: &quot;/api/checkout&quot;,
+        &quot;totalMillis&quot;: 51470,
+        &quot;averageMillis&quot;: 2144.6086666666665,
+        &quot;approxP95Millis&quot;: 2477.82,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 24
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#34 GET /api/v0/apm/db-query-stats — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/db-query-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793008560&quot;,
+    &quot;to&quot;: &quot;1793008806&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;3cad843ef08bd225f79255c84dc94a625d4d57c1&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 7,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;query&quot;: &quot;select * from \&quot;inventories\&quot; where \&quot;product_id\&quot; = ? limit 1 for update&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 43308,
+        &quot;averageMillis&quot;: 1804.5083333333332,
+        &quot;approxP95Millis&quot;: 2157.14
+      },
+      {
+        &quot;query&quot;: &quot;select count(*) as \&quot;aggregate\&quot; from \&quot;customers\&quot; where \&quot;id\&quot; = ?&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 201,
+        &quot;averageMillis&quot;: 8.382083333333334,
+        &quot;approxP95Millis&quot;: 11.1
+      },
+      {
+        &quot;query&quot;: &quot;insert into \&quot;orders\&quot; (\&quot;customer_id\&quot;, \&quot;status\&quot;, \&quot;total_cents\&quot;, \&quot;updated_at\&quot;, \&quot;created_at\&quot;) values (?, ?, ?, ?, ?) returning \&quot;id\&quot;&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 23,
+        &quot;averageMillis&quot;: 0.9779166666666667,
+        &quot;approxP95Millis&quot;: 1.07
+      },
+      {
+        &quot;query&quot;: &quot;update \&quot;inventories\&quot; set \&quot;quantity\&quot; = ?, \&quot;updated_at\&quot; = ? where \&quot;id\&quot; = ?&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 21,
+        &quot;averageMillis&quot;: 0.905,
+        &quot;approxP95Millis&quot;: 0.98
+      },
+      {
+        &quot;query&quot;: &quot;insert into \&quot;order_items\&quot; (\&quot;product_id\&quot;, \&quot;quantity\&quot;, \&quot;unit_price_cents\&quot;, \&quot;order_id\&quot;, \&quot;updated_at\&quot;, \&quot;created_at\&quot;) values (?, ?, ?, ?, ?, ?) returning \&quot;id\&quot;&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 18,
+        &quot;averageMillis&quot;: 0.755,
+        &quot;approxP95Millis&quot;: 0.84
+      },
+      {
+        &quot;query&quot;: &quot;select * from \&quot;products\&quot; where \&quot;active\&quot; = ? and \&quot;products\&quot;.\&quot;id\&quot; = ? limit 1&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 14,
+        &quot;averageMillis&quot;: 0.6141666666666666,
+        &quot;approxP95Millis&quot;: 0.83
+      },
+      {
+        &quot;query&quot;: &quot;select count(*) as \&quot;aggregate\&quot; from \&quot;products\&quot; where \&quot;id\&quot; = ?&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 14,
+        &quot;averageMillis&quot;: 0.5983333333333334,
+        &quot;approxP95Millis&quot;: 0.74
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#35 POST /api/v0/logs — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;POST&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/logs&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: {
+    &quot;from&quot;: 1793008560,
+    &quot;to&quot;: 1793008806,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;severities&quot;: [
+      &quot;INFO&quot;,
+      &quot;WARN&quot;,
+      &quot;ERROR&quot;,
+      &quot;FATAL&quot;
+    ],
+    &quot;order&quot;: {
+      &quot;column&quot;: &quot;TIMESTAMP&quot;,
+      &quot;direction&quot;: &quot;DESC&quot;
+    },
+    &quot;perPage&quot;: 100
+  },
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_count&quot;: 24,
+    &quot;matched_scope_count&quot;: 24,
+    &quot;matched_with_trace_id&quot;: 24,
+    &quot;has_next_page&quot;: false,
+    &quot;sample_records&quot;: [
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T09:58:25Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;5b3f601840d31ad1c2f8051ebba6ffa1&quot;,
+        &quot;span_id&quot;: &quot;48491f846c72d0f2&quot;,
+        &quot;service_version&quot;: &quot;3cad843ef08bd225f79255c84dc94a625d4d57c1&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;POST&quot;,
+          &quot;route&quot;: &quot;/api/checkout&quot;,
+          &quot;status&quot;: 201,
+          &quot;request_time&quot;: 2.474848,
+          &quot;query_count&quot;: 7,
+          &quot;peak_memory_bytes&quot;: 6291456
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T09:58:24Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;53b1e5b0e5cb6b7499295fca4a46d64d&quot;,
+        &quot;span_id&quot;: &quot;c09d49840785b833&quot;,
+        &quot;service_version&quot;: &quot;3cad843ef08bd225f79255c84dc94a625d4d57c1&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;POST&quot;,
+          &quot;route&quot;: &quot;/api/checkout&quot;,
+          &quot;status&quot;: 201,
+          &quot;request_time&quot;: 2.477588,
+          &quot;query_count&quot;: 7,
+          &quot;peak_memory_bytes&quot;: 6291456
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T09:58:24Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;eb78917668e36dffee038d20e5b167ed&quot;,
+        &quot;span_id&quot;: &quot;1e7a11cd44c2f9fb&quot;,
+        &quot;service_version&quot;: &quot;3cad843ef08bd225f79255c84dc94a625d4d57c1&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;POST&quot;,
+          &quot;route&quot;: &quot;/api/checkout&quot;,
+          &quot;status&quot;: 201,
+          &quot;request_time&quot;: 2.477925,
+          &quot;query_count&quot;: 7,
+          &quot;peak_memory_bytes&quot;: 6291456
+        }
+      }
+    ]
+  }
+}</code></pre></div></details><details><summary>#36 GET /api/v0/services/mackerel-seminar-demo/metadata/dev-quality — リクエスト条件と応答の抜粋</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metadata/dev-quality&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;schema_version&quot;: 1,
+    &quot;service&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;profiles&quot;: {
+      &quot;php_static&quot;: {
+        &quot;artifact_uri&quot;: &quot;https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality&quot;,
+        &quot;attempt_id&quot;: &quot;1&quot;,
+        &quot;comparison_key&quot;: &quot;c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c&quot;,
+        &quot;measured_at&quot;: 1793008677,
+        &quot;payload_sha256&quot;: &quot;452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18&quot;,
+        &quot;published_status&quot;: &quot;verified&quot;,
+        &quot;report_completeness&quot;: &quot;complete&quot;,
+        &quot;revision&quot;: &quot;3cad843ef08bd225f79255c84dc94a625d4d57c1&quot;,
+        &quot;run_id&quot;: &quot;20261026T095756Z-a8bfaae1&quot;
+      },
+      &quot;unit&quot;: {
+        &quot;artifact_uri&quot;: &quot;https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality&quot;,
+        &quot;attempt_id&quot;: &quot;1&quot;,
+        &quot;comparison_key&quot;: &quot;2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72&quot;,
+        &quot;measured_at&quot;: 1793008677,
+        &quot;payload_sha256&quot;: &quot;452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18&quot;,
+        &quot;published_status&quot;: &quot;verified&quot;,
+        &quot;report_completeness&quot;: &quot;complete&quot;,
+        &quot;revision&quot;: &quot;3cad843ef08bd225f79255c84dc94a625d4d57c1&quot;,
+        &quot;run_id&quot;: &quot;20261026T095756Z-a8bfaae1&quot;
+      }
+    }
+  }
+}</code></pre></div></details></section><section class="section" id="writes"><h2>過去に実行した品質投稿API</h2><p>この監査で再投稿していません。生の通信キャプチャではなく、実行済みpublisherの結果、固定payload、metadataの読戻しに基づく記録です。<a href="https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality">元の品質レポート</a>でchecksum、revision、run、25系列を確認できます。</p><details><summary>POST /api/v0/services/mackerel-seminar-demo/tsdb — 過去の実投稿（今回再送なし）</summary><div><p>publication-result.jsonのposting→metrics_verified→verified、および固定payloadのSHA256</p><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;POST&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/tsdb&quot;,
+  &quot;executed_at_utc&quot;: &quot;2026-10-26T09:58:00Z&quot;,
+  &quot;logical_http_status_verified_by_client&quot;: 200,
+  &quot;wire_capture&quot;: false,
+  &quot;evidence&quot;: &quot;publication-result.jsonのposting→metrics_verified→verified、および固定payloadのSHA256&quot;,
+  &quot;payload&quot;: [
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.complete&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 1
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.files&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 18
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.functions&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 37
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.last_success_timestamp&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 1793008677
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.parse_error_files&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.parse_errors&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cognitive.max&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 51
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cognitive.over_limit_count&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 1
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cognitive.over_limit_ratio&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 0.02702702702702703
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cognitive.p95&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 12
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cyclomatic.max&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 29
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cyclomatic.over_limit_count&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 3
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cyclomatic.over_limit_ratio&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 0.08108108108108109
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cyclomatic.p95&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 11
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.error&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.failed&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.passed&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 28
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.selected&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 28
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.skipped&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.ratios.strict_pass&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 1.0
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.complete&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 1
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.duration_seconds&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 0.5501420497894287
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.last_completed_timestamp&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 1793008677
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.report_complete&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 1
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.success&quot;,
+      &quot;time&quot;: 1793008677,
+      &quot;value&quot;: 1
+    }
+  ],
+  &quot;payload_sha256&quot;: &quot;452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18&quot;,
+  &quot;outcome&quot;: &quot;verified&quot;
+}</code></pre></div></div></details><details><summary>PUT /api/v0/services/mackerel-seminar-demo/metadata/dev-quality — 過去の実投稿（今回再送なし）</summary><div><p>publisherのsuccess応答とGET読戻し一致。保存したprofileの構造・実値を記載。</p><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;PUT&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metadata/dev-quality&quot;,
+  &quot;executed_at_utc&quot;: &quot;2026-10-26T09:58:04Z&quot;,
+  &quot;logical_http_status_verified_by_client&quot;: 200,
+  &quot;wire_capture&quot;: false,
+  &quot;evidence&quot;: &quot;publisherのsuccess応答とGET読戻し一致。保存したprofileの構造・実値を記載。&quot;,
+  &quot;body_recorded_profiles&quot;: {
+    &quot;php_static&quot;: {
+      &quot;revision&quot;: &quot;3cad843ef08bd225f79255c84dc94a625d4d57c1&quot;,
+      &quot;run_id&quot;: &quot;20261026T095756Z-a8bfaae1&quot;,
+      &quot;attempt_id&quot;: &quot;1&quot;,
+      &quot;comparison_key&quot;: &quot;c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c&quot;,
+      &quot;measured_at&quot;: 1793008677,
+      &quot;artifact_uri&quot;: &quot;https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality&quot;,
+      &quot;report_completeness&quot;: &quot;complete&quot;,
+      &quot;published_status&quot;: &quot;verified&quot;,
+      &quot;payload_sha256&quot;: &quot;452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18&quot;
+    },
+    &quot;unit&quot;: {
+      &quot;revision&quot;: &quot;3cad843ef08bd225f79255c84dc94a625d4d57c1&quot;,
+      &quot;run_id&quot;: &quot;20261026T095756Z-a8bfaae1&quot;,
+      &quot;attempt_id&quot;: &quot;1&quot;,
+      &quot;comparison_key&quot;: &quot;2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72&quot;,
+      &quot;measured_at&quot;: 1793008677,
+      &quot;artifact_uri&quot;: &quot;https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality&quot;,
+      &quot;report_completeness&quot;: &quot;complete&quot;,
+      &quot;published_status&quot;: &quot;verified&quot;,
+      &quot;payload_sha256&quot;: &quot;452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18&quot;
+    }
+  },
+  &quot;outcome&quot;: &quot;verified&quot;
+}</code></pre></div></div></details></section><section class="section" id="ab-api"><p class="eyebrow">BEFORE / AFTER API VERIFICATION</p><h2>改善前後の新規計測を、APIで照合する</h2>
+<p>改善前 <code>99b7ef70d97f809c80f751d6b338518fb59588f6</code>、改善後 <code>fbf320b4d777e0520afb1f52948853ba2e2f5406</code> の実行結果を読み戻しました。対象は同じ組織・サービス・namespace <code>demo</code>・環境 <code>development</code> です。<a href="comparison.html">シナリオ別の画面・コード比較</a>と合わせて確認してください。</p>
+<div class="note"><h3>今回追加した独立の読取り確認</h3><p><strong>47件すべてHTTP 200</strong>。4つのAPM・ログ取得は完了、品質指標は<strong>25 / 25系列が投稿値と一致</strong>しました。metadataのrevision・run・checksumも一致しています。認証値、全ログ本文は公開していません。</p></div>
+<p>APIの <code>from</code> / <code>to</code> は負荷試験の開始・終了に前後2秒を加えた範囲です。読取り3シナリオは重複を避けて1窓にまとめています。warmupや動作確認のリクエストも含むため、APM件数を測定用リクエスト数と同一視しません。特に改善前後のAPM件数が異なるため、共通条件のクライアント計測も比較してください。checkoutは時間窓が重なりますが、厳密なversionフィルターで分離しています。</p>
+<div class="table-wrap"><table><thead><tr><th>取得窓</th><th>version</th><th>UTC from / to</th><th>JST from / to</th></tr></thead><tbody><tr><td>before-read</td><td><code>99b7ef70d97f809c80f751d6b338518fb59588f6</code></td><td>2026-10-26T10:23:36Z<br>2026-10-26T10:23:43Z</td><td>2026-10-26T19:23:36+09:00<br>2026-10-26T19:23:43+09:00</td></tr><tr><td>after-read</td><td><code>fbf320b4d777e0520afb1f52948853ba2e2f5406</code></td><td>2026-10-26T10:24:57Z<br>2026-10-26T10:25:03Z</td><td>2026-10-26T19:24:57+09:00<br>2026-10-26T19:25:03+09:00</td></tr><tr><td>before-checkout</td><td><code>99b7ef70d97f809c80f751d6b338518fb59588f6</code></td><td>2026-10-26T10:25:19Z<br>2026-10-26T10:25:32Z</td><td>2026-10-26T19:25:19+09:00<br>2026-10-26T19:25:32+09:00</td></tr><tr><td>after-checkout</td><td><code>fbf320b4d777e0520afb1f52948853ba2e2f5406</code></td><td>2026-10-26T10:25:27Z<br>2026-10-26T10:25:34Z</td><td>2026-10-26T19:25:27+09:00<br>2026-10-26T19:25:34+09:00</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>取得窓</th><th>HTTPエンドポイント</th><th>件数</th><th>平均 ms</th><th>近似p95 ms</th></tr></thead><tbody><tr><td>before-read</td><td><code>GET /api/orders</code></td><td>22</td><td>61.136</td><td>79.806</td></tr><tr><td>before-read</td><td><code>GET /api/reports/sales</code></td><td>8</td><td>134.980</td><td>158.247</td></tr><tr><td>before-read</td><td><code>GET /api/orders/search</code></td><td>14</td><td>19.097</td><td>25.299</td></tr><tr><td>after-read</td><td><code>GET /api/orders</code></td><td>23</td><td>18.030</td><td>23.749</td></tr><tr><td>after-read</td><td><code>GET /api/reports/sales</code></td><td>9</td><td>36.453</td><td>42.874</td></tr><tr><td>after-read</td><td><code>GET /api/orders/search</code></td><td>15</td><td>15.424</td><td>22.220</td></tr><tr><td>before-checkout</td><td><code>POST /api/checkout</code></td><td>24</td><td>2129.050</td><td>2486.218</td></tr><tr><td>after-checkout</td><td><code>POST /api/checkout</code></td><td>24</td><td>400.190</td><td>419.049</td></tr></tbody></table></div>
+<p>上表は受信したAPM spanの集計です。SQL spanの経過時間にはLaravelのprepare・execute・fetchが含まれ、DBサーバー内だけの実行時間ではありません。区間のp95を平均していません。</p>
+<h3>品質系列の照合条件</h3><p>run <code>20261026T102447Z-776887d0</code>、計測 <code>2026-10-26T10:24:48Z</code>（JST <code>2026-10-26T19:24:48+09:00</code>）。<code>GET /api/v0/services/mackerel-seminar-demo/metrics</code> を各metric名・投稿時刻±120秒で実行しました。サービスメトリックス自体にversion条件がないため、固定payload・時刻・metadataを組み合わせて帰属を確認しています。点は分単位に丸められることがあります。</p>
+<p><a href="ab-api-evidence.json">全リクエスト・応答の要点・品質25系列のJSON</a>に小数の丸め前の値、query/body、時刻、checksumを保存しています。<a href="https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality">投稿した品質レポート</a>も参照できます。</p>
+<h3>独立の読取り監査47件</h3><div class="table-wrap"><table><thead><tr><th>#</th><th>区間</th><th>API</th><th>HTTP</th></tr></thead><tbody><tr><td>1</td><td>preflight</td><td><code>GET /api/v0/org</code></td><td>200</td></tr><tr><td>2</td><td>preflight</td><td><code>GET /api/v0/services</code></td><td>200</td></tr><tr><td>3</td><td>before-read</td><td><code>GET /api/v0/org</code></td><td>200</td></tr><tr><td>4</td><td>before-read</td><td><code>GET /api/v0/apm/http-server-stats</code></td><td>200</td></tr><tr><td>5</td><td>before-read</td><td><code>GET /api/v0/apm/db-query-stats</code></td><td>200</td></tr><tr><td>6</td><td>before-read</td><td><code>POST /api/v0/logs</code></td><td>200</td></tr><tr><td>7</td><td>after-read</td><td><code>GET /api/v0/org</code></td><td>200</td></tr><tr><td>8</td><td>after-read</td><td><code>GET /api/v0/apm/http-server-stats</code></td><td>200</td></tr><tr><td>9</td><td>after-read</td><td><code>GET /api/v0/apm/db-query-stats</code></td><td>200</td></tr><tr><td>10</td><td>after-read</td><td><code>POST /api/v0/logs</code></td><td>200</td></tr><tr><td>11</td><td>preflight</td><td><code>GET /api/v0/org</code></td><td>200</td></tr><tr><td>12</td><td>preflight</td><td><code>GET /api/v0/services</code></td><td>200</td></tr><tr><td>13</td><td>before-checkout</td><td><code>GET /api/v0/org</code></td><td>200</td></tr><tr><td>14</td><td>before-checkout</td><td><code>GET /api/v0/apm/http-server-stats</code></td><td>200</td></tr><tr><td>15</td><td>before-checkout</td><td><code>GET /api/v0/apm/db-query-stats</code></td><td>200</td></tr><tr><td>16</td><td>before-checkout</td><td><code>POST /api/v0/logs</code></td><td>200</td></tr><tr><td>17</td><td>after-checkout</td><td><code>GET /api/v0/org</code></td><td>200</td></tr><tr><td>18</td><td>after-checkout</td><td><code>GET /api/v0/apm/http-server-stats</code></td><td>200</td></tr><tr><td>19</td><td>after-checkout</td><td><code>GET /api/v0/apm/db-query-stats</code></td><td>200</td></tr><tr><td>20</td><td>after-checkout</td><td><code>POST /api/v0/logs</code></td><td>200</td></tr><tr><td>21</td><td>after-quality-readback</td><td><code>GET /api/v0/org</code></td><td>200</td></tr><tr><td>22</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>23</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>24</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>25</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>26</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>27</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>28</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>29</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>30</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>31</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>32</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>33</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>34</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>35</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>36</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>37</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>38</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>39</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>40</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>41</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>42</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>43</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>44</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>45</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>46</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>47</td><td>after-quality-readback</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metadata/dev-quality</code></td><td>200</td></tr></tbody></table></div><details><summary>A/B #1 preflight / GET /api/v0/org</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 1,
+  &quot;phase&quot;: &quot;preflight&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:25:53.322280Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:25:53.375063Z&quot;
+}</code></pre></div></details><details><summary>A/B #2 preflight / GET /api/v0/services</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 2,
+  &quot;phase&quot;: &quot;preflight&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:25:54.422507Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_count&quot;: 2,
+    &quot;selected_service_exists&quot;: true
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:25:54.462247Z&quot;
+}</code></pre></div></details><details><summary>A/B #3 before-read / GET /api/v0/org</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 3,
+  &quot;phase&quot;: &quot;before-read&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:25:55.522569Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:25:55.559831Z&quot;
+}</code></pre></div></details><details><summary>A/B #4 before-read / GET /api/v0/apm/http-server-stats</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 4,
+  &quot;phase&quot;: &quot;before-read&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/http-server-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793010216&quot;,
+    &quot;to&quot;: &quot;1793010223&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:25:56.622741Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 3,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;method&quot;: &quot;GET&quot;,
+        &quot;route&quot;: &quot;/api/orders&quot;,
+        &quot;totalMillis&quot;: 1345,
+        &quot;averageMillis&quot;: 61.13636363636364,
+        &quot;approxP95Millis&quot;: 79.806,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 22
+      },
+      {
+        &quot;method&quot;: &quot;GET&quot;,
+        &quot;route&quot;: &quot;/api/reports/sales&quot;,
+        &quot;totalMillis&quot;: 1079,
+        &quot;averageMillis&quot;: 134.98,
+        &quot;approxP95Millis&quot;: 158.247,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 8
+      },
+      {
+        &quot;method&quot;: &quot;GET&quot;,
+        &quot;route&quot;: &quot;/api/orders/search&quot;,
+        &quot;totalMillis&quot;: 267,
+        &quot;averageMillis&quot;: 19.097285714285714,
+        &quot;approxP95Millis&quot;: 25.299,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 14
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:25:57.999669Z&quot;
+}</code></pre></div></details><details><summary>A/B #5 before-read / GET /api/v0/apm/db-query-stats</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 5,
+  &quot;phase&quot;: &quot;before-read&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/db-query-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793010216&quot;,
+    &quot;to&quot;: &quot;1793010223&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:25:58.000181Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 4,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;query&quot;: &quot;select \&quot;orders\&quot;.\&quot;id\&quot; as \&quot;order_id\&quot;, \&quot;orders\&quot;.\&quot;created_at\&quot;, \&quot;order_items\&quot;.\&quot;quantity\&quot;, \&quot;order_items\&quot;.\&quot;unit_price_cents\&quot; from \&quot;order_items\&quot; inner join \&quot;orders\&quot; on \&quot;orders\&quot;.\&quot;id\&quot; = \&quot;order_items\&quot;.\&quot;order_id\&quot; where \&quot;orders\&quot;.\&quot;status\&quot; = ? and \&quot;orders\&quot;.\&quot;created_at\&quot; &gt;= ? and \&quot;orders\&quot;.\&quot;created_at\&quot; &lt; ?&quot;,
+        &quot;executionCount&quot;: 8,
+        &quot;totalMillis&quot;: 733,
+        &quot;averageMillis&quot;: 91.66625,
+        &quot;approxP95Millis&quot;: 111.72
+      },
+      {
+        &quot;query&quot;: &quot;select * from \&quot;customers\&quot; where \&quot;customers\&quot;.\&quot;id\&quot; = ? limit 1&quot;,
+        &quot;executionCount&quot;: 1100,
+        &quot;totalMillis&quot;: 647,
+        &quot;averageMillis&quot;: 0.5884272727272727,
+        &quot;approxP95Millis&quot;: 0.9883333333333334
+      },
+      {
+        &quot;query&quot;: &quot;select * from \&quot;orders\&quot; order by \&quot;id\&quot; desc limit 50&quot;,
+        &quot;executionCount&quot;: 22,
+        &quot;totalMillis&quot;: 244,
+        &quot;averageMillis&quot;: 11.105454545454545,
+        &quot;approxP95Millis&quot;: 15.51
+      },
+      {
+        &quot;query&quot;: &quot;select \&quot;id\&quot;, \&quot;customer_id\&quot;, \&quot;status\&quot;, \&quot;total_cents\&quot;, \&quot;created_at\&quot; from \&quot;orders\&quot; where \&quot;status\&quot; = ? and \&quot;created_at\&quot;::date &gt;= ? and \&quot;created_at\&quot;::date &lt;= ? order by \&quot;created_at\&quot; desc, \&quot;id\&quot; desc limit 50&quot;,
+        &quot;executionCount&quot;: 14,
+        &quot;totalMillis&quot;: 166,
+        &quot;averageMillis&quot;: 11.904285714285713,
+        &quot;approxP95Millis&quot;: 13.86
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:00.193690Z&quot;
+}</code></pre></div></details><details><summary>A/B #6 before-read / POST /api/v0/logs</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 6,
+  &quot;phase&quot;: &quot;before-read&quot;,
+  &quot;method&quot;: &quot;POST&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/logs&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: {
+    &quot;from&quot;: 1793010216,
+    &quot;to&quot;: 1793010223,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;severities&quot;: [
+      &quot;INFO&quot;,
+      &quot;WARN&quot;,
+      &quot;ERROR&quot;,
+      &quot;FATAL&quot;
+    ],
+    &quot;order&quot;: {
+      &quot;column&quot;: &quot;TIMESTAMP&quot;,
+      &quot;direction&quot;: &quot;DESC&quot;
+    },
+    &quot;perPage&quot;: 100
+  },
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:00.193975Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_count&quot;: 44,
+    &quot;matched_scope_count&quot;: 44,
+    &quot;matched_with_trace_id&quot;: 44,
+    &quot;has_next_page&quot;: false,
+    &quot;sample_records&quot;: [
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:23:40Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;0773cb8be21a9aaf0caea8cc0d5dfa53&quot;,
+        &quot;span_id&quot;: &quot;57995511643c2bcd&quot;,
+        &quot;service_version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;GET&quot;,
+          &quot;route&quot;: &quot;/api/reports/sales&quot;,
+          &quot;status&quot;: 200,
+          &quot;request_time&quot;: 0.159157,
+          &quot;query_count&quot;: 1,
+          &quot;peak_memory_bytes&quot;: 27262976
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:23:40Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;2eff83941bf7443ebfe34cb50f7f4c0b&quot;,
+        &quot;span_id&quot;: &quot;844b740e6556f8e3&quot;,
+        &quot;service_version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;GET&quot;,
+          &quot;route&quot;: &quot;/api/reports/sales&quot;,
+          &quot;status&quot;: 200,
+          &quot;request_time&quot;: 0.141445,
+          &quot;query_count&quot;: 1,
+          &quot;peak_memory_bytes&quot;: 27262976
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:23:40Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;c33681933f60bf3b6f80ac2d6831ab60&quot;,
+        &quot;span_id&quot;: &quot;8bddccd54abf7e07&quot;,
+        &quot;service_version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;GET&quot;,
+          &quot;route&quot;: &quot;/api/reports/sales&quot;,
+          &quot;status&quot;: 200,
+          &quot;request_time&quot;: 0.130862,
+          &quot;query_count&quot;: 1,
+          &quot;peak_memory_bytes&quot;: 27262976
+        }
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:01.605682Z&quot;
+}</code></pre></div></details><details><summary>A/B #7 after-read / GET /api/v0/org</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 7,
+  &quot;phase&quot;: &quot;after-read&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:01.607087Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:01.674927Z&quot;
+}</code></pre></div></details><details><summary>A/B #8 after-read / GET /api/v0/apm/http-server-stats</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 8,
+  &quot;phase&quot;: &quot;after-read&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/http-server-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793010297&quot;,
+    &quot;to&quot;: &quot;1793010303&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:02.707253Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 3,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;method&quot;: &quot;GET&quot;,
+        &quot;route&quot;: &quot;/api/orders&quot;,
+        &quot;totalMillis&quot;: 414,
+        &quot;averageMillis&quot;: 18.029869565217393,
+        &quot;approxP95Millis&quot;: 23.749,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 23
+      },
+      {
+        &quot;method&quot;: &quot;GET&quot;,
+        &quot;route&quot;: &quot;/api/reports/sales&quot;,
+        &quot;totalMillis&quot;: 328,
+        &quot;averageMillis&quot;: 36.453222222222216,
+        &quot;approxP95Millis&quot;: 42.874,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 9
+      },
+      {
+        &quot;method&quot;: &quot;GET&quot;,
+        &quot;route&quot;: &quot;/api/orders/search&quot;,
+        &quot;totalMillis&quot;: 231,
+        &quot;averageMillis&quot;: 15.423533333333333,
+        &quot;approxP95Millis&quot;: 22.22,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 15
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:04.013082Z&quot;
+}</code></pre></div></details><details><summary>A/B #9 after-read / GET /api/v0/apm/db-query-stats</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 9,
+  &quot;phase&quot;: &quot;after-read&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/db-query-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793010297&quot;,
+    &quot;to&quot;: &quot;1793010303&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:04.013440Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 4,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;query&quot;: &quot;select DATE(orders.created_at) AS sales_date, COUNT(DISTINCT orders.id) AS orders_count, SUM(order_items.quantity) AS items_quantity, SUM(CAST(order_items.quantity AS BIGINT) * order_items.unit_price_cents) AS gross_cents from \&quot;order_items\&quot; inner join \&quot;orders\&quot; on \&quot;orders\&quot;.\&quot;id\&quot; = \&quot;order_items\&quot;.\&quot;order_id\&quot; where \&quot;orders\&quot;.\&quot;status\&quot; = ? and \&quot;orders\&quot;.\&quot;created_at\&quot; &gt;= ? and \&quot;orders\&quot;.\&quot;created_at\&quot; &lt; ? group by DATE(orders.created_at) order by \&quot;sales_date\&quot; asc&quot;,
+        &quot;executionCount&quot;: 9,
+        &quot;totalMillis&quot;: 299,
+        &quot;averageMillis&quot;: 33.23444444444444,
+        &quot;approxP95Millis&quot;: 39.56
+      },
+      {
+        &quot;query&quot;: &quot;select * from \&quot;orders\&quot; order by \&quot;id\&quot; desc limit 50&quot;,
+        &quot;executionCount&quot;: 23,
+        &quot;totalMillis&quot;: 223,
+        &quot;averageMillis&quot;: 9.708695652173914,
+        &quot;approxP95Millis&quot;: 15.62
+      },
+      {
+        &quot;query&quot;: &quot;select \&quot;id\&quot;, \&quot;customer_id\&quot;, \&quot;status\&quot;, \&quot;total_cents\&quot;, \&quot;created_at\&quot; from \&quot;orders\&quot; where \&quot;status\&quot; = ? and \&quot;created_at\&quot; &gt;= ? and \&quot;created_at\&quot; &lt; ? order by \&quot;created_at\&quot; desc, \&quot;id\&quot; desc limit 50&quot;,
+        &quot;executionCount&quot;: 15,
+        &quot;totalMillis&quot;: 135,
+        &quot;averageMillis&quot;: 9.064666666666666,
+        &quot;approxP95Millis&quot;: 12.69
+      },
+      {
+        &quot;query&quot;: &quot;select * from \&quot;customers\&quot; where \&quot;customers\&quot;.\&quot;id\&quot; in (1)&quot;,
+        &quot;executionCount&quot;: 23,
+        &quot;totalMillis&quot;: 15,
+        &quot;averageMillis&quot;: 0.6847826086956521,
+        &quot;approxP95Millis&quot;: 0.78
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:05.391628Z&quot;
+}</code></pre></div></details><details><summary>A/B #10 after-read / POST /api/v0/logs</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 10,
+  &quot;phase&quot;: &quot;after-read&quot;,
+  &quot;method&quot;: &quot;POST&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/logs&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: {
+    &quot;from&quot;: 1793010297,
+    &quot;to&quot;: 1793010303,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;severities&quot;: [
+      &quot;INFO&quot;,
+      &quot;WARN&quot;,
+      &quot;ERROR&quot;,
+      &quot;FATAL&quot;
+    ],
+    &quot;order&quot;: {
+      &quot;column&quot;: &quot;TIMESTAMP&quot;,
+      &quot;direction&quot;: &quot;DESC&quot;
+    },
+    &quot;perPage&quot;: 100
+  },
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:05.392039Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_count&quot;: 47,
+    &quot;matched_scope_count&quot;: 47,
+    &quot;matched_with_trace_id&quot;: 47,
+    &quot;has_next_page&quot;: false,
+    &quot;sample_records&quot;: [
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:25:01Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;6ccc1cc0536ca063dff5a9ad145726cf&quot;,
+        &quot;span_id&quot;: &quot;84c6c84bae2665d8&quot;,
+        &quot;service_version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;GET&quot;,
+          &quot;route&quot;: &quot;/api/reports/sales&quot;,
+          &quot;status&quot;: 200,
+          &quot;request_time&quot;: 0.035035,
+          &quot;query_count&quot;: 1,
+          &quot;peak_memory_bytes&quot;: 2097152
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:25:01Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;ad5d974a3e54d7e382e9ba981ea1cd06&quot;,
+        &quot;span_id&quot;: &quot;0ecd09c0ce3e3f88&quot;,
+        &quot;service_version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;GET&quot;,
+          &quot;route&quot;: &quot;/api/orders/search&quot;,
+          &quot;status&quot;: 200,
+          &quot;request_time&quot;: 0.014154,
+          &quot;query_count&quot;: 1,
+          &quot;peak_memory_bytes&quot;: 2097152
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:25:00Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;47e36a3c3f3e77584387f05cd8268f24&quot;,
+        &quot;span_id&quot;: &quot;d5ec05a3230bf26e&quot;,
+        &quot;service_version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;GET&quot;,
+          &quot;route&quot;: &quot;/api/orders&quot;,
+          &quot;status&quot;: 200,
+          &quot;request_time&quot;: 0.015695,
+          &quot;query_count&quot;: 2,
+          &quot;peak_memory_bytes&quot;: 2097152
+        }
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:06.784877Z&quot;
+}</code></pre></div></details><details><summary>A/B #11 preflight / GET /api/v0/org</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 11,
+  &quot;phase&quot;: &quot;preflight&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:55.359200Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:55.395610Z&quot;
+}</code></pre></div></details><details><summary>A/B #12 preflight / GET /api/v0/services</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 12,
+  &quot;phase&quot;: &quot;preflight&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:56.459358Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_count&quot;: 2,
+    &quot;selected_service_exists&quot;: true
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:56.511803Z&quot;
+}</code></pre></div></details><details><summary>A/B #13 before-checkout / GET /api/v0/org</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 13,
+  &quot;phase&quot;: &quot;before-checkout&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:57.559432Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:57.596327Z&quot;
+}</code></pre></div></details><details><summary>A/B #14 before-checkout / GET /api/v0/apm/http-server-stats</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 14,
+  &quot;phase&quot;: &quot;before-checkout&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/http-server-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793010319&quot;,
+    &quot;to&quot;: &quot;1793010332&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:58.491459Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 1,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;method&quot;: &quot;POST&quot;,
+        &quot;route&quot;: &quot;/api/checkout&quot;,
+        &quot;totalMillis&quot;: 51097,
+        &quot;averageMillis&quot;: 2129.0496666666663,
+        &quot;approxP95Millis&quot;: 2486.218,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 24
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:26:59.827126Z&quot;
+}</code></pre></div></details><details><summary>A/B #15 before-checkout / GET /api/v0/apm/db-query-stats</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 15,
+  &quot;phase&quot;: &quot;before-checkout&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/db-query-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793010319&quot;,
+    &quot;to&quot;: &quot;1793010332&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:26:59.827534Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 7,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;query&quot;: &quot;select * from \&quot;inventories\&quot; where \&quot;product_id\&quot; = ? limit 1 for update&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 42927,
+        &quot;averageMillis&quot;: 1788.6425,
+        &quot;approxP95Millis&quot;: 2163.52
+      },
+      {
+        &quot;query&quot;: &quot;select count(*) as \&quot;aggregate\&quot; from \&quot;customers\&quot; where \&quot;id\&quot; = ?&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 207,
+        &quot;averageMillis&quot;: 8.637916666666666,
+        &quot;approxP95Millis&quot;: 12.09
+      },
+      {
+        &quot;query&quot;: &quot;insert into \&quot;orders\&quot; (\&quot;customer_id\&quot;, \&quot;status\&quot;, \&quot;total_cents\&quot;, \&quot;updated_at\&quot;, \&quot;created_at\&quot;) values (?, ?, ?, ?, ?) returning \&quot;id\&quot;&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 25,
+        &quot;averageMillis&quot;: 1.0466666666666666,
+        &quot;approxP95Millis&quot;: 1.38
+      },
+      {
+        &quot;query&quot;: &quot;update \&quot;inventories\&quot; set \&quot;quantity\&quot; = ?, \&quot;updated_at\&quot; = ? where \&quot;id\&quot; = ?&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 22,
+        &quot;averageMillis&quot;: 0.9404166666666667,
+        &quot;approxP95Millis&quot;: 1.28
+      },
+      {
+        &quot;query&quot;: &quot;insert into \&quot;order_items\&quot; (\&quot;product_id\&quot;, \&quot;quantity\&quot;, \&quot;unit_price_cents\&quot;, \&quot;order_id\&quot;, \&quot;updated_at\&quot;, \&quot;created_at\&quot;) values (?, ?, ?, ?, ?, ?) returning \&quot;id\&quot;&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 20,
+        &quot;averageMillis&quot;: 0.8608333333333333,
+        &quot;approxP95Millis&quot;: 1.15
+      },
+      {
+        &quot;query&quot;: &quot;select count(*) as \&quot;aggregate\&quot; from \&quot;products\&quot; where \&quot;id\&quot; = ?&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 16,
+        &quot;averageMillis&quot;: 0.6920833333333334,
+        &quot;approxP95Millis&quot;: 0.88
+      },
+      {
+        &quot;query&quot;: &quot;select * from \&quot;products\&quot; where \&quot;active\&quot; = ? and \&quot;products\&quot;.\&quot;id\&quot; = ? limit 1&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 15,
+        &quot;averageMillis&quot;: 0.6379166666666666,
+        &quot;approxP95Millis&quot;: 0.78
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:01.138136Z&quot;
+}</code></pre></div></details><details><summary>A/B #16 before-checkout / POST /api/v0/logs</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 16,
+  &quot;phase&quot;: &quot;before-checkout&quot;,
+  &quot;method&quot;: &quot;POST&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/logs&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: {
+    &quot;from&quot;: 1793010319,
+    &quot;to&quot;: 1793010332,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;severities&quot;: [
+      &quot;INFO&quot;,
+      &quot;WARN&quot;,
+      &quot;ERROR&quot;,
+      &quot;FATAL&quot;
+    ],
+    &quot;order&quot;: {
+      &quot;column&quot;: &quot;TIMESTAMP&quot;,
+      &quot;direction&quot;: &quot;DESC&quot;
+    },
+    &quot;perPage&quot;: 100
+  },
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:01.138454Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_count&quot;: 48,
+    &quot;matched_scope_count&quot;: 24,
+    &quot;matched_with_trace_id&quot;: 24,
+    &quot;has_next_page&quot;: false,
+    &quot;sample_records&quot;: [
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:25:29Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;01f11cffcd5e36cb3dfb913cd44d63f4&quot;,
+        &quot;span_id&quot;: &quot;a9b6b3f099683512&quot;,
+        &quot;service_version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;POST&quot;,
+          &quot;route&quot;: &quot;/api/checkout&quot;,
+          &quot;status&quot;: 201,
+          &quot;request_time&quot;: 2.474263,
+          &quot;query_count&quot;: 7,
+          &quot;peak_memory_bytes&quot;: 8388608
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:25:29Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;b55fc2db9adbed7fbc38c05d0877edba&quot;,
+        &quot;span_id&quot;: &quot;912a2af34ec3b6ae&quot;,
+        &quot;service_version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;POST&quot;,
+          &quot;route&quot;: &quot;/api/checkout&quot;,
+          &quot;status&quot;: 201,
+          &quot;request_time&quot;: 2.477954,
+          &quot;query_count&quot;: 7,
+          &quot;peak_memory_bytes&quot;: 8388608
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:25:28Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;2a10dfcb9f3616766e6a5831c90ecec6&quot;,
+        &quot;span_id&quot;: &quot;bc7a96b2a8ae046b&quot;,
+        &quot;service_version&quot;: &quot;99b7ef70d97f809c80f751d6b338518fb59588f6&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;POST&quot;,
+          &quot;route&quot;: &quot;/api/checkout&quot;,
+          &quot;status&quot;: 201,
+          &quot;request_time&quot;: 2.481358,
+          &quot;query_count&quot;: 7,
+          &quot;peak_memory_bytes&quot;: 8388608
+        }
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:02.492124Z&quot;
+}</code></pre></div></details><details><summary>A/B #17 after-checkout / GET /api/v0/org</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 17,
+  &quot;phase&quot;: &quot;after-checkout&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:02.493282Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:02.532389Z&quot;
+}</code></pre></div></details><details><summary>A/B #18 after-checkout / GET /api/v0/apm/http-server-stats</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 18,
+  &quot;phase&quot;: &quot;after-checkout&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/http-server-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793010327&quot;,
+    &quot;to&quot;: &quot;1793010334&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:03.593431Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 1,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;method&quot;: &quot;POST&quot;,
+        &quot;route&quot;: &quot;/api/checkout&quot;,
+        &quot;totalMillis&quot;: 9604,
+        &quot;averageMillis&quot;: 400.190125,
+        &quot;approxP95Millis&quot;: 419.049,
+        &quot;errorRatePercentage&quot;: 0,
+        &quot;requestCount&quot;: 24
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:05.988539Z&quot;
+}</code></pre></div></details><details><summary>A/B #19 after-checkout / GET /api/v0/apm/db-query-stats</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 19,
+  &quot;phase&quot;: &quot;after-checkout&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/apm/db-query-stats&quot;,
+  &quot;query&quot;: {
+    &quot;from&quot;: &quot;1793010327&quot;,
+    &quot;to&quot;: &quot;1793010334&quot;,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;orderColumn&quot;: &quot;SUM&quot;,
+    &quot;orderDirection&quot;: &quot;DESC&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;perPage&quot;: &quot;100&quot;,
+    &quot;version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:05.988840Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_group_count&quot;: 8,
+    &quot;has_next_page&quot;: false,
+    &quot;groups&quot;: [
+      {
+        &quot;query&quot;: &quot;select * from \&quot;inventories\&quot; where \&quot;product_id\&quot; = ? limit 1 for update&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 377,
+        &quot;averageMillis&quot;: 15.71,
+        &quot;approxP95Millis&quot;: 45.7
+      },
+      {
+        &quot;query&quot;: &quot;select count(*) as \&quot;aggregate\&quot; from \&quot;customers\&quot; where \&quot;id\&quot; = ?&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 287,
+        &quot;averageMillis&quot;: 11.987916666666665,
+        &quot;approxP95Millis&quot;: 15.76
+      },
+      {
+        &quot;query&quot;: &quot;insert into \&quot;orders\&quot; (\&quot;customer_id\&quot;, \&quot;status\&quot;, \&quot;total_cents\&quot;, \&quot;updated_at\&quot;, \&quot;created_at\&quot;) values (?, ?, ?, ?, ?) returning \&quot;id\&quot;&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 55,
+        &quot;averageMillis&quot;: 2.2925,
+        &quot;approxP95Millis&quot;: 7.09
+      },
+      {
+        &quot;query&quot;: &quot;select * from \&quot;products\&quot; where \&quot;active\&quot; = ? and \&quot;products\&quot;.\&quot;id\&quot; = ? limit 1&quot;,
+        &quot;executionCount&quot;: 48,
+        &quot;totalMillis&quot;: 43,
+        &quot;averageMillis&quot;: 0.9070833333333334,
+        &quot;approxP95Millis&quot;: 2.61
+      },
+      {
+        &quot;query&quot;: &quot;insert into \&quot;order_items\&quot; (\&quot;product_id\&quot;, \&quot;quantity\&quot;, \&quot;unit_price_cents\&quot;, \&quot;order_id\&quot;, \&quot;updated_at\&quot;, \&quot;created_at\&quot;) values (?, ?, ?, ?, ?, ?) returning \&quot;id\&quot;&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 33,
+        &quot;averageMillis&quot;: 1.4070833333333332,
+        &quot;approxP95Millis&quot;: 2.7
+      },
+      {
+        &quot;query&quot;: &quot;update \&quot;inventories\&quot; set \&quot;quantity\&quot; = ?, \&quot;updated_at\&quot; = ? where \&quot;id\&quot; = ?&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 25,
+        &quot;averageMillis&quot;: 1.06875,
+        &quot;approxP95Millis&quot;: 2.01
+      },
+      {
+        &quot;query&quot;: &quot;select count(*) as \&quot;aggregate\&quot; from \&quot;products\&quot; where \&quot;id\&quot; = ?&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 19,
+        &quot;averageMillis&quot;: 0.8195833333333333,
+        &quot;approxP95Millis&quot;: 1.36
+      },
+      {
+        &quot;query&quot;: &quot;select * from \&quot;inventories\&quot; where \&quot;product_id\&quot; = ? limit 1&quot;,
+        &quot;executionCount&quot;: 24,
+        &quot;totalMillis&quot;: 17,
+        &quot;averageMillis&quot;: 0.7220833333333334,
+        &quot;approxP95Millis&quot;: 1.25
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:07.309407Z&quot;
+}</code></pre></div></details><details><summary>A/B #20 after-checkout / POST /api/v0/logs</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 20,
+  &quot;phase&quot;: &quot;after-checkout&quot;,
+  &quot;method&quot;: &quot;POST&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/logs&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: {
+    &quot;from&quot;: 1793010327,
+    &quot;to&quot;: 1793010334,
+    &quot;serviceName&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;serviceNamespace&quot;: &quot;demo&quot;,
+    &quot;severities&quot;: [
+      &quot;INFO&quot;,
+      &quot;WARN&quot;,
+      &quot;ERROR&quot;,
+      &quot;FATAL&quot;
+    ],
+    &quot;order&quot;: {
+      &quot;column&quot;: &quot;TIMESTAMP&quot;,
+      &quot;direction&quot;: &quot;DESC&quot;
+    },
+    &quot;perPage&quot;: 100
+  },
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:07.309682Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;returned_count&quot;: 33,
+    &quot;matched_scope_count&quot;: 24,
+    &quot;matched_with_trace_id&quot;: 24,
+    &quot;has_next_page&quot;: false,
+    &quot;sample_records&quot;: [
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:25:31Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;057bb7a0b2108857bb999b8ac3a64146&quot;,
+        &quot;span_id&quot;: &quot;79acc7b1f5bc5d0f&quot;,
+        &quot;service_version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;POST&quot;,
+          &quot;route&quot;: &quot;/api/checkout&quot;,
+          &quot;status&quot;: 201,
+          &quot;request_time&quot;: 0.364618,
+          &quot;query_count&quot;: 9,
+          &quot;peak_memory_bytes&quot;: 2097152
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:25:31Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;d56ea337c74e16c0a228e675bd1ae1d3&quot;,
+        &quot;span_id&quot;: &quot;2da4f44aff12121a&quot;,
+        &quot;service_version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;POST&quot;,
+          &quot;route&quot;: &quot;/api/checkout&quot;,
+          &quot;status&quot;: 201,
+          &quot;request_time&quot;: 0.355078,
+          &quot;query_count&quot;: 9,
+          &quot;peak_memory_bytes&quot;: 2097152
+        }
+      },
+      {
+        &quot;timestamp&quot;: &quot;2026-10-26T10:25:31Z&quot;,
+        &quot;severity&quot;: &quot;INFO&quot;,
+        &quot;trace_id&quot;: &quot;d25053d65f1247521ccebd1c6dbb1a09&quot;,
+        &quot;span_id&quot;: &quot;29f27cf9445d913e&quot;,
+        &quot;service_version&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;request&quot;: {
+          &quot;method&quot;: &quot;POST&quot;,
+          &quot;route&quot;: &quot;/api/checkout&quot;,
+          &quot;status&quot;: 201,
+          &quot;request_time&quot;: 1.374228,
+          &quot;query_count&quot;: 9,
+          &quot;peak_memory_bytes&quot;: 4194304
+        }
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:07.456372Z&quot;
+}</code></pre></div></details><details><summary>A/B #21 after-quality-readback / GET /api/v0/org</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 21,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/org&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:24.397812Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;organization&quot;: &quot;mackerel-seminar&quot;,
+    &quot;matches_expected&quot;: true
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:24.435323Z&quot;
+}</code></pre></div></details><details><summary>A/B #22 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 22,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.analysis.complete&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:25.497989Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 1
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:25.554251Z&quot;
+}</code></pre></div></details><details><summary>A/B #23 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 23,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.analysis.files&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:26.598149Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 18
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:26.659272Z&quot;
+}</code></pre></div></details><details><summary>A/B #24 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 24,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.analysis.functions&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:27.698324Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 43
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:27.755600Z&quot;
+}</code></pre></div></details><details><summary>A/B #25 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 25,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.analysis.last_success_timestamp&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:28.658652Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 1793010288
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:28.751190Z&quot;
+}</code></pre></div></details><details><summary>A/B #26 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 26,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.analysis.parse_error_files&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:29.758685Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 0
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:29.822123Z&quot;
+}</code></pre></div></details><details><summary>A/B #27 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 27,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.analysis.parse_errors&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:30.858793Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 0
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:30.920572Z&quot;
+}</code></pre></div></details><details><summary>A/B #28 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 28,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.cognitive.max&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:31.958842Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 12
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:32.007728Z&quot;
+}</code></pre></div></details><details><summary>A/B #29 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 29,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.cognitive.over_limit_count&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:33.058944Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 0
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:33.120276Z&quot;
+}</code></pre></div></details><details><summary>A/B #30 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 30,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.cognitive.over_limit_ratio&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:34.159037Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 0
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:34.218895Z&quot;
+}</code></pre></div></details><details><summary>A/B #31 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 31,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.cognitive.p95&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:35.259138Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 8
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:35.311339Z&quot;
+}</code></pre></div></details><details><summary>A/B #32 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 32,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.cyclomatic.max&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:36.359248Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 11
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:36.425193Z&quot;
+}</code></pre></div></details><details><summary>A/B #33 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 33,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.cyclomatic.over_limit_count&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:37.459333Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 2
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:37.519250Z&quot;
+}</code></pre></div></details><details><summary>A/B #34 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 34,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.cyclomatic.over_limit_ratio&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:38.559437Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 0.046511627906976744
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:38.622315Z&quot;
+}</code></pre></div></details><details><summary>A/B #35 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 35,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;cccc.php_static.cyclomatic.p95&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:39.659565Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 9
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:39.710245Z&quot;
+}</code></pre></div></details><details><summary>A/B #36 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 36,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.cases.error&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:40.759689Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 0
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:40.822678Z&quot;
+}</code></pre></div></details><details><summary>A/B #37 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 37,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.cases.failed&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:41.859796Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 0
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:41.926371Z&quot;
+}</code></pre></div></details><details><summary>A/B #38 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 38,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.cases.passed&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:42.959900Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 36
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:43.018576Z&quot;
+}</code></pre></div></details><details><summary>A/B #39 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 39,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.cases.selected&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:44.060037Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 36
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:44.114074Z&quot;
+}</code></pre></div></details><details><summary>A/B #40 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 40,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.cases.skipped&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:45.160150Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 0
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:45.223103Z&quot;
+}</code></pre></div></details><details><summary>A/B #41 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 41,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.ratios.strict_pass&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:46.260275Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 1
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:46.324274Z&quot;
+}</code></pre></div></details><details><summary>A/B #42 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 42,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.run.complete&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:47.360404Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 1
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:47.418396Z&quot;
+}</code></pre></div></details><details><summary>A/B #43 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 43,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.run.duration_seconds&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:48.460519Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 0.6098110675811768
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:48.530007Z&quot;
+}</code></pre></div></details><details><summary>A/B #44 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 44,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.run.last_completed_timestamp&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:49.560907Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 1793010288
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:49.612756Z&quot;
+}</code></pre></div></details><details><summary>A/B #45 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 45,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.run.report_complete&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:50.660979Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 1
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:50.713645Z&quot;
+}</code></pre></div></details><details><summary>A/B #46 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metrics</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 46,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metrics&quot;,
+  &quot;query&quot;: {
+    &quot;name&quot;: &quot;tests.unit.run.success&quot;,
+    &quot;from&quot;: &quot;1793010168&quot;,
+    &quot;to&quot;: &quot;1793010408&quot;
+  },
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:51.761136Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;point_count&quot;: 1,
+    &quot;points&quot;: [
+      {
+        &quot;time&quot;: 1793010240,
+        &quot;value&quot;: 1
+      }
+    ]
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:51.834242Z&quot;
+}</code></pre></div></details><details><summary>A/B #47 after-quality-readback / GET /api/v0/services/mackerel-seminar-demo/metadata/dev-quality</summary><div class="code-block"><pre><code>{
+  &quot;sequence&quot;: 47,
+  &quot;phase&quot;: &quot;after-quality-readback&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metadata/dev-quality&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: null,
+  &quot;started_at_utc&quot;: &quot;2026-10-26T10:27:52.861307Z&quot;,
+  &quot;http_status&quot;: 200,
+  &quot;summary&quot;: {
+    &quot;schema_version&quot;: 1,
+    &quot;service&quot;: &quot;mackerel-seminar-demo&quot;,
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;profiles&quot;: {
+      &quot;php_static&quot;: {
+        &quot;artifact_uri&quot;: &quot;https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality&quot;,
+        &quot;attempt_id&quot;: &quot;1&quot;,
+        &quot;comparison_key&quot;: &quot;c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c&quot;,
+        &quot;measured_at&quot;: 1793010288,
+        &quot;payload_sha256&quot;: &quot;4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd&quot;,
+        &quot;published_status&quot;: &quot;verified&quot;,
+        &quot;report_completeness&quot;: &quot;complete&quot;,
+        &quot;revision&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;run_id&quot;: &quot;20261026T102447Z-776887d0&quot;
+      },
+      &quot;unit&quot;: {
+        &quot;artifact_uri&quot;: &quot;https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality&quot;,
+        &quot;attempt_id&quot;: &quot;1&quot;,
+        &quot;comparison_key&quot;: &quot;2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72&quot;,
+        &quot;measured_at&quot;: 1793010288,
+        &quot;payload_sha256&quot;: &quot;4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd&quot;,
+        &quot;published_status&quot;: &quot;verified&quot;,
+        &quot;report_completeness&quot;: &quot;complete&quot;,
+        &quot;revision&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;run_id&quot;: &quot;20261026T102447Z-776887d0&quot;
+      }
+    }
+  },
+  &quot;finished_at_utc&quot;: &quot;2026-10-26T10:27:52.921406Z&quot;
+}</code></pre></div></details>
+<h3>改善後の品質を投稿したAPI41件</h3><p>以下はpublisherが既に実行したリクエストを保存済み監査から転記したものです。このレポート生成処理から投稿を再実行していません。39 GET、1 POST（25系列）、1 PUT（metadata）で、すべてHTTP 200でした。GETには取込待ちのための複数回の読戻しが含まれます。</p>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>実行時刻 UTC</th><th>API</th><th>HTTP</th></tr></thead><tbody><tr><td>1</td><td>2026-10-26T10:26:16.349286+00:00</td><td><code>GET /api/v0/org</code></td><td>200</td></tr><tr><td>2</td><td>2026-10-26T10:26:16.394097+00:00</td><td><code>GET /api/v0/org</code></td><td>200</td></tr><tr><td>3</td><td>2026-10-26T10:26:16.443006+00:00</td><td><code>GET /api/v0/services</code></td><td>200</td></tr><tr><td>4</td><td>2026-10-26T10:26:16.494332+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metadata/dev-quality</code></td><td>200</td></tr><tr><td>5</td><td>2026-10-26T10:26:16.591503+00:00</td><td><code>POST /api/v0/services/mackerel-seminar-demo/tsdb</code></td><td>200</td></tr><tr><td>6</td><td>2026-10-26T10:26:16.660016+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>7</td><td>2026-10-26T10:26:16.726797+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>8</td><td>2026-10-26T10:26:16.781100+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>9</td><td>2026-10-26T10:26:16.846049+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>10</td><td>2026-10-26T10:26:16.908047+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>11</td><td>2026-10-26T10:26:16.966862+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>12</td><td>2026-10-26T10:26:17.024233+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>13</td><td>2026-10-26T10:26:17.083413+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>14</td><td>2026-10-26T10:26:17.145131+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>15</td><td>2026-10-26T10:26:17.205412+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>16</td><td>2026-10-26T10:26:17.266768+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>17</td><td>2026-10-26T10:26:17.326456+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>18</td><td>2026-10-26T10:26:17.381351+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>19</td><td>2026-10-26T10:26:17.455781+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>20</td><td>2026-10-26T10:26:17.541488+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>21</td><td>2026-10-26T10:26:17.602048+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>22</td><td>2026-10-26T10:26:17.669052+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>23</td><td>2026-10-26T10:26:17.866836+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>24</td><td>2026-10-26T10:26:17.921927+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>25</td><td>2026-10-26T10:26:17.993848+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>26</td><td>2026-10-26T10:26:18.095595+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>27</td><td>2026-10-26T10:26:18.174534+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>28</td><td>2026-10-26T10:26:18.308131+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>29</td><td>2026-10-26T10:26:18.647081+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>30</td><td>2026-10-26T10:26:18.704619+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>31</td><td>2026-10-26T10:26:20.970763+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>32</td><td>2026-10-26T10:26:21.047199+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>33</td><td>2026-10-26T10:26:22.341347+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>34</td><td>2026-10-26T10:26:22.423151+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>35</td><td>2026-10-26T10:26:22.549985+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>36</td><td>2026-10-26T10:26:22.777778+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>37</td><td>2026-10-26T10:26:22.841972+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>38</td><td>2026-10-26T10:26:22.997236+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metrics</code></td><td>200</td></tr><tr><td>39</td><td>2026-10-26T10:26:23.050803+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metadata/dev-quality</code></td><td>200</td></tr><tr><td>40</td><td>2026-10-26T10:26:23.114561+00:00</td><td><code>PUT /api/v0/services/mackerel-seminar-demo/metadata/dev-quality</code></td><td>200</td></tr><tr><td>41</td><td>2026-10-26T10:26:23.189295+00:00</td><td><code>GET /api/v0/services/mackerel-seminar-demo/metadata/dev-quality</code></td><td>200</td></tr></tbody></table></div><details><summary>既に実行済み: POST /api/v0/services/mackerel-seminar-demo/tsdb</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;POST&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/tsdb&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: [
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.complete&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 1
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.files&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 18
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.functions&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 43
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.last_success_timestamp&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 1793010288
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.parse_error_files&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.analysis.parse_errors&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cognitive.max&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 12
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cognitive.over_limit_count&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cognitive.over_limit_ratio&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 0.0
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cognitive.p95&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 8
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cyclomatic.max&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 11
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cyclomatic.over_limit_count&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 2
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cyclomatic.over_limit_ratio&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 0.046511627906976744
+    },
+    {
+      &quot;name&quot;: &quot;cccc.php_static.cyclomatic.p95&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 9
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.error&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.failed&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.passed&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 36
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.selected&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 36
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.cases.skipped&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 0
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.ratios.strict_pass&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 1.0
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.complete&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 1
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.duration_seconds&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 0.6098110675811768
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.last_completed_timestamp&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 1793010288
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.report_complete&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 1
+    },
+    {
+      &quot;name&quot;: &quot;tests.unit.run.success&quot;,
+      &quot;time&quot;: 1793010288,
+      &quot;value&quot;: 1
+    }
+  ],
+  &quot;http_status&quot;: 200,
+  &quot;requested_at&quot;: &quot;2026-10-26T10:26:16.591503+00:00&quot;,
+  &quot;authentication_header&quot;: &quot;X-Api-Key (value not recorded)&quot;,
+  &quot;summary&quot;: {
+    &quot;success&quot;: true
+  }
+}</code></pre></div></details><details><summary>既に実行済み: PUT /api/v0/services/mackerel-seminar-demo/metadata/dev-quality</summary><div class="code-block"><pre><code>{
+  &quot;method&quot;: &quot;PUT&quot;,
+  &quot;origin&quot;: &quot;https://api.mackerelio.com&quot;,
+  &quot;path&quot;: &quot;/api/v0/services/mackerel-seminar-demo/metadata/dev-quality&quot;,
+  &quot;query&quot;: {},
+  &quot;body&quot;: {
+    &quot;environment&quot;: &quot;development&quot;,
+    &quot;profiles&quot;: {
+      &quot;php_static&quot;: {
+        &quot;artifact_uri&quot;: &quot;https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality&quot;,
+        &quot;attempt_id&quot;: &quot;1&quot;,
+        &quot;comparison_key&quot;: &quot;c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c&quot;,
+        &quot;measured_at&quot;: 1793010288,
+        &quot;payload_sha256&quot;: &quot;4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd&quot;,
+        &quot;published_status&quot;: &quot;verified&quot;,
+        &quot;report_completeness&quot;: &quot;complete&quot;,
+        &quot;revision&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;run_id&quot;: &quot;20261026T102447Z-776887d0&quot;
+      },
+      &quot;unit&quot;: {
+        &quot;artifact_uri&quot;: &quot;https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/after-quality&quot;,
+        &quot;attempt_id&quot;: &quot;1&quot;,
+        &quot;comparison_key&quot;: &quot;2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72&quot;,
+        &quot;measured_at&quot;: 1793010288,
+        &quot;payload_sha256&quot;: &quot;4e97aa9c91043b6aa4f9784446aa46d159e18eb69a722758a385f939b33afbcd&quot;,
+        &quot;published_status&quot;: &quot;verified&quot;,
+        &quot;report_completeness&quot;: &quot;complete&quot;,
+        &quot;revision&quot;: &quot;fbf320b4d777e0520afb1f52948853ba2e2f5406&quot;,
+        &quot;run_id&quot;: &quot;20261026T102447Z-776887d0&quot;
+      }
+    },
+    &quot;schema_version&quot;: 1,
+    &quot;service&quot;: &quot;mackerel-seminar-demo&quot;
+  },
+  &quot;http_status&quot;: 200,
+  &quot;requested_at&quot;: &quot;2026-10-26T10:26:23.114561+00:00&quot;,
+  &quot;authentication_header&quot;: &quot;X-Api-Key (value not recorded)&quot;,
+  &quot;summary&quot;: {
+    &quot;success&quot;: true
+  }
+}</code></pre></div></details></section><footer class="footer"><a href="validation.html">検証レポートへ戻る</a><a href="api-evidence.json">監査JSON</a></footer></main></div></body></html>

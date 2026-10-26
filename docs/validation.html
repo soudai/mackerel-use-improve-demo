@@ -20,7 +20,7 @@
 </aside>
 <div class="document">
 <header class="topbar"><span>実接続検証 / 2026年10月26日</span><a href="index.html">デモの手順を読む ↗</a></header>
-<main id="content">
+<main id="content"><section class="section"><div class="note"><h2>続編：実際にデプロイした改善前後の比較</h2><p>このページは初回の接続・候補実験の記録です。その後、改善コードを別環境で稼働させ、Mackerelの実画面とAPIで前後を検証しました。</p><p><a class="button" href="comparison.html">画面・コード・Mackerelの改善前後を見る →</a> <a href="api-verification.html#ab-api">実行したAPIと応答を見る</a></p></div></section>
 <section class="hero" id="summary">
 <div><p class="eyebrow"><span></span> VERIFIED WITH REAL TELEMETRY</p><h1>実データで、<br><em>できること</em>を確認。</h1><p class="hero-lead">Mackerelへの送信だけで終わらせず、認証済みAPIからデータを読み戻し、デモの症状・コードとの対応・改善候補を検証しました。</p><div class="hero-actions"><a class="button" href="#runtime">接続の結果を見る ↓</a><a class="text-link" href="#limits">検証の限界も確認 →</a></div></div>
 <div class="hero-card"><div class="hero-card-label">WHAT WAS VERIFIED</div><ol><li><span>01</span><div><strong>APM・ログの実読戻し</strong><small>HTTP件数、SQL時間、trace IDの相関</small></div></li><li><span>02</span><div><strong>品質メトリックスの投稿</strong><small>25系列とmetadataをAPIで照合</small></div></li><li><span>03</span><div><strong>症状の再現と改善余地</strong><small>N+1、ロック、走査、集約、複雑度</small></div></li></ol><div class="hero-card-foot"><span class="status-dot"></span> mainには改善前の業務実装を保持</div></div>
@@ -52,7 +52,7 @@
 <ol class="workflow"><li><strong>過去のトレースで取得上限が埋まる問題</strong><p>対象trace IDをストリーミング中に絞り込み、該当スパンだけを上限に数えるよう修正。走査量や巨大レコードで打ち切った場合はpartialを返します。</p></li><li><strong>SQLのprepare時間を実行時間と読んでしまう問題</strong><p>PDO自動計装のprepareスパンではなく、Laravelの成功した <code>QueryExecuted</code> を1件のCLIENTスパンにしました。アプリ側のprepare・execute・fetchを含む経過時間です。失敗クエリはこのイベントに出ないため、例外・HTTPエラー・DB側の情報で補います。</p></li><li><strong>テストのアクセスログが実リクエストに混ざる問題</strong><p>PHPUnit実行中のアクセスログ出力を除外。実サービスと同じ属性で、ゼロtrace IDのテストログを送信しないようにしました。</p></li></ol>
 </section>
 <section class="section" id="limits"><div class="section-head"><span class="section-no">05</span><div><h2>確認できた範囲と、残す工程</h2><p>「APIから読めた」「画面で見えた」「改善をデプロイした」は、それぞれ別の確認です。</p></div></div>
-<div class="two-column"><div class="note"><h3>今回確認できたこと</h3><ul class="compact-list"><li>認証済みAPIでのHTTP・DB APM、ログ、品質系列の読戻し。</li><li>ロック待ちと業務整合性、トレースと同一版ソースの対応。</li><li>候補実装による返却内容の一致と、SQL数・行数・複雑度の改善余地。</li></ul></div><div class="note"><h3>今回未実施のこと</h3><ul class="compact-list"><li>現在のChromeプロファイルでは対象組織がOrgNotFoundとなり、Mackerel画面の目視確認は未完了。</li><li>改善候補のデプロイと、実Issue・改善PRの作成。</li></ul></div></div>
+<div class="two-column"><div class="note"><h3>今回確認できたこと</h3><ul class="compact-list"><li>認証済みAPIでのHTTP・DB APM、ログ、品質系列の読戻し。</li><li>ロック待ちと業務整合性、トレースと同一版ソースの対応。</li><li>候補実装による返却内容の一致と、SQL数・行数・複雑度の改善余地。</li></ul></div><div class="note"><h3>今回未実施のこと</h3><ul class="compact-list"><li>初回はログイン待ちでしたが、続編ではログイン済みMackerel画面を目視確認し、実画像を記録しました。</li><li>初回の時点では改善候補のデプロイは未実施でした。続編では別環境にデプロイ済みです。GitHub Issue・PRの作成はこの検証には含みません。</li></ul></div></div>
 <p>取得窓を広げた最終確認では、同時購入のHTTP・DB・ログと品質メトリックスの全信号が <code>complete</code> になりました。<code>analysis.complete=1</code>、認知複雑度max=51、循環的複雑度max=29、テスト選択件数28を読み戻しています。</p>
 <p>品質のサービスメトリックスを読むときは、測定時刻の分だけでなく前後に余裕を持たせます。APIの時刻境界が分単位になるため、狭すぎる取得窓は投稿済みの点を取りこぼします。今回の投稿値・metadataの検証自体は <code>verified</code> まで完了しています。</p>
 </section>

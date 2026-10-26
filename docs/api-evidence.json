@@ -1,0 +1,1680 @@
+{
+  "schema_version": 1,
+  "title": "Mackerel demo API evidence",
+  "organization": "mackerel-seminar",
+  "service": "mackerel-seminar-demo",
+  "published_artifact_url": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+  "windows": [
+    {
+      "label": "HTTP・検索・売上集計",
+      "identity": {
+        "service_name": "mackerel-seminar-demo",
+        "service_namespace": "demo",
+        "environment": "development",
+        "version": "cb761900245b74b02ab49224cffedf517f717fc3"
+      },
+      "from": {
+        "epoch_seconds": 1793008496,
+        "utc": "2026-10-26T09:54:56Z",
+        "jst": "2026-10-26T18:54:56+09:00"
+      },
+      "to": {
+        "epoch_seconds": 1793008583,
+        "utc": "2026-10-26T09:56:23Z",
+        "jst": "2026-10-26T18:56:23+09:00"
+      }
+    },
+    {
+      "label": "同時購入・品質系列",
+      "identity": {
+        "service_name": "mackerel-seminar-demo",
+        "service_namespace": "demo",
+        "environment": "development",
+        "version": "3cad843ef08bd225f79255c84dc94a625d4d57c1"
+      },
+      "from": {
+        "epoch_seconds": 1793008560,
+        "utc": "2026-10-26T09:56:00Z",
+        "jst": "2026-10-26T18:56:00+09:00"
+      },
+      "to": {
+        "epoch_seconds": 1793008806,
+        "utc": "2026-10-26T10:00:06Z",
+        "jst": "2026-10-26T19:00:06+09:00"
+      }
+    }
+  ],
+  "authentication": {
+    "header_name": "X-Api-Key",
+    "value_recorded": false
+  },
+  "read_only_recheck": {
+    "started_at_utc": "2026-10-26T10:20:22.060860Z",
+    "finished_at_utc": "2026-10-26T10:21:02.215986Z",
+    "request_count": 36,
+    "requests": [
+      {
+        "sequence": 1,
+        "phase": "preflight",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/org",
+        "query": {},
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:22.061142Z",
+        "http_status": 200,
+        "summary": {
+          "organization": "mackerel-seminar",
+          "matches_expected": true
+        },
+        "finished_at_utc": "2026-10-26T10:20:22.123913Z"
+      },
+      {
+        "sequence": 2,
+        "phase": "preflight",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services",
+        "query": {},
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:23.161205Z",
+        "http_status": 200,
+        "summary": {
+          "returned_count": 2,
+          "selected_service_exists": true
+        },
+        "finished_at_utc": "2026-10-26T10:20:23.252254Z"
+      },
+      {
+        "sequence": 3,
+        "phase": "HTTP・検索・売上集計",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/org",
+        "query": {},
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:24.261324Z",
+        "http_status": 200,
+        "summary": {
+          "organization": "mackerel-seminar",
+          "matches_expected": true
+        },
+        "finished_at_utc": "2026-10-26T10:20:24.298949Z"
+      },
+      {
+        "sequence": 4,
+        "phase": "HTTP・検索・売上集計",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/apm/http-server-stats",
+        "query": {
+          "from": "1793008496",
+          "to": "1793008583",
+          "serviceName": "mackerel-seminar-demo",
+          "serviceNamespace": "demo",
+          "environment": "development",
+          "orderColumn": "SUM",
+          "orderDirection": "DESC",
+          "page": "1",
+          "perPage": "100",
+          "version": "cb761900245b74b02ab49224cffedf517f717fc3"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:25.361609Z",
+        "http_status": 200,
+        "summary": {
+          "returned_group_count": 3,
+          "has_next_page": false,
+          "groups": [
+            {
+              "method": "GET",
+              "route": "/api/orders",
+              "totalMillis": 1521,
+              "averageMillis": 47.54309375,
+              "approxP95Millis": 49.067,
+              "errorRatePercentage": 0,
+              "requestCount": 32
+            },
+            {
+              "method": "GET",
+              "route": "/api/reports/sales",
+              "totalMillis": 566,
+              "averageMillis": 62.93622222222222,
+              "approxP95Millis": 64.054,
+              "errorRatePercentage": 0,
+              "requestCount": 9
+            },
+            {
+              "method": "GET",
+              "route": "/api/orders/search",
+              "totalMillis": 273,
+              "averageMillis": 13.03542857142857,
+              "approxP95Millis": 14.259,
+              "errorRatePercentage": 0,
+              "requestCount": 21
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:26.714891Z"
+      },
+      {
+        "sequence": 5,
+        "phase": "HTTP・検索・売上集計",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/apm/db-query-stats",
+        "query": {
+          "from": "1793008496",
+          "to": "1793008583",
+          "serviceName": "mackerel-seminar-demo",
+          "serviceNamespace": "demo",
+          "environment": "development",
+          "orderColumn": "SUM",
+          "orderDirection": "DESC",
+          "page": "1",
+          "perPage": "100",
+          "version": "cb761900245b74b02ab49224cffedf517f717fc3"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:26.715357Z",
+        "http_status": 200,
+        "summary": {
+          "returned_group_count": 4,
+          "has_next_page": false,
+          "groups": [
+            {
+              "query": "select * from \"customers\" where \"customers\".\"id\" = ? limit 1",
+              "executionCount": 1600,
+              "totalMillis": 751,
+              "averageMillis": 0.4695375,
+              "approxP95Millis": 0.58409763539283
+            },
+            {
+              "query": "select \"orders\".\"id\" as \"order_id\", \"orders\".\"created_at\", \"order_items\".\"quantity\", \"order_items\".\"unit_price_cents\" from \"order_items\" inner join \"orders\" on \"orders\".\"id\" = \"order_items\".\"order_id\" where \"orders\".\"status\" = ? and \"orders\".\"created_at\" >= ? and \"orders\".\"created_at\" < ?",
+              "executionCount": 9,
+              "totalMillis": 415,
+              "averageMillis": 46.20777777777778,
+              "approxP95Millis": 47.32
+            },
+            {
+              "query": "select * from \"orders\" order by \"id\" desc limit 50",
+              "executionCount": 32,
+              "totalMillis": 273,
+              "averageMillis": 8.541875,
+              "approxP95Millis": 9.97
+            },
+            {
+              "query": "select \"id\", \"customer_id\", \"status\", \"total_cents\", \"created_at\" from \"orders\" where \"status\" = ? and \"created_at\"::date >= ? and \"created_at\"::date <= ? order by \"created_at\" desc, \"id\" desc limit 50",
+              "executionCount": 21,
+              "totalMillis": 173,
+              "averageMillis": 8.247142857142856,
+              "approxP95Millis": 8.69
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:28.114218Z"
+      },
+      {
+        "sequence": 6,
+        "phase": "HTTP・検索・売上集計",
+        "method": "POST",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/logs",
+        "query": {},
+        "body": {
+          "from": 1793008496,
+          "to": 1793008583,
+          "serviceName": "mackerel-seminar-demo",
+          "serviceNamespace": "demo",
+          "severities": [
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "order": {
+            "column": "TIMESTAMP",
+            "direction": "DESC"
+          },
+          "perPage": 100
+        },
+        "started_at_utc": "2026-10-26T10:20:28.114523Z",
+        "http_status": 200,
+        "summary": {
+          "returned_count": 62,
+          "matched_scope_count": 62,
+          "matched_with_trace_id": 62,
+          "has_next_page": false,
+          "sample_records": [
+            {
+              "timestamp": "2026-10-26T09:54:59Z",
+              "severity": "INFO",
+              "trace_id": "c6f211363d917d6aac7f5b26af2ff3e2",
+              "span_id": "990db75c499dc696",
+              "service_version": "cb761900245b74b02ab49224cffedf517f717fc3",
+              "request": {
+                "method": "GET",
+                "route": "/api/reports/sales",
+                "status": 200,
+                "request_time": 0.062795,
+                "query_count": 1,
+                "peak_memory_bytes": 27262976
+              }
+            },
+            {
+              "timestamp": "2026-10-26T09:54:59Z",
+              "severity": "INFO",
+              "trace_id": "65b4fdd4fa08f1581b223e74eb64ff75",
+              "span_id": "3fe1ca2e96bb071a",
+              "service_version": "cb761900245b74b02ab49224cffedf517f717fc3",
+              "request": {
+                "method": "GET",
+                "route": "/api/reports/sales",
+                "status": 200,
+                "request_time": 0.062018,
+                "query_count": 1,
+                "peak_memory_bytes": 27262976
+              }
+            },
+            {
+              "timestamp": "2026-10-26T09:54:59Z",
+              "severity": "INFO",
+              "trace_id": "2aeb720711322681991b3f885567410c",
+              "span_id": "cf1c46e0e9386bdb",
+              "service_version": "cb761900245b74b02ab49224cffedf517f717fc3",
+              "request": {
+                "method": "GET",
+                "route": "/api/reports/sales",
+                "status": 200,
+                "request_time": 0.064763,
+                "query_count": 1,
+                "peak_memory_bytes": 27262976
+              }
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:29.716818Z"
+      },
+      {
+        "sequence": 7,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/org",
+        "query": {},
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:29.717793Z",
+        "http_status": 200,
+        "summary": {
+          "organization": "mackerel-seminar",
+          "matches_expected": true
+        },
+        "finished_at_utc": "2026-10-26T10:20:29.754378Z"
+      },
+      {
+        "sequence": 8,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.analysis.complete"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:30.649310Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:30.714441Z"
+      },
+      {
+        "sequence": 9,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.analysis.files"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:31.749422Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 18
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:31.805191Z"
+      },
+      {
+        "sequence": 10,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.analysis.functions"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:32.849526Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 37
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:32.911061Z"
+      },
+      {
+        "sequence": 11,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.analysis.last_success_timestamp"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:33.949643Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1793008677
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:34.023986Z"
+      },
+      {
+        "sequence": 12,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.analysis.parse_error_files"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:35.049740Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:35.115869Z"
+      },
+      {
+        "sequence": 13,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.analysis.parse_errors"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:36.149881Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:36.211301Z"
+      },
+      {
+        "sequence": 14,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.cognitive.max"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:37.249984Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 51
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:37.314622Z"
+      },
+      {
+        "sequence": 15,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.cognitive.over_limit_count"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:38.350066Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:38.405188Z"
+      },
+      {
+        "sequence": 16,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.cognitive.over_limit_ratio"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:39.450601Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0.02702702702702703
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:39.507687Z"
+      },
+      {
+        "sequence": 17,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.cognitive.p95"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:40.550680Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 12
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:40.613485Z"
+      },
+      {
+        "sequence": 18,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.cyclomatic.max"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:41.650792Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 29
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:41.719342Z"
+      },
+      {
+        "sequence": 19,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.cyclomatic.over_limit_count"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:42.750900Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 3
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:42.810237Z"
+      },
+      {
+        "sequence": 20,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.cyclomatic.over_limit_ratio"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:43.851351Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0.08108108108108109
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:43.918513Z"
+      },
+      {
+        "sequence": 21,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "cccc.php_static.cyclomatic.p95"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:44.951499Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 11
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:45.014259Z"
+      },
+      {
+        "sequence": 22,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.cases.error"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:46.052029Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:46.123134Z"
+      },
+      {
+        "sequence": 23,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.cases.failed"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:47.152131Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:47.212071Z"
+      },
+      {
+        "sequence": 24,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.cases.passed"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:48.252328Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 28
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:48.316430Z"
+      },
+      {
+        "sequence": 25,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.cases.selected"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:49.352436Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 28
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:49.425493Z"
+      },
+      {
+        "sequence": 26,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.cases.skipped"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:50.452500Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:50.515819Z"
+      },
+      {
+        "sequence": 27,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.ratios.strict_pass"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:51.552975Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:51.619004Z"
+      },
+      {
+        "sequence": 28,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.run.complete"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:52.653351Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:52.723894Z"
+      },
+      {
+        "sequence": 29,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.run.duration_seconds"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:53.753467Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0.5501420497894287
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:53.814718Z"
+      },
+      {
+        "sequence": 30,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.run.last_completed_timestamp"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:54.853594Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1793008677
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:54.929178Z"
+      },
+      {
+        "sequence": 31,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.run.report_complete"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:55.953676Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:56.013070Z"
+      },
+      {
+        "sequence": 32,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metrics",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "name": "tests.unit.run.success"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:57.055597Z",
+        "http_status": 200,
+        "summary": {
+          "point_count": 1,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:57.114313Z"
+      },
+      {
+        "sequence": 33,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/apm/http-server-stats",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "serviceName": "mackerel-seminar-demo",
+          "serviceNamespace": "demo",
+          "environment": "development",
+          "orderColumn": "SUM",
+          "orderDirection": "DESC",
+          "page": "1",
+          "perPage": "100",
+          "version": "3cad843ef08bd225f79255c84dc94a625d4d57c1"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:58.155493Z",
+        "http_status": 200,
+        "summary": {
+          "returned_group_count": 1,
+          "has_next_page": false,
+          "groups": [
+            {
+              "method": "POST",
+              "route": "/api/checkout",
+              "totalMillis": 51470,
+              "averageMillis": 2144.6086666666665,
+              "approxP95Millis": 2477.82,
+              "errorRatePercentage": 0,
+              "requestCount": 24
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:20:59.519855Z"
+      },
+      {
+        "sequence": 34,
+        "phase": "同時購入・品質系列",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/apm/db-query-stats",
+        "query": {
+          "from": "1793008560",
+          "to": "1793008806",
+          "serviceName": "mackerel-seminar-demo",
+          "serviceNamespace": "demo",
+          "environment": "development",
+          "orderColumn": "SUM",
+          "orderDirection": "DESC",
+          "page": "1",
+          "perPage": "100",
+          "version": "3cad843ef08bd225f79255c84dc94a625d4d57c1"
+        },
+        "body": null,
+        "started_at_utc": "2026-10-26T10:20:59.520231Z",
+        "http_status": 200,
+        "summary": {
+          "returned_group_count": 7,
+          "has_next_page": false,
+          "groups": [
+            {
+              "query": "select * from \"inventories\" where \"product_id\" = ? limit 1 for update",
+              "executionCount": 24,
+              "totalMillis": 43308,
+              "averageMillis": 1804.5083333333332,
+              "approxP95Millis": 2157.14
+            },
+            {
+              "query": "select count(*) as \"aggregate\" from \"customers\" where \"id\" = ?",
+              "executionCount": 24,
+              "totalMillis": 201,
+              "averageMillis": 8.382083333333334,
+              "approxP95Millis": 11.1
+            },
+            {
+              "query": "insert into \"orders\" (\"customer_id\", \"status\", \"total_cents\", \"updated_at\", \"created_at\") values (?, ?, ?, ?, ?) returning \"id\"",
+              "executionCount": 24,
+              "totalMillis": 23,
+              "averageMillis": 0.9779166666666667,
+              "approxP95Millis": 1.07
+            },
+            {
+              "query": "update \"inventories\" set \"quantity\" = ?, \"updated_at\" = ? where \"id\" = ?",
+              "executionCount": 24,
+              "totalMillis": 21,
+              "averageMillis": 0.905,
+              "approxP95Millis": 0.98
+            },
+            {
+              "query": "insert into \"order_items\" (\"product_id\", \"quantity\", \"unit_price_cents\", \"order_id\", \"updated_at\", \"created_at\") values (?, ?, ?, ?, ?, ?) returning \"id\"",
+              "executionCount": 24,
+              "totalMillis": 18,
+              "averageMillis": 0.755,
+              "approxP95Millis": 0.84
+            },
+            {
+              "query": "select * from \"products\" where \"active\" = ? and \"products\".\"id\" = ? limit 1",
+              "executionCount": 24,
+              "totalMillis": 14,
+              "averageMillis": 0.6141666666666666,
+              "approxP95Millis": 0.83
+            },
+            {
+              "query": "select count(*) as \"aggregate\" from \"products\" where \"id\" = ?",
+              "executionCount": 24,
+              "totalMillis": 14,
+              "averageMillis": 0.5983333333333334,
+              "approxP95Millis": 0.74
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:21:00.744738Z"
+      },
+      {
+        "sequence": 35,
+        "phase": "同時購入・品質系列",
+        "method": "POST",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/logs",
+        "query": {},
+        "body": {
+          "from": 1793008560,
+          "to": 1793008806,
+          "serviceName": "mackerel-seminar-demo",
+          "serviceNamespace": "demo",
+          "severities": [
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "order": {
+            "column": "TIMESTAMP",
+            "direction": "DESC"
+          },
+          "perPage": 100
+        },
+        "started_at_utc": "2026-10-26T10:21:00.745102Z",
+        "http_status": 200,
+        "summary": {
+          "returned_count": 24,
+          "matched_scope_count": 24,
+          "matched_with_trace_id": 24,
+          "has_next_page": false,
+          "sample_records": [
+            {
+              "timestamp": "2026-10-26T09:58:25Z",
+              "severity": "INFO",
+              "trace_id": "5b3f601840d31ad1c2f8051ebba6ffa1",
+              "span_id": "48491f846c72d0f2",
+              "service_version": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+              "request": {
+                "method": "POST",
+                "route": "/api/checkout",
+                "status": 201,
+                "request_time": 2.474848,
+                "query_count": 7,
+                "peak_memory_bytes": 6291456
+              }
+            },
+            {
+              "timestamp": "2026-10-26T09:58:24Z",
+              "severity": "INFO",
+              "trace_id": "53b1e5b0e5cb6b7499295fca4a46d64d",
+              "span_id": "c09d49840785b833",
+              "service_version": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+              "request": {
+                "method": "POST",
+                "route": "/api/checkout",
+                "status": 201,
+                "request_time": 2.477588,
+                "query_count": 7,
+                "peak_memory_bytes": 6291456
+              }
+            },
+            {
+              "timestamp": "2026-10-26T09:58:24Z",
+              "severity": "INFO",
+              "trace_id": "eb78917668e36dffee038d20e5b167ed",
+              "span_id": "1e7a11cd44c2f9fb",
+              "service_version": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+              "request": {
+                "method": "POST",
+                "route": "/api/checkout",
+                "status": 201,
+                "request_time": 2.477925,
+                "query_count": 7,
+                "peak_memory_bytes": 6291456
+              }
+            }
+          ]
+        },
+        "finished_at_utc": "2026-10-26T10:21:02.166553Z"
+      },
+      {
+        "sequence": 36,
+        "phase": "品質投稿metadataの再確認",
+        "method": "GET",
+        "origin": "https://api.mackerelio.com",
+        "path": "/api/v0/services/mackerel-seminar-demo/metadata/dev-quality",
+        "query": {},
+        "body": null,
+        "started_at_utc": "2026-10-26T10:21:02.166874Z",
+        "http_status": 200,
+        "summary": {
+          "schema_version": 1,
+          "service": "mackerel-seminar-demo",
+          "environment": "development",
+          "profiles": {
+            "php_static": {
+              "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+              "attempt_id": "1",
+              "comparison_key": "c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c",
+              "measured_at": 1793008677,
+              "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18",
+              "published_status": "verified",
+              "report_completeness": "complete",
+              "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+              "run_id": "20261026T095756Z-a8bfaae1"
+            },
+            "unit": {
+              "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+              "attempt_id": "1",
+              "comparison_key": "2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72",
+              "measured_at": 1793008677,
+              "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18",
+              "published_status": "verified",
+              "report_completeness": "complete",
+              "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+              "run_id": "20261026T095756Z-a8bfaae1"
+            }
+          }
+        },
+        "finished_at_utc": "2026-10-26T10:21:02.215946Z"
+      }
+    ],
+    "observations": [
+      {
+        "status": "complete",
+        "runtime_version_filter_applied": true
+      },
+      {
+        "status": "complete",
+        "runtime_version_filter_applied": true
+      }
+    ],
+    "metric_readback": {
+      "matched_count": 25,
+      "checked_count": 25,
+      "series": [
+        {
+          "name": "cccc.php_static.analysis.complete",
+          "expected_value": 1,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.analysis.files",
+          "expected_value": 18,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 18
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.analysis.functions",
+          "expected_value": 37,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 37
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.analysis.last_success_timestamp",
+          "expected_value": 1793008677,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1793008677
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.analysis.parse_error_files",
+          "expected_value": 0,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.analysis.parse_errors",
+          "expected_value": 0,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.cognitive.max",
+          "expected_value": 51,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 51
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.cognitive.over_limit_count",
+          "expected_value": 1,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.cognitive.over_limit_ratio",
+          "expected_value": 0.02702702702702703,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0.02702702702702703
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.cognitive.p95",
+          "expected_value": 12,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 12
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.max",
+          "expected_value": 29,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 29
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.over_limit_count",
+          "expected_value": 3,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 3
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.over_limit_ratio",
+          "expected_value": 0.08108108108108109,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0.08108108108108109
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.p95",
+          "expected_value": 11,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 11
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.cases.error",
+          "expected_value": 0,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.cases.failed",
+          "expected_value": 0,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.cases.passed",
+          "expected_value": 28,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 28
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.cases.selected",
+          "expected_value": 28,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 28
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.cases.skipped",
+          "expected_value": 0,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.ratios.strict_pass",
+          "expected_value": 1.0,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.run.complete",
+          "expected_value": 1,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.run.duration_seconds",
+          "expected_value": 0.5501420497894287,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 0.5501420497894287
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.run.last_completed_timestamp",
+          "expected_value": 1793008677,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1793008677
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.run.report_complete",
+          "expected_value": 1,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ],
+          "matches_expected": true
+        },
+        {
+          "name": "tests.unit.run.success",
+          "expected_value": 1,
+          "measurement_timestamp": 1793008677,
+          "points": [
+            {
+              "time": 1793008620,
+              "value": 1
+            }
+          ],
+          "matches_expected": true
+        }
+      ]
+    }
+  },
+  "historical_writes": [
+    {
+      "method": "POST",
+      "path": "/api/v0/services/mackerel-seminar-demo/tsdb",
+      "executed_at_utc": "2026-10-26T09:58:00Z",
+      "logical_http_status_verified_by_client": 200,
+      "wire_capture": false,
+      "evidence": "publication-result.jsonのposting→metrics_verified→verified、および固定payloadのSHA256",
+      "payload": [
+        {
+          "name": "cccc.php_static.analysis.complete",
+          "time": 1793008677,
+          "value": 1
+        },
+        {
+          "name": "cccc.php_static.analysis.files",
+          "time": 1793008677,
+          "value": 18
+        },
+        {
+          "name": "cccc.php_static.analysis.functions",
+          "time": 1793008677,
+          "value": 37
+        },
+        {
+          "name": "cccc.php_static.analysis.last_success_timestamp",
+          "time": 1793008677,
+          "value": 1793008677
+        },
+        {
+          "name": "cccc.php_static.analysis.parse_error_files",
+          "time": 1793008677,
+          "value": 0
+        },
+        {
+          "name": "cccc.php_static.analysis.parse_errors",
+          "time": 1793008677,
+          "value": 0
+        },
+        {
+          "name": "cccc.php_static.cognitive.max",
+          "time": 1793008677,
+          "value": 51
+        },
+        {
+          "name": "cccc.php_static.cognitive.over_limit_count",
+          "time": 1793008677,
+          "value": 1
+        },
+        {
+          "name": "cccc.php_static.cognitive.over_limit_ratio",
+          "time": 1793008677,
+          "value": 0.02702702702702703
+        },
+        {
+          "name": "cccc.php_static.cognitive.p95",
+          "time": 1793008677,
+          "value": 12
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.max",
+          "time": 1793008677,
+          "value": 29
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.over_limit_count",
+          "time": 1793008677,
+          "value": 3
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.over_limit_ratio",
+          "time": 1793008677,
+          "value": 0.08108108108108109
+        },
+        {
+          "name": "cccc.php_static.cyclomatic.p95",
+          "time": 1793008677,
+          "value": 11
+        },
+        {
+          "name": "tests.unit.cases.error",
+          "time": 1793008677,
+          "value": 0
+        },
+        {
+          "name": "tests.unit.cases.failed",
+          "time": 1793008677,
+          "value": 0
+        },
+        {
+          "name": "tests.unit.cases.passed",
+          "time": 1793008677,
+          "value": 28
+        },
+        {
+          "name": "tests.unit.cases.selected",
+          "time": 1793008677,
+          "value": 28
+        },
+        {
+          "name": "tests.unit.cases.skipped",
+          "time": 1793008677,
+          "value": 0
+        },
+        {
+          "name": "tests.unit.ratios.strict_pass",
+          "time": 1793008677,
+          "value": 1.0
+        },
+        {
+          "name": "tests.unit.run.complete",
+          "time": 1793008677,
+          "value": 1
+        },
+        {
+          "name": "tests.unit.run.duration_seconds",
+          "time": 1793008677,
+          "value": 0.5501420497894287
+        },
+        {
+          "name": "tests.unit.run.last_completed_timestamp",
+          "time": 1793008677,
+          "value": 1793008677
+        },
+        {
+          "name": "tests.unit.run.report_complete",
+          "time": 1793008677,
+          "value": 1
+        },
+        {
+          "name": "tests.unit.run.success",
+          "time": 1793008677,
+          "value": 1
+        }
+      ],
+      "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18",
+      "outcome": "verified"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v0/services/mackerel-seminar-demo/metadata/dev-quality",
+      "executed_at_utc": "2026-10-26T09:58:04Z",
+      "logical_http_status_verified_by_client": 200,
+      "wire_capture": false,
+      "evidence": "publisherのsuccess応答とGET読戻し一致。保存したprofileの構造・実値を記載。",
+      "body_recorded_profiles": {
+        "php_static": {
+          "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+          "run_id": "20261026T095756Z-a8bfaae1",
+          "attempt_id": "1",
+          "comparison_key": "c306afd2a6773352ddac628a5ac40e7ebe092dcb08db6593098137d04366276c",
+          "measured_at": 1793008677,
+          "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+          "report_completeness": "complete",
+          "published_status": "verified",
+          "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18"
+        },
+        "unit": {
+          "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+          "run_id": "20261026T095756Z-a8bfaae1",
+          "attempt_id": "1",
+          "comparison_key": "2b3aee85fb8cf733cf49b32dc4de8bc054d97f1027e633d0057c1e155836ed72",
+          "measured_at": 1793008677,
+          "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+          "report_completeness": "complete",
+          "published_status": "verified",
+          "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18"
+        }
+      },
+      "outcome": "verified"
+    }
+  ],
+  "metadata_profiles_match": true,
+  "ui_links": {
+    "BEFORE：同時購入のHTTP統計（24件）": "https://mackerel.io/orgs/mackerel-seminar/apm/mackerel-seminar-demo?tab=http&serviceNamespace=demo&env=development&version=3cad843ef08bd225f79255c84dc94a625d4d57c1#t=2026-10-26T09:57:00Z,2026-10-26T10:00:00Z",
+    "BEFORE：データベースクエリ統計": "https://mackerel.io/orgs/mackerel-seminar/apm/mackerel-seminar-demo?tab=database&serviceNamespace=demo&env=development&version=3cad843ef08bd225f79255c84dc94a625d4d57c1#t=2026-10-26T09:57:00Z,2026-10-26T10:00:00Z",
+    "BEFORE：同時購入のトレース一覧": "https://mackerel.io/orgs/mackerel-seminar/apm/mackerel-seminar-demo?tab=traces&serviceNamespace=demo&env=development&version=3cad843ef08bd225f79255c84dc94a625d4d57c1#t=2026-10-26T09:57:00Z,2026-10-26T10:00:00Z",
+    "BEFORE：代表トレース（在庫ロック待ち）": "https://mackerel.io/orgs/mackerel-seminar/traces/5b3f601840d31ad1c2f8051ebba6ffa1"
+  },
+  "limitations": [
+    "The read-only audit is a logical request log, not a packet capture.",
+    "GET transport retries, if any, are handled by the existing client and not counted individually.",
+    "Historical write timestamps are rounded to seconds from publication stage evidence.",
+    "No API key, Authorization value, or full raw log body is recorded."
+  ]
+}
