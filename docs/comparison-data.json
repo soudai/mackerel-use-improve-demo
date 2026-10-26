@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-26T10:29:54.669068+00:00",
+  "generated_at": "2026-10-26T10:40:04.057269Z",
   "organization": "mackerel-seminar",
   "service": "mackerel-seminar-demo",
   "summary": "実アプリの問題箇所、コミットに固定したソース、Mackerelの実画面、同条件の再計測を6つのシナリオで対応付けます。HTTPが改善しなかった検索や、DB内集約でSQL単体時間が増えた結果も併記します。",
@@ -11,18 +11,14 @@
       "decision": "verified",
       "problem": "GET /api/orders?limit=50 は50件の注文取得後、customerを各行で遅延ロードしていました。注文1回＋顧客50回のSQLが発行されます。",
       "demo": {
-        "description": "デモトップの「注文一覧を取得」を実行します。対象: GET /api/orders?limit=50。画像は改善前・改善後それぞれの実アプリです。",
+        "description": "デモトップの「注文一覧を取得」を実行します。対象: GET /api/orders?limit=50。画像は問題を再現する改善前アプリの画面です。",
         "url": "http://localhost:18080/",
         "screenshots": [
           {
-            "src": "screenshots/demo-before.jpg",
-            "alt": "改善前デモ：注文一覧を取得の操作箇所（localhost:18080）",
-            "caption": "改善前デモ：注文一覧を取得の操作箇所（localhost:18080）"
-          },
-          {
-            "src": "screenshots/demo-after.jpg",
-            "alt": "改善後デモ：同じ注文一覧を取得操作（localhost:18082）",
-            "caption": "改善後デモ：同じ注文一覧を取得操作（localhost:18082）"
+            "src": "screenshots/demo-before-orders.svg",
+            "alt": "改善前デモ：注文一覧を取得ボタンを赤枠で強調",
+            "caption": "赤枠の「注文一覧を取得」をクリックします。元の実画面に操作案内を重ねています。",
+            "button_label": "注文一覧を取得"
           }
         ]
       },
@@ -41,9 +37,12 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/before-read-database.jpg",
-            "alt": "Mackerel BEFORE：繰り返されるcustomers検索と大量行の集計SQL",
-            "caption": "Mackerel BEFORE：繰り返されるcustomers検索と大量行の集計SQL"
+            "src": "screenshots/before-n-plus-one-annotated.svg",
+            "alt": "Mackerel BEFORE：繰り返されるcustomers検索と大量行の集計SQL（赤枠と番号付き注釈）",
+            "caption": "Mackerel BEFORE：繰り返されるcustomers検索と大量行の集計SQL",
+            "annotations": [
+              "顧客を1件ずつ取得するSQL。繰り返し回数はAPIの記録と測定表で確認します。"
+            ]
           }
         ],
         "metrics": [
@@ -96,9 +95,13 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/after-n-plus-one.jpg",
-            "alt": "Mackerel AFTER：顧客の一括取得に変わったデータベース統計",
-            "caption": "改善後のMackerel。顧客クエリはINによる一括取得に変わった。画面の23回はwarmup等を含む表示窓の集計で、負荷テスト20回とは区別する。"
+            "src": "screenshots/after-n-plus-one-annotated.svg",
+            "alt": "Mackerel AFTER：顧客の一括取得に変わったデータベース統計（赤枠と番号付き注釈）",
+            "caption": "改善後のMackerel。顧客クエリはINによる一括取得に変わった。画面の23回はwarmup等を含む表示窓の集計で、負荷テスト20回とは区別する。",
+            "annotations": [
+              "IN句で顧客をまとめて取得。SQL数51→2は、別掲の測定表で確認します。",
+              "改善後のversionで絞り込み。異なる版のSQLを混ぜずに確認します。"
+            ]
           }
         ],
         "metrics": [
@@ -170,7 +173,98 @@
       "limitations": [
         "同一マシン上で順番に実行した小規模測定です。CPU・OSキャッシュ・他プロセスを完全に隔離したベンチマークではありません。",
         "Mackerelのリンクは固定10分窓、画像は撮影時のUI表示です。表のp95は各欄のfrom/toに示すローカル負荷の測定対象だけで算出し、両者を同じ母集団として扱いません。"
-      ]
+      ],
+      "diff": {
+        "label": "該当ソースの差分",
+        "path": "backend/app/Http/Controllers/OrderController.php",
+        "before_revision": "99b7ef70d97f809c80f751d6b338518fb59588f6",
+        "after_revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+        "before_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/99b7ef70d97f809c80f751d6b338518fb59588f6/backend/app/Http/Controllers/OrderController.php#L12-L28",
+        "after_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/fbf320b4d777e0520afb1f52948853ba2e2f5406/backend/app/Http/Controllers/OrderController.php#L13-L29",
+        "before_start_line": 12,
+        "after_start_line": 13,
+        "note": "実コミット間の差分から、この箇所に関係する変更を表示しています。前後3行の文脈を含みます。",
+        "lines": [
+          {
+            "kind": "header",
+            "text": "diff --git a/backend/app/Http/Controllers/OrderController.php b/backend/app/Http/Controllers/OrderController.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "index c90269a..f422aa4 100644",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "--- a/backend/app/Http/Controllers/OrderController.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "+++ b/backend/app/Http/Controllers/OrderController.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "hunk",
+            "text": "@@ -14,7 +15,7 @@ public function index(Request $request): JsonResponse",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "         $input = $request->validate(['limit' => 'sometimes|integer|min:1|max:100']);",
+            "before_line": 14,
+            "after_line": 15
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 15,
+            "after_line": 16
+          },
+          {
+            "kind": "context",
+            "text": "         return Telemetry::span('orders.list', function () use ($input): JsonResponse {",
+            "before_line": 16,
+            "after_line": 17
+          },
+          {
+            "kind": "removed",
+            "text": "-            $orders = Order::query()->orderByDesc('id')->limit($input['limit'] ?? 50)->get();",
+            "before_line": 17,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+            $orders = Order::query()->with('customer')->orderByDesc('id')->limit($input['limit'] ?? 50)->get();",
+            "before_line": null,
+            "after_line": 18
+          },
+          {
+            "kind": "context",
+            "text": "             $data = $orders->map(fn (Order $order) => [",
+            "before_line": 18,
+            "after_line": 19
+          },
+          {
+            "kind": "context",
+            "text": "                 'id' => $order->id,",
+            "before_line": 19,
+            "after_line": 20
+          },
+          {
+            "kind": "context",
+            "text": "                 'customer' => $order->customer->name,",
+            "before_line": 20,
+            "after_line": 21
+          }
+        ]
+      }
     },
     {
       "id": "lock",
@@ -178,18 +272,14 @@
       "decision": "verified",
       "problem": "同じ商品を同時購入すると、在庫のSELECT FOR UPDATEを取得したまま送料APIを呼び出すため、後続トランザクションが待ちます。",
       "demo": {
-        "description": "デモトップの「1点購入する」を実行します。対象: POST /api/checkout（customer_id=1, product_id=1, quantity=1）。画像は改善前・改善後それぞれの実アプリです。",
+        "description": "デモトップの「1点購入する」を実行します。対象: POST /api/checkout（customer_id=1, product_id=1, quantity=1）。画像は問題を再現する改善前アプリの画面です。",
         "url": "http://localhost:18080/",
         "screenshots": [
           {
-            "src": "screenshots/demo-before.jpg",
-            "alt": "改善前デモ：1点購入するの操作箇所（localhost:18080）",
-            "caption": "改善前デモ：1点購入するの操作箇所（localhost:18080）"
-          },
-          {
-            "src": "screenshots/demo-after.jpg",
-            "alt": "改善後デモ：同じ1点購入する操作（localhost:18082）",
-            "caption": "改善後デモ：同じ1点購入する操作（localhost:18082）"
+            "src": "screenshots/demo-before-checkout.svg",
+            "alt": "改善前デモ：1点購入するボタンを赤枠で強調",
+            "caption": "赤枠の「1点購入する」をクリックします。元の実画面に操作案内を重ねています。",
+            "button_label": "1点購入する"
           }
         ]
       },
@@ -208,14 +298,24 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/before-lock-trace.jpg",
-            "alt": "BEFORE実トレース：在庫SELECT FOR UPDATEが約2.186秒。選んだ例でありp95ではありません。",
-            "caption": "BEFORE実トレース：在庫SELECT FOR UPDATEが約2.186秒。選んだ例でありp95ではありません。"
+            "src": "screenshots/before-lock-trace-annotated.svg",
+            "alt": "BEFORE実トレース：在庫SELECT FOR UPDATEが約2.186秒。選んだ例でありp95ではありません。（赤枠と番号付き注釈）",
+            "caption": "BEFORE実トレース：在庫SELECT FOR UPDATEが約2.186秒。選んだ例でありp95ではありません。",
+            "annotations": [
+              "SELECT が約2.186秒。後続リクエストのロック待ちを確認。",
+              "送料API（約303ms）は、長いSELECTの後に実行される。",
+              "CheckoutService.php:25 を、トレースと同じcommitのソースで確認。"
+            ]
           },
           {
-            "src": "screenshots/before-lock-log.jpg",
-            "alt": "BEFORE実ログ：同じtrace IDで遅いPOST /api/checkoutへ到達",
-            "caption": "BEFORE実ログ：同じtrace IDで遅いPOST /api/checkoutへ到達"
+            "src": "screenshots/before-lock-log-annotated.svg",
+            "alt": "BEFORE実ログ：同じtrace IDで遅いPOST /api/checkoutへ到達（赤枠と番号付き注釈）",
+            "caption": "BEFORE実ログ：同じtrace IDで遅いPOST /api/checkoutへ到達",
+            "annotations": [
+              "trace IDで対象を1件に絞る。fb529fc… が改善前の選択例。",
+              "ログ行のtrace IDリンクから、同じリクエストのトレースを開く。",
+              "route=/api/checkout、request_time=2.51855秒。単位は秒。"
+            ]
           }
         ],
         "metrics": [
@@ -291,14 +391,24 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/after-lock-trace.jpg",
-            "alt": "AFTER実トレース：送料APIはロック取得前、選択例の在庫SQLは42.390ms",
-            "caption": "AFTER実トレース：送料APIはロック取得前、選択例の在庫SQLは42.390ms"
+            "src": "screenshots/after-lock-trace-annotated.svg",
+            "alt": "AFTER実トレース：送料APIはロック取得前、選択例の在庫SQLは42.390ms（赤枠と番号付き注釈）",
+            "caption": "AFTER実トレース：送料APIはロック取得前、選択例の在庫SQLは42.390ms",
+            "annotations": [
+              "送料API（305ms）が、在庫SELECTより前に実行されている。",
+              "この例の在庫SELECTは42.390ms。待ちがゼロになった意味ではない。",
+              "改善後のCheckoutService.php:30 に対応。前後で行番号は異なる。"
+            ]
           },
           {
-            "src": "screenshots/after-lock-log.jpg",
-            "alt": "AFTER実ログ：改善後versionと同じtrace IDを照合",
-            "caption": "AFTER実ログ：改善後versionと同じtrace IDを照合"
+            "src": "screenshots/after-lock-log-annotated.svg",
+            "alt": "AFTER実ログ：改善後versionと同じtrace IDを照合（赤枠と番号付き注釈）",
+            "caption": "AFTER実ログ：改善後versionと同じtrace IDを照合",
+            "annotations": [
+              "04dcbad… が改善後の選択例。前の画像とは別リクエスト。",
+              "ログ行のtrace IDリンクと、改善後のトレース詳細を照合する。",
+              "route=/api/checkout、request_time=0.384097秒。p95そのものではない。"
+            ]
           }
         ],
         "metrics": [
@@ -410,7 +520,416 @@
         "Mackerelのリンクは固定10分窓、画像は撮影時のUI表示です。表のp95は各欄のfrom/toに示すローカル負荷の測定対象だけで算出し、両者を同じ母集団として扱いません。",
         "改善後にもHTTP1452.929msの最大リクエストがあり、全件が0.5秒未満になったわけではありません。送料API側の遅延を含む外れ値は別トレースで確認できます。",
         "SQL数は7→9に増加。事前確認とトランザクション内の再確認を行い、整合性を維持する変更です。"
-      ]
+      ],
+      "diff": {
+        "label": "該当ソースの差分",
+        "path": "backend/app/Services/CheckoutService.php",
+        "before_revision": "99b7ef70d97f809c80f751d6b338518fb59588f6",
+        "after_revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+        "before_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/99b7ef70d97f809c80f751d6b338518fb59588f6/backend/app/Services/CheckoutService.php#L22-L52",
+        "after_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/fbf320b4d777e0520afb1f52948853ba2e2f5406/backend/app/Services/CheckoutService.php#L22-L48",
+        "before_start_line": 22,
+        "after_start_line": 22,
+        "note": "実コミット間の差分から、この箇所に関係する変更を表示しています。前後3行の文脈を含みます。",
+        "lines": [
+          {
+            "kind": "header",
+            "text": "diff --git a/backend/app/Services/CheckoutService.php b/backend/app/Services/CheckoutService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "index 6164115..1a10c87 100644",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "--- a/backend/app/Services/CheckoutService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "+++ b/backend/app/Services/CheckoutService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "hunk",
+            "text": "@@ -20,26 +20,15 @@ public function checkout(int $customerId, int $productId, int $quantity): array",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "         }",
+            "before_line": 20,
+            "after_line": 20
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 21,
+            "after_line": 21
+          },
+          {
+            "kind": "context",
+            "text": "         return Telemetry::span('checkout.reserve', function () use ($customerId, $productId, $quantity): array {",
+            "before_line": 22,
+            "after_line": 22
+          },
+          {
+            "kind": "removed",
+            "text": "-            return DB::transaction(function () use ($customerId, $productId, $quantity): array {",
+            "before_line": 23,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+            Product::query()->where('active', true)->findOrFail($productId);",
+            "before_line": null,
+            "after_line": 23
+          },
+          {
+            "kind": "added",
+            "text": "+            $available = Inventory::query()->where('product_id', $productId)->firstOrFail();",
+            "before_line": null,
+            "after_line": 24
+          },
+          {
+            "kind": "added",
+            "text": "+            $this->ensureStock($available, $quantity);",
+            "before_line": null,
+            "after_line": 25
+          },
+          {
+            "kind": "added",
+            "text": "+            $shipping = $this->shippingQuote();",
+            "before_line": null,
+            "after_line": 26
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 27
+          },
+          {
+            "kind": "added",
+            "text": "+            return DB::transaction(function () use ($customerId, $productId, $quantity, $shipping): array {",
+            "before_line": null,
+            "after_line": 28
+          },
+          {
+            "kind": "context",
+            "text": "                 $product = Product::query()->where('active', true)->findOrFail($productId);",
+            "before_line": 24,
+            "after_line": 29
+          },
+          {
+            "kind": "context",
+            "text": "                 $inventory = Inventory::query()->where('product_id', $productId)->lockForUpdate()->firstOrFail();",
+            "before_line": 25,
+            "after_line": 30
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($inventory->quantity < $quantity) {",
+            "before_line": 26,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    throw ValidationException::withMessages(['quantity' => '在庫が不足しています。']);",
+            "before_line": 27,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 28,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-",
+            "before_line": 29,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                // Baseline: external I/O extends the inventory row lock lifetime.",
+            "before_line": 30,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                $shipping = Telemetry::span('shipping.quote', function (): int {",
+            "before_line": 31,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $response = Http::timeout(5)->get(rtrim(config('demo.shipping_url'), '/').'/quote', [",
+            "before_line": 32,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        'region' => 'tokyo',",
+            "before_line": 33,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        'delay_ms' => (int) config('demo.shipping_delay_ms', 400),",
+            "before_line": 34,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    ])->throw();",
+            "before_line": 35,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $amount = $response->json('shipping_cents');",
+            "before_line": 36,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    if (! is_int($amount) || $amount < 0 || $amount > 100000) {",
+            "before_line": 37,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        throw new UnexpectedValueException('Shipping quote must contain a non-negative integer shipping_cents.');",
+            "before_line": 38,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    }",
+            "before_line": 39,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-",
+            "before_line": 40,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    return $amount;",
+            "before_line": 41,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                });",
+            "before_line": 42,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+                $this->ensureStock($inventory, $quantity);",
+            "before_line": null,
+            "after_line": 31
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 43,
+            "after_line": 32
+          },
+          {
+            "kind": "context",
+            "text": "                 $inventory->quantity -= $quantity;",
+            "before_line": 44,
+            "after_line": 33
+          },
+          {
+            "kind": "context",
+            "text": "                 $inventory->save();",
+            "before_line": 45,
+            "after_line": 34
+          },
+          {
+            "kind": "hunk",
+            "text": "@@ -58,4 +47,27 @@ public function checkout(int $customerId, int $productId, int $quantity): array",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "             });",
+            "before_line": 58,
+            "after_line": 47
+          },
+          {
+            "kind": "context",
+            "text": "         });",
+            "before_line": 59,
+            "after_line": 48
+          },
+          {
+            "kind": "context",
+            "text": "     }",
+            "before_line": 60,
+            "after_line": 49
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 50
+          },
+          {
+            "kind": "added",
+            "text": "+    private function ensureStock(Inventory $inventory, int $quantity): void",
+            "before_line": null,
+            "after_line": 51
+          },
+          {
+            "kind": "added",
+            "text": "+    {",
+            "before_line": null,
+            "after_line": 52
+          },
+          {
+            "kind": "added",
+            "text": "+        if ($inventory->quantity < $quantity) {",
+            "before_line": null,
+            "after_line": 53
+          },
+          {
+            "kind": "added",
+            "text": "+            throw ValidationException::withMessages(['quantity' => '在庫が不足しています。']);",
+            "before_line": null,
+            "after_line": 54
+          },
+          {
+            "kind": "added",
+            "text": "+        }",
+            "before_line": null,
+            "after_line": 55
+          },
+          {
+            "kind": "added",
+            "text": "+    }",
+            "before_line": null,
+            "after_line": 56
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 57
+          },
+          {
+            "kind": "added",
+            "text": "+    private function shippingQuote(): int",
+            "before_line": null,
+            "after_line": 58
+          },
+          {
+            "kind": "added",
+            "text": "+    {",
+            "before_line": null,
+            "after_line": 59
+          },
+          {
+            "kind": "added",
+            "text": "+        return Telemetry::span('shipping.quote', function (): int {",
+            "before_line": null,
+            "after_line": 60
+          },
+          {
+            "kind": "added",
+            "text": "+            $response = Http::timeout(5)->get(rtrim(config('demo.shipping_url'), '/').'/quote', [",
+            "before_line": null,
+            "after_line": 61
+          },
+          {
+            "kind": "added",
+            "text": "+                'region' => 'tokyo',",
+            "before_line": null,
+            "after_line": 62
+          },
+          {
+            "kind": "added",
+            "text": "+                'delay_ms' => (int) config('demo.shipping_delay_ms', 400),",
+            "before_line": null,
+            "after_line": 63
+          },
+          {
+            "kind": "added",
+            "text": "+            ])->throw();",
+            "before_line": null,
+            "after_line": 64
+          },
+          {
+            "kind": "added",
+            "text": "+            $amount = $response->json('shipping_cents');",
+            "before_line": null,
+            "after_line": 65
+          },
+          {
+            "kind": "added",
+            "text": "+            if (! is_int($amount) || $amount < 0 || $amount > 100000) {",
+            "before_line": null,
+            "after_line": 66
+          },
+          {
+            "kind": "added",
+            "text": "+                throw new UnexpectedValueException('Shipping quote must contain a non-negative integer shipping_cents.');",
+            "before_line": null,
+            "after_line": 67
+          },
+          {
+            "kind": "added",
+            "text": "+            }",
+            "before_line": null,
+            "after_line": 68
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 69
+          },
+          {
+            "kind": "added",
+            "text": "+            return $amount;",
+            "before_line": null,
+            "after_line": 70
+          },
+          {
+            "kind": "added",
+            "text": "+        });",
+            "before_line": null,
+            "after_line": 71
+          },
+          {
+            "kind": "added",
+            "text": "+    }",
+            "before_line": null,
+            "after_line": 72
+          },
+          {
+            "kind": "context",
+            "text": " }",
+            "before_line": 61,
+            "after_line": 73
+          }
+        ]
+      }
     },
     {
       "id": "search",
@@ -418,18 +937,14 @@
       "decision": "verified",
       "problem": "whereDateがcreated_at::dateに変換され、status＋日付＋並び順を効率よく処理する索引がありません。約2万件を走査してから並べ替えていました。",
       "demo": {
-        "description": "デモトップの「注文を検索」を実行します。対象: GET /api/orders/search?status=paid&from=2026-01-01&to=2026-01-02。画像は改善前・改善後それぞれの実アプリです。",
+        "description": "デモトップの「注文を検索」を実行します。対象: GET /api/orders/search?status=paid&from=2026-01-01&to=2026-01-02。画像は問題を再現する改善前アプリの画面です。",
         "url": "http://localhost:18080/",
         "screenshots": [
           {
-            "src": "screenshots/demo-before.jpg",
-            "alt": "改善前デモ：注文を検索の操作箇所（localhost:18080）",
-            "caption": "改善前デモ：注文を検索の操作箇所（localhost:18080）"
-          },
-          {
-            "src": "screenshots/demo-after.jpg",
-            "alt": "改善後デモ：同じ注文を検索操作（localhost:18082）",
-            "caption": "改善後デモ：同じ注文を検索操作（localhost:18082）"
+            "src": "screenshots/demo-before-search.svg",
+            "alt": "改善前デモ：注文を検索ボタンを赤枠で強調",
+            "caption": "赤枠の「注文を検索」をクリックします。元の実画面に操作案内を重ねています。",
+            "button_label": "注文を検索"
           }
         ]
       },
@@ -448,9 +963,12 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/before-read-database.jpg",
-            "alt": "BEFOREデータベース統計：日付キャストを含む注文検索SQL",
-            "caption": "BEFOREデータベース統計：日付キャストを含む注文検索SQL"
+            "src": "screenshots/before-search-annotated.svg",
+            "alt": "BEFOREデータベース統計：日付キャストを含む注文検索SQL（赤枠と番号付き注釈）",
+            "caption": "BEFOREデータベース統計：日付キャストを含む注文検索SQL",
+            "annotations": [
+              "created_at::dateで列を変換。全走査かどうかはEXPLAINの結果と照合します。"
+            ]
           }
         ],
         "metrics": [
@@ -511,9 +1029,12 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/after-database.jpg",
-            "alt": "AFTERデータベース統計：キャストを使わない時刻範囲検索",
-            "caption": "AFTERデータベース統計：キャストを使わない時刻範囲検索"
+            "src": "screenshots/after-search-annotated.svg",
+            "alt": "AFTERデータベース統計：キャストを使わない時刻範囲検索（赤枠と番号付き注釈）",
+            "caption": "AFTERデータベース統計：キャストを使わない時刻範囲検索",
+            "annotations": [
+              "日時列をそのまま >= / < で比較。索引利用は別掲の実行計画で確認します。"
+            ]
           }
         ],
         "metrics": [
@@ -929,6 +1450,199 @@
           },
           "source_interpretation": "Only migration index definition, seeder values, and model fillable property reference legacy_reference; no application query filters or joins by this field."
         }
+      },
+      "diff": {
+        "label": "該当ソースの差分",
+        "path": "backend/app/Http/Controllers/OrderController.php",
+        "before_revision": "99b7ef70d97f809c80f751d6b338518fb59588f6",
+        "after_revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+        "before_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/99b7ef70d97f809c80f751d6b338518fb59588f6/backend/app/Http/Controllers/OrderController.php#L30-L54",
+        "after_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/fbf320b4d777e0520afb1f52948853ba2e2f5406/backend/app/Http/Controllers/OrderController.php#L31-L52",
+        "before_start_line": 30,
+        "after_start_line": 31,
+        "note": "実コミット間の差分から、この箇所に関係する変更を表示しています。前後3行の文脈を含みます。",
+        "lines": [
+          {
+            "kind": "header",
+            "text": "diff --git a/backend/app/Http/Controllers/OrderController.php b/backend/app/Http/Controllers/OrderController.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "index c90269a..f422aa4 100644",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "--- a/backend/app/Http/Controllers/OrderController.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "+++ b/backend/app/Http/Controllers/OrderController.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "hunk",
+            "text": "@@ -36,17 +37,14 @@ public function search(Request $request): JsonResponse",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "             'to' => 'sometimes|date_format:Y-m-d|after_or_equal:from',",
+            "before_line": 36,
+            "after_line": 37
+          },
+          {
+            "kind": "context",
+            "text": "             'limit' => 'sometimes|integer|min:1|max:200',",
+            "before_line": 37,
+            "after_line": 38
+          },
+          {
+            "kind": "context",
+            "text": "         ]);",
+            "before_line": 38,
+            "after_line": 39
+          },
+          {
+            "kind": "removed",
+            "text": "-        $from = $input['from'] ?? '2026-01-01';",
+            "before_line": 39,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-        $to = $input['to'] ?? '2026-01-02';",
+            "before_line": 40,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-",
+            "before_line": 41,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-        return Telemetry::span('orders.search', function () use ($input, $from, $to): JsonResponse {",
+            "before_line": 42,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            $orders = Order::query()",
+            "before_line": 43,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                ->where('status', $input['status'] ?? 'paid')",
+            "before_line": 44,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                ->whereDate('created_at', '>=', $from)",
+            "before_line": 45,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                ->whereDate('created_at', '<=', $to)",
+            "before_line": 46,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                ->orderByDesc('created_at')",
+            "before_line": 47,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                ->orderByDesc('id')",
+            "before_line": 48,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                ->limit($input['limit'] ?? 50)",
+            "before_line": 49,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+        $from = CarbonImmutable::parse($input['from'], 'UTC')->startOfDay();",
+            "before_line": null,
+            "after_line": 40
+          },
+          {
+            "kind": "added",
+            "text": "+        $until = CarbonImmutable::parse($input['to'], 'UTC')->startOfDay()->addDay();",
+            "before_line": null,
+            "after_line": 41
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 42
+          },
+          {
+            "kind": "added",
+            "text": "+        return Telemetry::span('orders.search', function () use ($input, $from, $until): JsonResponse {",
+            "before_line": null,
+            "after_line": 43
+          },
+          {
+            "kind": "added",
+            "text": "+            $orders = Order::query()->where('status', $input['status'] ?? 'paid')",
+            "before_line": null,
+            "after_line": 44
+          },
+          {
+            "kind": "added",
+            "text": "+                ->where('created_at', '>=', $from)",
+            "before_line": null,
+            "after_line": 45
+          },
+          {
+            "kind": "added",
+            "text": "+                ->where('created_at', '<', $until)",
+            "before_line": null,
+            "after_line": 46
+          },
+          {
+            "kind": "added",
+            "text": "+                ->orderByDesc('created_at')->orderByDesc('id')->limit($input['limit'] ?? 50)",
+            "before_line": null,
+            "after_line": 47
+          },
+          {
+            "kind": "context",
+            "text": "                 ->get(['id', 'customer_id', 'status', 'total_cents', 'created_at']);",
+            "before_line": 50,
+            "after_line": 48
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 51,
+            "after_line": 49
+          },
+          {
+            "kind": "context",
+            "text": "             return response()->json(['data' => $orders, 'count' => $orders->count()]);",
+            "before_line": 52,
+            "after_line": 50
+          }
+        ]
       }
     },
     {
@@ -937,18 +1651,14 @@
       "decision": "verified",
       "problem": "期間内の全明細をPHPへ転送し、配列を作りながら日別売上を集計していました。最終的に必要な31日分に対して48,000行を取得します。",
       "demo": {
-        "description": "デモトップの「売上を集計」を実行します。対象: GET /api/reports/sales?from=2026-01-01&to=2026-02-01。画像は改善前・改善後それぞれの実アプリです。 画面ボタンはto=2026-01-31、比較負荷はto=2026-02-01です。1月seedのみを対象とするため返却内容は同一です。",
+        "description": "デモトップの「売上を集計」を実行します。対象: GET /api/reports/sales?from=2026-01-01&to=2026-02-01。画像は問題を再現する改善前アプリの画面です。 画面ボタンはto=2026-01-31、比較負荷はto=2026-02-01です。1月seedのみを対象とするため返却内容は同一です。",
         "url": "http://localhost:18080/",
         "screenshots": [
           {
-            "src": "screenshots/demo-before.jpg",
-            "alt": "改善前デモ：売上を集計の操作箇所（localhost:18080）",
-            "caption": "改善前デモ：売上を集計の操作箇所（localhost:18080）"
-          },
-          {
-            "src": "screenshots/demo-after.jpg",
-            "alt": "改善後デモ：同じ売上を集計操作（localhost:18082）",
-            "caption": "改善後デモ：同じ売上を集計操作（localhost:18082）"
+            "src": "screenshots/demo-before-report.svg",
+            "alt": "改善前デモ：売上を集計ボタンを赤枠で強調",
+            "caption": "赤枠の「売上を集計」をクリックします。元の実画面に操作案内を重ねています。",
+            "button_label": "売上を集計"
           }
         ]
       },
@@ -967,9 +1677,12 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/before-read-database.jpg",
-            "alt": "BEFOREデータベース統計：全明細を返すorder_items JOIN orders",
-            "caption": "BEFOREデータベース統計：全明細を返すorder_items JOIN orders"
+            "src": "screenshots/before-rows-annotated.svg",
+            "alt": "BEFOREデータベース統計：全明細を返すorder_items JOIN orders（赤枠と番号付き注釈）",
+            "caption": "BEFOREデータベース統計：全明細を返すorder_items JOIN orders",
+            "annotations": [
+              "明細の数量・単価をそのまま取得。48,000行の転送はDB統計で確認します。"
+            ]
           }
         ],
         "metrics": [
@@ -1030,9 +1743,12 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/after-database.jpg",
-            "alt": "AFTERデータベース統計：日別GROUP BYへ変わった集計SQL",
-            "caption": "AFTERデータベース統計：日別GROUP BYへ変わった集計SQL"
+            "src": "screenshots/after-rows-annotated.svg",
+            "alt": "AFTERデータベース統計：日別GROUP BYへ変わった集計SQL（赤枠と番号付き注釈）",
+            "caption": "AFTERデータベース統計：日別GROUP BYへ変わった集計SQL",
+            "annotations": [
+              "COUNT / SUM / GROUP BYによる日次集約。転送31行は別掲のDB統計で確認します。"
+            ]
           }
         ],
         "metrics": [
@@ -1538,6 +2254,331 @@
             }
           ]
         }
+      },
+      "diff": {
+        "label": "該当ソースの差分",
+        "path": "backend/app/Services/SalesReportService.php",
+        "before_revision": "99b7ef70d97f809c80f751d6b338518fb59588f6",
+        "after_revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+        "before_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/99b7ef70d97f809c80f751d6b338518fb59588f6/backend/app/Services/SalesReportService.php#L11-L42",
+        "after_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/fbf320b4d777e0520afb1f52948853ba2e2f5406/backend/app/Services/SalesReportService.php#L11-L37",
+        "before_start_line": 11,
+        "after_start_line": 11,
+        "note": "実コミット間の差分から、この箇所に関係する変更を表示しています。前後3行の文脈を含みます。",
+        "lines": [
+          {
+            "kind": "header",
+            "text": "diff --git a/backend/app/Services/SalesReportService.php b/backend/app/Services/SalesReportService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "index 9954d04..360bbf9 100644",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "--- a/backend/app/Services/SalesReportService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "+++ b/backend/app/Services/SalesReportService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "hunk",
+            "text": "@@ -11,38 +11,29 @@ class SalesReportService",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "     public function generate(string $from, string $to): array",
+            "before_line": 11,
+            "after_line": 11
+          },
+          {
+            "kind": "context",
+            "text": "     {",
+            "before_line": 12,
+            "after_line": 12
+          },
+          {
+            "kind": "context",
+            "text": "         $until = CarbonImmutable::parse($to, 'UTC')->addDay()->format('Y-m-d');",
+            "before_line": 13,
+            "after_line": 13
+          },
+          {
+            "kind": "removed",
+            "text": "-        // Baseline: transfer every matching detail row, then aggregate in PHP.",
+            "before_line": 14,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "         $rows = Telemetry::span('reports.fetch_rows', fn () => DB::table('order_items')",
+            "before_line": 15,
+            "after_line": 14
+          },
+          {
+            "kind": "context",
+            "text": "             ->join('orders', 'orders.id', '=', 'order_items.order_id')",
+            "before_line": 16,
+            "after_line": 15
+          },
+          {
+            "kind": "context",
+            "text": "             ->where('orders.status', 'paid')",
+            "before_line": 17,
+            "after_line": 16
+          },
+          {
+            "kind": "context",
+            "text": "             ->where('orders.created_at', '>=', $from.' 00:00:00')",
+            "before_line": 18,
+            "after_line": 17
+          },
+          {
+            "kind": "context",
+            "text": "             ->where('orders.created_at', '<', $until.' 00:00:00')",
+            "before_line": 19,
+            "after_line": 18
+          },
+          {
+            "kind": "removed",
+            "text": "-            ->select('orders.id as order_id', 'orders.created_at', 'order_items.quantity', 'order_items.unit_price_cents')",
+            "before_line": 20,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+            ->selectRaw('DATE(orders.created_at) AS sales_date, COUNT(DISTINCT orders.id) AS orders_count, SUM(order_items.quantity) AS items_quantity, SUM(CAST(order_items.quantity AS BIGINT) * order_items.unit_price_cents) AS gross_cents')",
+            "before_line": null,
+            "after_line": 19
+          },
+          {
+            "kind": "added",
+            "text": "+            ->groupByRaw('DATE(orders.created_at)')",
+            "before_line": null,
+            "after_line": 20
+          },
+          {
+            "kind": "added",
+            "text": "+            ->orderBy('sales_date')",
+            "before_line": null,
+            "after_line": 21
+          },
+          {
+            "kind": "context",
+            "text": "             ->get());",
+            "before_line": 21,
+            "after_line": 22
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 22,
+            "after_line": 23
+          },
+          {
+            "kind": "context",
+            "text": "         return Telemetry::span('reports.aggregate', function () use ($rows, $from, $to): array {",
+            "before_line": 23,
+            "after_line": 24
+          },
+          {
+            "kind": "removed",
+            "text": "-            $orders = [];",
+            "before_line": 24,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+            $orders = 0;",
+            "before_line": null,
+            "after_line": 25
+          },
+          {
+            "kind": "context",
+            "text": "             $quantity = 0;",
+            "before_line": 25,
+            "after_line": 26
+          },
+          {
+            "kind": "context",
+            "text": "             $gross = 0;",
+            "before_line": 26,
+            "after_line": 27
+          },
+          {
+            "kind": "context",
+            "text": "             $daily = [];",
+            "before_line": 27,
+            "after_line": 28
+          },
+          {
+            "kind": "context",
+            "text": "             foreach ($rows as $row) {",
+            "before_line": 28,
+            "after_line": 29
+          },
+          {
+            "kind": "removed",
+            "text": "-                $orders[$row->order_id] = true;",
+            "before_line": 29,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                $amount = (int) $row->quantity * (int) $row->unit_price_cents;",
+            "before_line": 30,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                $quantity += (int) $row->quantity;",
+            "before_line": 31,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                $gross += $amount;",
+            "before_line": 32,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                $date = substr($row->created_at, 0, 10);",
+            "before_line": 33,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                $daily[$date] = ($daily[$date] ?? 0) + $amount;",
+            "before_line": 34,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+                $orders += (int) $row->orders_count;",
+            "before_line": null,
+            "after_line": 30
+          },
+          {
+            "kind": "added",
+            "text": "+                $quantity += (int) $row->items_quantity;",
+            "before_line": null,
+            "after_line": 31
+          },
+          {
+            "kind": "added",
+            "text": "+                $gross += (int) $row->gross_cents;",
+            "before_line": null,
+            "after_line": 32
+          },
+          {
+            "kind": "added",
+            "text": "+                $daily[$row->sales_date] = (int) $row->gross_cents;",
+            "before_line": null,
+            "after_line": 33
+          },
+          {
+            "kind": "context",
+            "text": "             }",
+            "before_line": 35,
+            "after_line": 34
+          },
+          {
+            "kind": "removed",
+            "text": "-            ksort($daily);",
+            "before_line": 36,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 37,
+            "after_line": 35
+          },
+          {
+            "kind": "removed",
+            "text": "-            return [",
+            "before_line": 38,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                'from' => $from,",
+            "before_line": 39,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                'to' => $to,",
+            "before_line": 40,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                'orders_count' => count($orders),",
+            "before_line": 41,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                'items_quantity' => $quantity,",
+            "before_line": 42,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                'gross_cents' => $gross,",
+            "before_line": 43,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                'by_date' => $daily,",
+            "before_line": 44,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            ];",
+            "before_line": 45,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+            return ['from' => $from, 'to' => $to, 'orders_count' => $orders, 'items_quantity' => $quantity, 'gross_cents' => $gross, 'by_date' => $daily];",
+            "before_line": null,
+            "after_line": 36
+          },
+          {
+            "kind": "context",
+            "text": "         }, ['demo.fetched_rows' => $rows->count()]);",
+            "before_line": 46,
+            "after_line": 37
+          },
+          {
+            "kind": "context",
+            "text": "     }",
+            "before_line": 47,
+            "after_line": 38
+          },
+          {
+            "kind": "context",
+            "text": " }",
+            "before_line": 48,
+            "after_line": 39
+          }
+        ]
       }
     },
     {
@@ -1546,18 +2587,14 @@
       "decision": "verified",
       "problem": "PricingServiceに会員区分・数量・クーポン・地域・速達の条件が深くネストしています。ccccの関数単位の認知・循環複雑度とテスト結果をサービスメトリックスへ投稿し、品質の変化を監視します。",
       "demo": {
-        "description": "デモトップの「見積り条件を選ぶ → 見積りを計算」を実行します。対象: POST /api/quotes（実際の入力とAPIの契約はデモ画面で確認）。画像は改善前・改善後それぞれの実アプリです。",
+        "description": "デモトップの「見積り条件を選ぶ → 見積りを計算」を実行します。対象: POST /api/quotes（実際の入力とAPIの契約はデモ画面で確認）。画像は問題を再現する改善前アプリの画面です。",
         "url": "http://localhost:18080/",
         "screenshots": [
           {
-            "src": "screenshots/demo-before.jpg",
-            "alt": "改善前デモ：見積り条件を選ぶ → 見積りを計算の操作箇所（localhost:18080）",
-            "caption": "改善前デモ：見積り条件を選ぶ → 見積りを計算の操作箇所（localhost:18080）"
-          },
-          {
-            "src": "screenshots/demo-after.jpg",
-            "alt": "改善後デモ：同じ見積り条件を選ぶ → 見積りを計算操作（localhost:18082）",
-            "caption": "改善後デモ：同じ見積り条件を選ぶ → 見積りを計算操作（localhost:18082）"
+            "src": "screenshots/demo-before-pricing.svg",
+            "alt": "改善前デモ：見積り条件を選ぶボタンを赤枠で強調",
+            "caption": "赤枠の「見積り条件を選ぶ」をクリックします。元の実画面に操作案内を重ねています。",
+            "button_label": "見積り条件を選ぶ"
           }
         ]
       },
@@ -1576,9 +2613,14 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/before-quality.jpg",
-            "alt": "Mackerel BEFORE：認知複雑度の最大値51を投稿したサービスメトリックス",
-            "caption": "Mackerel BEFORE：認知複雑度の最大値51を投稿したサービスメトリックス"
+            "src": "screenshots/before-quality-annotated.svg",
+            "alt": "Mackerel BEFORE：認知複雑度の最大値51を投稿したサービスメトリックス（赤枠と番号付き注釈）",
+            "caption": "Mackerel BEFORE：認知複雑度の最大値51を投稿したサービスメトリックス",
+            "annotations": [
+              "認知複雑度max = 51。この数値を改善後の12と比較します。",
+              "縦軸は自動スケール。グラフの高さだけで改善の大きさを判断しません。",
+              "測定点は18:57 JST。versionはrun manifestと照合します。"
+            ]
           }
         ],
         "links": [
@@ -1708,9 +2750,14 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/after-quality.jpg",
-            "alt": "Mackerel AFTER：同じサービスへ投稿した品質系列の低下",
-            "caption": "Mackerel AFTER：同じサービスへ投稿した品質系列の低下"
+            "src": "screenshots/after-quality-annotated.svg",
+            "alt": "Mackerel AFTER：同じサービスへ投稿した品質系列の低下（赤枠と番号付き注釈）",
+            "caption": "Mackerel AFTER：同じサービスへ投稿した品質系列の低下",
+            "annotations": [
+              "認知複雑度max = 12。改善前51から低下した実投稿値です。",
+              "改善後の縦軸も自動スケール。前後で同じ目盛りではありません。",
+              "測定点は19:24 JST。同じサービス名でもrunと時刻を確認します。"
+            ]
           }
         ],
         "links": [
@@ -1850,7 +2897,836 @@
         "サービスメトリックス自体にversionフィルターはありません。投稿時刻・run manifest・revisionを併せて照合します。",
         "関数を分けただけで品質全般や不具合の少なさが保証されるわけではありません。全関数の分布・しきい値超過数・テスト成否も確認します。",
         "測定時刻はrunの開始・終了、サービスメトリックスの点は分単位へ切り下げた時刻です。改善後の点は10:24:00 UTC、runの測定終了は10:24:48.593 UTCです。"
-      ]
+      ],
+      "diff": {
+        "label": "該当ソースの差分",
+        "path": "backend/app/Services/PricingService.php",
+        "before_revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+        "after_revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+        "before_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/3cad843ef08bd225f79255c84dc94a625d4d57c1/backend/app/Services/PricingService.php#L31-L60",
+        "after_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/fbf320b4d777e0520afb1f52948853ba2e2f5406/backend/app/Services/PricingService.php#L48-L77",
+        "before_start_line": 31,
+        "after_start_line": 48,
+        "note": "実コミット間の差分から、この箇所に関係する変更を表示しています。前後3行の文脈を含みます。",
+        "lines": [
+          {
+            "kind": "header",
+            "text": "diff --git a/backend/app/Services/PricingService.php b/backend/app/Services/PricingService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "index 5fbc788..aabc2a9 100644",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "--- a/backend/app/Services/PricingService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "+++ b/backend/app/Services/PricingService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "hunk",
+            "text": "@@ -20,75 +16,13 @@ public function calculate(array $input): array",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "             $coupon = $input['coupon'] ?? null;",
+            "before_line": 20,
+            "after_line": 16
+          },
+          {
+            "kind": "context",
+            "text": "             $region = $input['region'] ?? 'tokyo';",
+            "before_line": 21,
+            "after_line": 17
+          },
+          {
+            "kind": "context",
+            "text": "             $express = (bool) ($input['express'] ?? false);",
+            "before_line": 22,
+            "after_line": 18
+          },
+          {
+            "kind": "removed",
+            "text": "-",
+            "before_line": 23,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            if ($price < 1 || $price > 1000000 || $quantity < 1 || $quantity > 100) {",
+            "before_line": 24,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                throw new InvalidArgumentException('Price or quantity is outside the supported range.');",
+            "before_line": 25,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            }",
+            "before_line": 26,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            if (! in_array($tier, ['regular', 'silver', 'gold'], true) || ! in_array($coupon, [null, 'SAVE10', 'FREESHIP'], true) || ! in_array($region, ['tokyo', 'osaka', 'remote'], true)) {",
+            "before_line": 27,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                throw new InvalidArgumentException('Unknown tier, coupon, or region.');",
+            "before_line": 28,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            }",
+            "before_line": 29,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+            $this->validateInput($price, $quantity, $tier, $coupon, $region);",
+            "before_line": null,
+            "after_line": 19
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 30,
+            "after_line": 20
+          },
+          {
+            "kind": "context",
+            "text": "             $subtotal = $price * $quantity;",
+            "before_line": 31,
+            "after_line": 21
+          },
+          {
+            "kind": "removed",
+            "text": "-            $rate = 0;",
+            "before_line": 32,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            if ($tier === 'gold') {",
+            "before_line": 33,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($quantity >= 10) {",
+            "before_line": 34,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $rate = 15;",
+            "before_line": 35,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                } else {",
+            "before_line": 36,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    if ($quantity >= 5) {",
+            "before_line": 37,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        $rate = 12;",
+            "before_line": 38,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    } else {",
+            "before_line": 39,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        $rate = 10;",
+            "before_line": 40,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    }",
+            "before_line": 41,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 42,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            } else {",
+            "before_line": 43,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($tier === 'silver') {",
+            "before_line": 44,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    if ($quantity >= 10) {",
+            "before_line": 45,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        $rate = 10;",
+            "before_line": 46,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    } else {",
+            "before_line": 47,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        if ($quantity >= 5) {",
+            "before_line": 48,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                            $rate = 7;",
+            "before_line": 49,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        } else {",
+            "before_line": 50,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                            $rate = 5;",
+            "before_line": 51,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        }",
+            "before_line": 52,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    }",
+            "before_line": 53,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                } else {",
+            "before_line": 54,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    if ($quantity >= 20) {",
+            "before_line": 55,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        $rate = 5;",
+            "before_line": 56,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    }",
+            "before_line": 57,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 58,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            }",
+            "before_line": 59,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-",
+            "before_line": 60,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            $memberDiscount = intdiv($subtotal * $rate, 100);",
+            "before_line": 61,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            $couponDiscount = 0;",
+            "before_line": 62,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            if ($coupon === 'SAVE10') {",
+            "before_line": 63,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($subtotal >= 3000) {",
+            "before_line": 64,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $couponDiscount = min(2000, intdiv(($subtotal - $memberDiscount) * 10, 100));",
+            "before_line": 65,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 66,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            }",
+            "before_line": 67,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-",
+            "before_line": 68,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+            $memberDiscount = intdiv($subtotal * $this->memberRate($tier, $quantity), 100);",
+            "before_line": null,
+            "after_line": 22
+          },
+          {
+            "kind": "added",
+            "text": "+            $couponDiscount = $this->couponDiscount($coupon, $subtotal, $memberDiscount);",
+            "before_line": null,
+            "after_line": 23
+          },
+          {
+            "kind": "context",
+            "text": "             $net = $subtotal - $memberDiscount - $couponDiscount;",
+            "before_line": 69,
+            "after_line": 24
+          },
+          {
+            "kind": "removed",
+            "text": "-            if ($region === 'remote') {",
+            "before_line": 70,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($net >= 10000) {",
+            "before_line": 71,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $shipping = 600;",
+            "before_line": 72,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                } else {",
+            "before_line": 73,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $shipping = 1200;",
+            "before_line": 74,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 75,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($express) {",
+            "before_line": 76,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $shipping += 800;",
+            "before_line": 77,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 78,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            } else {",
+            "before_line": 79,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($net >= 10000) {",
+            "before_line": 80,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $shipping = 0;",
+            "before_line": 81,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                } else {",
+            "before_line": 82,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $shipping = 600;",
+            "before_line": 83,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 84,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($coupon === 'FREESHIP') {",
+            "before_line": 85,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $shipping = 0;",
+            "before_line": 86,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 87,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($express) {",
+            "before_line": 88,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $shipping += 400;",
+            "before_line": 89,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 90,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-            }",
+            "before_line": 91,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+            $shipping = $this->shipping($region, $coupon, $net, $express);",
+            "before_line": null,
+            "after_line": 25
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 92,
+            "after_line": 26
+          },
+          {
+            "kind": "context",
+            "text": "             return [",
+            "before_line": 93,
+            "after_line": 27
+          },
+          {
+            "kind": "context",
+            "text": "                 'subtotal_cents' => $subtotal,",
+            "before_line": 94,
+            "after_line": 28
+          },
+          {
+            "kind": "hunk",
+            "text": "@@ -99,4 +33,51 @@ public function calculate(array $input): array",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "             ];",
+            "before_line": 99,
+            "after_line": 33
+          },
+          {
+            "kind": "context",
+            "text": "         });",
+            "before_line": 100,
+            "after_line": 34
+          },
+          {
+            "kind": "context",
+            "text": "     }",
+            "before_line": 101,
+            "after_line": 35
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 36
+          },
+          {
+            "kind": "added",
+            "text": "+    private function validateInput(int $price, int $quantity, mixed $tier, mixed $coupon, mixed $region): void",
+            "before_line": null,
+            "after_line": 37
+          },
+          {
+            "kind": "added",
+            "text": "+    {",
+            "before_line": null,
+            "after_line": 38
+          },
+          {
+            "kind": "added",
+            "text": "+        if ($price < 1 || $price > 1000000 || $quantity < 1 || $quantity > 100) {",
+            "before_line": null,
+            "after_line": 39
+          },
+          {
+            "kind": "added",
+            "text": "+            throw new InvalidArgumentException('Price or quantity is outside the supported range.');",
+            "before_line": null,
+            "after_line": 40
+          },
+          {
+            "kind": "added",
+            "text": "+        }",
+            "before_line": null,
+            "after_line": 41
+          },
+          {
+            "kind": "added",
+            "text": "+        foreach ([[$tier, ['regular', 'silver', 'gold']], [$coupon, [null, 'SAVE10', 'FREESHIP']], [$region, ['tokyo', 'osaka', 'remote']]] as [$value, $allowed]) {",
+            "before_line": null,
+            "after_line": 42
+          },
+          {
+            "kind": "added",
+            "text": "+            if (! in_array($value, $allowed, true)) {",
+            "before_line": null,
+            "after_line": 43
+          },
+          {
+            "kind": "added",
+            "text": "+                throw new InvalidArgumentException('Unknown tier, coupon, or region.');",
+            "before_line": null,
+            "after_line": 44
+          },
+          {
+            "kind": "added",
+            "text": "+            }",
+            "before_line": null,
+            "after_line": 45
+          },
+          {
+            "kind": "added",
+            "text": "+        }",
+            "before_line": null,
+            "after_line": 46
+          },
+          {
+            "kind": "added",
+            "text": "+    }",
+            "before_line": null,
+            "after_line": 47
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 48
+          },
+          {
+            "kind": "added",
+            "text": "+    private function memberRate(string $tier, int $quantity): int",
+            "before_line": null,
+            "after_line": 49
+          },
+          {
+            "kind": "added",
+            "text": "+    {",
+            "before_line": null,
+            "after_line": 50
+          },
+          {
+            "kind": "added",
+            "text": "+        $rules = [",
+            "before_line": null,
+            "after_line": 51
+          },
+          {
+            "kind": "added",
+            "text": "+            'regular' => [[20, 5], [1, 0]],",
+            "before_line": null,
+            "after_line": 52
+          },
+          {
+            "kind": "added",
+            "text": "+            'silver' => [[10, 10], [5, 7], [1, 5]],",
+            "before_line": null,
+            "after_line": 53
+          },
+          {
+            "kind": "added",
+            "text": "+            'gold' => [[10, 15], [5, 12], [1, 10]],",
+            "before_line": null,
+            "after_line": 54
+          },
+          {
+            "kind": "added",
+            "text": "+        ];",
+            "before_line": null,
+            "after_line": 55
+          },
+          {
+            "kind": "added",
+            "text": "+        foreach ($rules[$tier] as [$minimum, $rate]) {",
+            "before_line": null,
+            "after_line": 56
+          },
+          {
+            "kind": "added",
+            "text": "+            if ($quantity >= $minimum) {",
+            "before_line": null,
+            "after_line": 57
+          },
+          {
+            "kind": "added",
+            "text": "+                return $rate;",
+            "before_line": null,
+            "after_line": 58
+          },
+          {
+            "kind": "added",
+            "text": "+            }",
+            "before_line": null,
+            "after_line": 59
+          },
+          {
+            "kind": "added",
+            "text": "+        }",
+            "before_line": null,
+            "after_line": 60
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 61
+          },
+          {
+            "kind": "added",
+            "text": "+        return 0;",
+            "before_line": null,
+            "after_line": 62
+          },
+          {
+            "kind": "added",
+            "text": "+    }",
+            "before_line": null,
+            "after_line": 63
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 64
+          },
+          {
+            "kind": "added",
+            "text": "+    private function couponDiscount(?string $coupon, int $subtotal, int $memberDiscount): int",
+            "before_line": null,
+            "after_line": 65
+          },
+          {
+            "kind": "added",
+            "text": "+    {",
+            "before_line": null,
+            "after_line": 66
+          },
+          {
+            "kind": "added",
+            "text": "+        if ($coupon !== 'SAVE10' || $subtotal < 3000) {",
+            "before_line": null,
+            "after_line": 67
+          },
+          {
+            "kind": "added",
+            "text": "+            return 0;",
+            "before_line": null,
+            "after_line": 68
+          },
+          {
+            "kind": "added",
+            "text": "+        }",
+            "before_line": null,
+            "after_line": 69
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 70
+          },
+          {
+            "kind": "added",
+            "text": "+        return min(2000, intdiv(($subtotal - $memberDiscount) * 10, 100));",
+            "before_line": null,
+            "after_line": 71
+          },
+          {
+            "kind": "added",
+            "text": "+    }",
+            "before_line": null,
+            "after_line": 72
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 73
+          },
+          {
+            "kind": "added",
+            "text": "+    private function shipping(string $region, ?string $coupon, int $net, bool $express): int",
+            "before_line": null,
+            "after_line": 74
+          },
+          {
+            "kind": "added",
+            "text": "+    {",
+            "before_line": null,
+            "after_line": 75
+          },
+          {
+            "kind": "added",
+            "text": "+        if ($region === 'remote') {",
+            "before_line": null,
+            "after_line": 76
+          },
+          {
+            "kind": "added",
+            "text": "+            return ($net >= 10000 ? 600 : 1200) + ($express ? 800 : 0);",
+            "before_line": null,
+            "after_line": 77
+          },
+          {
+            "kind": "added",
+            "text": "+        }",
+            "before_line": null,
+            "after_line": 78
+          },
+          {
+            "kind": "added",
+            "text": "+        $base = ($net >= 10000 || $coupon === 'FREESHIP') ? 0 : 600;",
+            "before_line": null,
+            "after_line": 79
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 80
+          },
+          {
+            "kind": "added",
+            "text": "+        return $base + ($express ? 400 : 0);",
+            "before_line": null,
+            "after_line": 81
+          },
+          {
+            "kind": "added",
+            "text": "+    }",
+            "before_line": null,
+            "after_line": 82
+          },
+          {
+            "kind": "context",
+            "text": " }",
+            "before_line": 102,
+            "after_line": 83
+          }
+        ]
+      }
     },
     {
       "id": "workflow",
@@ -1858,18 +3734,14 @@
       "decision": "verified",
       "problem": "APIが遅いという症状だけでは修正箇所が分かりません。アクセスログのroute・request_time・trace_idから同じリクエストのトレースを開き、SQLとコード位置を照合して具体的なIssue案を作ります。",
       "demo": {
-        "description": "デモトップの「1点購入する」を実行します。対象: POST /api/checkout → Mackerelのアクセスログで該当traceを選択。画像は改善前・改善後それぞれの実アプリです。",
+        "description": "デモトップの「1点購入する」を実行します。対象: POST /api/checkout → Mackerelのアクセスログで該当traceを選択。画像は問題を再現する改善前アプリの画面です。",
         "url": "http://localhost:18080/",
         "screenshots": [
           {
-            "src": "screenshots/demo-before.jpg",
-            "alt": "改善前デモ：1点購入するの操作箇所（localhost:18080）",
-            "caption": "改善前デモ：1点購入するの操作箇所（localhost:18080）"
-          },
-          {
-            "src": "screenshots/demo-after.jpg",
-            "alt": "改善後デモ：同じ1点購入する操作（localhost:18082）",
-            "caption": "改善後デモ：同じ1点購入する操作（localhost:18082）"
+            "src": "screenshots/demo-before-checkout.svg",
+            "alt": "改善前デモ：1点購入するボタンを赤枠で強調",
+            "caption": "赤枠の「1点購入する」をクリックします。元の実画面に操作案内を重ねています。",
+            "button_label": "1点購入する"
           }
         ]
       },
@@ -1888,14 +3760,24 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/before-lock-log.jpg",
-            "alt": "BEFORE：アクセスログのtrace IDから同じ遅延トレースを開く",
-            "caption": "BEFORE：アクセスログのtrace IDから同じ遅延トレースを開く"
+            "src": "screenshots/before-lock-log-annotated.svg",
+            "alt": "BEFORE：アクセスログのtrace IDから同じ遅延トレースを開く（赤枠と番号付き注釈）",
+            "caption": "BEFORE：アクセスログのtrace IDから同じ遅延トレースを開く",
+            "annotations": [
+              "trace IDで対象を1件に絞る。fb529fc… が改善前の選択例。",
+              "ログ行のtrace IDリンクから、同じリクエストのトレースを開く。",
+              "route=/api/checkout、request_time=2.51855秒。単位は秒。"
+            ]
           },
           {
-            "src": "screenshots/before-lock-trace.jpg",
-            "alt": "BEFORE：SQLのcode.file.path / code.line.numberでCheckoutService.php:25へ到達",
-            "caption": "BEFORE：SQLのcode.file.path / code.line.numberでCheckoutService.php:25へ到達"
+            "src": "screenshots/before-lock-trace-annotated.svg",
+            "alt": "BEFORE：SQLのcode.file.path / code.line.numberでCheckoutService.php:25へ到達（赤枠と番号付き注釈）",
+            "caption": "BEFORE：SQLのcode.file.path / code.line.numberでCheckoutService.php:25へ到達",
+            "annotations": [
+              "SELECT が約2.186秒。後続リクエストのロック待ちを確認。",
+              "送料API（約303ms）は、長いSELECTの後に実行される。",
+              "CheckoutService.php:25 を、トレースと同じcommitのソースで確認。"
+            ]
           }
         ],
         "metrics": [
@@ -1948,14 +3830,24 @@
         },
         "screenshots": [
           {
-            "src": "screenshots/after-lock-log.jpg",
-            "alt": "AFTER：改善後revisionのログとtrace IDを照合",
-            "caption": "AFTER：改善後revisionのログとtrace IDを照合"
+            "src": "screenshots/after-lock-log-annotated.svg",
+            "alt": "AFTER：改善後revisionのログとtrace IDを照合（赤枠と番号付き注釈）",
+            "caption": "AFTER：改善後revisionのログとtrace IDを照合",
+            "annotations": [
+              "04dcbad… が改善後の選択例。前の画像とは別リクエスト。",
+              "ログ行のtrace IDリンクと、改善後のトレース詳細を照合する。",
+              "route=/api/checkout、request_time=0.384097秒。p95そのものではない。"
+            ]
           },
           {
-            "src": "screenshots/after-lock-trace.jpg",
-            "alt": "AFTER：送料をロック前へ移した実トレースを確認",
-            "caption": "AFTER：送料をロック前へ移した実トレースを確認"
+            "src": "screenshots/after-lock-trace-annotated.svg",
+            "alt": "AFTER：送料をロック前へ移した実トレースを確認（赤枠と番号付き注釈）",
+            "caption": "AFTER：送料をロック前へ移した実トレースを確認",
+            "annotations": [
+              "送料API（305ms）が、在庫SELECTより前に実行されている。",
+              "この例の在庫SELECTは42.390ms。待ちがゼロになった意味ではない。",
+              "改善後のCheckoutService.php:30 に対応。前後で行番号は異なる。"
+            ]
           }
         ],
         "metrics": [
@@ -2053,6 +3945,415 @@
         "title": "[Demo] 在庫ロック保持中の送料API呼び出しを分離する",
         "body": "## 症状と再現\nPOST /api/checkout を同一商品へ24件・同時数8・warmup0で実行。before HTTP p95 2493.495ms、24/24成功。\n\n## 実証拠\n- before revision: 99b7ef70d97f809c80f751d6b338518fb59588f6\n- 実トレース: https://mackerel.io/orgs/mackerel-seminar/traces/fb529fc0823f134e682e5045a7d01e0b\n- app/Services/CheckoutService.php:25 のSELECT FOR UPDATEが2186.310ms。後続shipping.quote303.849ms。\n- beforeのpg_stat_activity観測最大blocked7。\n\n## 原因仮説\n在庫ロック取得後に送料APIを呼び、トランザクションを延ばしている。\n\n## 対応案・受入条件\n送料見積をトランザクション前へ移し、ロック取得後に在庫を再検証。同一条件でp95・SQL待ち・成功率と在庫/注文/金額の整合性を確認。\n\n## 改善版の検証\nfbf320b4d777e0520afb1f52948853ba2e2f5406: HTTP p95 463.224ms、24/24成功、注文/明細+24・在庫-24・金額+27288。\nhttps://mackerel.io/orgs/mackerel-seminar/traces/04dcbad8a7b9ded95bc2abc827a30bae\n選択例の在庫SQL42.390ms。pollingでblocked0でも待ちがゼロとは解釈しない。\n\nこの本文はデモ用のIssue案です。GitHubへの起票は未実行。",
         "url": "https://github.com/soudai/mackerel-use-improve-demo/issues/new?title=%5BDemo%5D+%E5%9C%A8%E5%BA%AB%E3%83%AD%E3%83%83%E3%82%AF%E4%BF%9D%E6%8C%81%E4%B8%AD%E3%81%AE%E9%80%81%E6%96%99API%E5%91%BC%E3%81%B3%E5%87%BA%E3%81%97%E3%82%92%E5%88%86%E9%9B%A2%E3%81%99%E3%82%8B&body=%23%23+%E7%97%87%E7%8A%B6%E3%81%A8%E5%86%8D%E7%8F%BE%0APOST+%2Fapi%2Fcheckout+%E3%82%92%E5%90%8C%E4%B8%80%E5%95%86%E5%93%81%E3%81%B824%E4%BB%B6%E3%83%BB%E5%90%8C%E6%99%82%E6%95%B08%E3%83%BBwarmup0%E3%81%A7%E5%AE%9F%E8%A1%8C%E3%80%82before+HTTP+p95+2493.495ms%E3%80%8124%2F24%E6%88%90%E5%8A%9F%E3%80%82%0A%0A%23%23+%E5%AE%9F%E8%A8%BC%E6%8B%A0%0A-+before+revision%3A+99b7ef70d97f809c80f751d6b338518fb59588f6%0A-+%E5%AE%9F%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B9%3A+https%3A%2F%2Fmackerel.io%2Forgs%2Fmackerel-seminar%2Ftraces%2Ffb529fc0823f134e682e5045a7d01e0b%0A-+app%2FServices%2FCheckoutService.php%3A25+%E3%81%AESELECT+FOR+UPDATE%E3%81%8C2186.310ms%E3%80%82%E5%BE%8C%E7%B6%9Ashipping.quote303.849ms%E3%80%82%0A-+before%E3%81%AEpg_stat_activity%E8%A6%B3%E6%B8%AC%E6%9C%80%E5%A4%A7blocked7%E3%80%82%0A%0A%23%23+%E5%8E%9F%E5%9B%A0%E4%BB%AE%E8%AA%AC%0A%E5%9C%A8%E5%BA%AB%E3%83%AD%E3%83%83%E3%82%AF%E5%8F%96%E5%BE%97%E5%BE%8C%E3%81%AB%E9%80%81%E6%96%99API%E3%82%92%E5%91%BC%E3%81%B3%E3%80%81%E3%83%88%E3%83%A9%E3%83%B3%E3%82%B6%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%82%92%E5%BB%B6%E3%81%B0%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%80%82%0A%0A%23%23+%E5%AF%BE%E5%BF%9C%E6%A1%88%E3%83%BB%E5%8F%97%E5%85%A5%E6%9D%A1%E4%BB%B6%0A%E9%80%81%E6%96%99%E8%A6%8B%E7%A9%8D%E3%82%92%E3%83%88%E3%83%A9%E3%83%B3%E3%82%B6%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E5%89%8D%E3%81%B8%E7%A7%BB%E3%81%97%E3%80%81%E3%83%AD%E3%83%83%E3%82%AF%E5%8F%96%E5%BE%97%E5%BE%8C%E3%81%AB%E5%9C%A8%E5%BA%AB%E3%82%92%E5%86%8D%E6%A4%9C%E8%A8%BC%E3%80%82%E5%90%8C%E4%B8%80%E6%9D%A1%E4%BB%B6%E3%81%A7p95%E3%83%BBSQL%E5%BE%85%E3%81%A1%E3%83%BB%E6%88%90%E5%8A%9F%E7%8E%87%E3%81%A8%E5%9C%A8%E5%BA%AB%2F%E6%B3%A8%E6%96%87%2F%E9%87%91%E9%A1%8D%E3%81%AE%E6%95%B4%E5%90%88%E6%80%A7%E3%82%92%E7%A2%BA%E8%AA%8D%E3%80%82%0A%0A%23%23+%E6%94%B9%E5%96%84%E7%89%88%E3%81%AE%E6%A4%9C%E8%A8%BC%0Afbf320b4d777e0520afb1f52948853ba2e2f5406%3A+HTTP+p95+463.224ms%E3%80%8124%2F24%E6%88%90%E5%8A%9F%E3%80%81%E6%B3%A8%E6%96%87%2F%E6%98%8E%E7%B4%B0%2B24%E3%83%BB%E5%9C%A8%E5%BA%AB-24%E3%83%BB%E9%87%91%E9%A1%8D%2B27288%E3%80%82%0Ahttps%3A%2F%2Fmackerel.io%2Forgs%2Fmackerel-seminar%2Ftraces%2F04dcbad8a7b9ded95bc2abc827a30bae%0A%E9%81%B8%E6%8A%9E%E4%BE%8B%E3%81%AE%E5%9C%A8%E5%BA%ABSQL42.390ms%E3%80%82polling%E3%81%A7blocked0%E3%81%A7%E3%82%82%E5%BE%85%E3%81%A1%E3%81%8C%E3%82%BC%E3%83%AD%E3%81%A8%E3%81%AF%E8%A7%A3%E9%87%88%E3%81%97%E3%81%AA%E3%81%84%E3%80%82%0A%0A%E3%81%93%E3%81%AE%E6%9C%AC%E6%96%87%E3%81%AF%E3%83%87%E3%83%A2%E7%94%A8%E3%81%AEIssue%E6%A1%88%E3%81%A7%E3%81%99%E3%80%82GitHub%E3%81%B8%E3%81%AE%E8%B5%B7%E7%A5%A8%E3%81%AF%E6%9C%AA%E5%AE%9F%E8%A1%8C%E3%80%82"
+      },
+      "diff": {
+        "label": "該当ソースの差分",
+        "path": "backend/app/Services/CheckoutService.php",
+        "before_revision": "99b7ef70d97f809c80f751d6b338518fb59588f6",
+        "after_revision": "fbf320b4d777e0520afb1f52948853ba2e2f5406",
+        "before_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/99b7ef70d97f809c80f751d6b338518fb59588f6/backend/app/Services/CheckoutService.php#L22-L52",
+        "after_url": "https://github.com/soudai/mackerel-use-improve-demo/blob/fbf320b4d777e0520afb1f52948853ba2e2f5406/backend/app/Services/CheckoutService.php#L22-L48",
+        "before_start_line": 22,
+        "after_start_line": 22,
+        "note": "実コミット間の差分から、この箇所に関係する変更を表示しています。前後3行の文脈を含みます。 在庫ロックの改善箇所は上のロック待ちシナリオと同じCheckoutServiceです。アクセスログの計装自体は変更していません。",
+        "lines": [
+          {
+            "kind": "header",
+            "text": "diff --git a/backend/app/Services/CheckoutService.php b/backend/app/Services/CheckoutService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "index 6164115..1a10c87 100644",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "--- a/backend/app/Services/CheckoutService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "header",
+            "text": "+++ b/backend/app/Services/CheckoutService.php",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "hunk",
+            "text": "@@ -20,26 +20,15 @@ public function checkout(int $customerId, int $productId, int $quantity): array",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "         }",
+            "before_line": 20,
+            "after_line": 20
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 21,
+            "after_line": 21
+          },
+          {
+            "kind": "context",
+            "text": "         return Telemetry::span('checkout.reserve', function () use ($customerId, $productId, $quantity): array {",
+            "before_line": 22,
+            "after_line": 22
+          },
+          {
+            "kind": "removed",
+            "text": "-            return DB::transaction(function () use ($customerId, $productId, $quantity): array {",
+            "before_line": 23,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+            Product::query()->where('active', true)->findOrFail($productId);",
+            "before_line": null,
+            "after_line": 23
+          },
+          {
+            "kind": "added",
+            "text": "+            $available = Inventory::query()->where('product_id', $productId)->firstOrFail();",
+            "before_line": null,
+            "after_line": 24
+          },
+          {
+            "kind": "added",
+            "text": "+            $this->ensureStock($available, $quantity);",
+            "before_line": null,
+            "after_line": 25
+          },
+          {
+            "kind": "added",
+            "text": "+            $shipping = $this->shippingQuote();",
+            "before_line": null,
+            "after_line": 26
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 27
+          },
+          {
+            "kind": "added",
+            "text": "+            return DB::transaction(function () use ($customerId, $productId, $quantity, $shipping): array {",
+            "before_line": null,
+            "after_line": 28
+          },
+          {
+            "kind": "context",
+            "text": "                 $product = Product::query()->where('active', true)->findOrFail($productId);",
+            "before_line": 24,
+            "after_line": 29
+          },
+          {
+            "kind": "context",
+            "text": "                 $inventory = Inventory::query()->where('product_id', $productId)->lockForUpdate()->firstOrFail();",
+            "before_line": 25,
+            "after_line": 30
+          },
+          {
+            "kind": "removed",
+            "text": "-                if ($inventory->quantity < $quantity) {",
+            "before_line": 26,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    throw ValidationException::withMessages(['quantity' => '在庫が不足しています。']);",
+            "before_line": 27,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                }",
+            "before_line": 28,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-",
+            "before_line": 29,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                // Baseline: external I/O extends the inventory row lock lifetime.",
+            "before_line": 30,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                $shipping = Telemetry::span('shipping.quote', function (): int {",
+            "before_line": 31,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $response = Http::timeout(5)->get(rtrim(config('demo.shipping_url'), '/').'/quote', [",
+            "before_line": 32,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        'region' => 'tokyo',",
+            "before_line": 33,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        'delay_ms' => (int) config('demo.shipping_delay_ms', 400),",
+            "before_line": 34,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    ])->throw();",
+            "before_line": 35,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    $amount = $response->json('shipping_cents');",
+            "before_line": 36,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    if (! is_int($amount) || $amount < 0 || $amount > 100000) {",
+            "before_line": 37,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                        throw new UnexpectedValueException('Shipping quote must contain a non-negative integer shipping_cents.');",
+            "before_line": 38,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    }",
+            "before_line": 39,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-",
+            "before_line": 40,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                    return $amount;",
+            "before_line": 41,
+            "after_line": null
+          },
+          {
+            "kind": "removed",
+            "text": "-                });",
+            "before_line": 42,
+            "after_line": null
+          },
+          {
+            "kind": "added",
+            "text": "+                $this->ensureStock($inventory, $quantity);",
+            "before_line": null,
+            "after_line": 31
+          },
+          {
+            "kind": "context",
+            "text": " ",
+            "before_line": 43,
+            "after_line": 32
+          },
+          {
+            "kind": "context",
+            "text": "                 $inventory->quantity -= $quantity;",
+            "before_line": 44,
+            "after_line": 33
+          },
+          {
+            "kind": "context",
+            "text": "                 $inventory->save();",
+            "before_line": 45,
+            "after_line": 34
+          },
+          {
+            "kind": "hunk",
+            "text": "@@ -58,4 +47,27 @@ public function checkout(int $customerId, int $productId, int $quantity): array",
+            "before_line": null,
+            "after_line": null
+          },
+          {
+            "kind": "context",
+            "text": "             });",
+            "before_line": 58,
+            "after_line": 47
+          },
+          {
+            "kind": "context",
+            "text": "         });",
+            "before_line": 59,
+            "after_line": 48
+          },
+          {
+            "kind": "context",
+            "text": "     }",
+            "before_line": 60,
+            "after_line": 49
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 50
+          },
+          {
+            "kind": "added",
+            "text": "+    private function ensureStock(Inventory $inventory, int $quantity): void",
+            "before_line": null,
+            "after_line": 51
+          },
+          {
+            "kind": "added",
+            "text": "+    {",
+            "before_line": null,
+            "after_line": 52
+          },
+          {
+            "kind": "added",
+            "text": "+        if ($inventory->quantity < $quantity) {",
+            "before_line": null,
+            "after_line": 53
+          },
+          {
+            "kind": "added",
+            "text": "+            throw ValidationException::withMessages(['quantity' => '在庫が不足しています。']);",
+            "before_line": null,
+            "after_line": 54
+          },
+          {
+            "kind": "added",
+            "text": "+        }",
+            "before_line": null,
+            "after_line": 55
+          },
+          {
+            "kind": "added",
+            "text": "+    }",
+            "before_line": null,
+            "after_line": 56
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 57
+          },
+          {
+            "kind": "added",
+            "text": "+    private function shippingQuote(): int",
+            "before_line": null,
+            "after_line": 58
+          },
+          {
+            "kind": "added",
+            "text": "+    {",
+            "before_line": null,
+            "after_line": 59
+          },
+          {
+            "kind": "added",
+            "text": "+        return Telemetry::span('shipping.quote', function (): int {",
+            "before_line": null,
+            "after_line": 60
+          },
+          {
+            "kind": "added",
+            "text": "+            $response = Http::timeout(5)->get(rtrim(config('demo.shipping_url'), '/').'/quote', [",
+            "before_line": null,
+            "after_line": 61
+          },
+          {
+            "kind": "added",
+            "text": "+                'region' => 'tokyo',",
+            "before_line": null,
+            "after_line": 62
+          },
+          {
+            "kind": "added",
+            "text": "+                'delay_ms' => (int) config('demo.shipping_delay_ms', 400),",
+            "before_line": null,
+            "after_line": 63
+          },
+          {
+            "kind": "added",
+            "text": "+            ])->throw();",
+            "before_line": null,
+            "after_line": 64
+          },
+          {
+            "kind": "added",
+            "text": "+            $amount = $response->json('shipping_cents');",
+            "before_line": null,
+            "after_line": 65
+          },
+          {
+            "kind": "added",
+            "text": "+            if (! is_int($amount) || $amount < 0 || $amount > 100000) {",
+            "before_line": null,
+            "after_line": 66
+          },
+          {
+            "kind": "added",
+            "text": "+                throw new UnexpectedValueException('Shipping quote must contain a non-negative integer shipping_cents.');",
+            "before_line": null,
+            "after_line": 67
+          },
+          {
+            "kind": "added",
+            "text": "+            }",
+            "before_line": null,
+            "after_line": 68
+          },
+          {
+            "kind": "added",
+            "text": "+",
+            "before_line": null,
+            "after_line": 69
+          },
+          {
+            "kind": "added",
+            "text": "+            return $amount;",
+            "before_line": null,
+            "after_line": 70
+          },
+          {
+            "kind": "added",
+            "text": "+        });",
+            "before_line": null,
+            "after_line": 71
+          },
+          {
+            "kind": "added",
+            "text": "+    }",
+            "before_line": null,
+            "after_line": 72
+          },
+          {
+            "kind": "context",
+            "text": " }",
+            "before_line": 61,
+            "after_line": 73
+          }
+        ]
       }
     }
   ],

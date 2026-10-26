@@ -28,7 +28,7 @@
       <dl class="report-meta" id="report-meta"></dl>
       <div class="note comparison-guide">
         <h3>このレポートの読み方</h3>
-        <ol><li>デモ画面で、どの操作に問題があるかを確認する。</li><li>BEFOREのコードとMackerelの実画面を照合する。</li><li>AFTERのコード・計測条件・実画面を確認し、同じ条件の結果を比較する。</li></ol>
+        <ol><li>改善前のデモ画面で、赤枠の操作ボタンを確認する。</li><li>BEFOREのコードとMackerelの実画面を照合する。</li><li>AFTERのコード・計測条件・Mackerel画面を確認し、同じ条件の結果を比較する。</li></ol>
         <p>画面や測定が未取得の欄は「未確認」と表示します。改善後の値やリンクを、実行前に補ってはいません。Mackerelのリンクを開くには対象組織へのログインが必要です。</p>
       </div>
       <p class="measurement-note">SQLの時間はLaravelが観測したprepare・execute・fetchを含む成功クエリの経過時間です。DBサーバー内部の実行時間だけを表す値ではありません。APMのp95は近似値で、区間をまたいで単純平均しません。</p>
@@ -100,26 +100,73 @@
       const anchor=link(item.src,item.alt,true);
       if(!anchor) { gallery.append(pending('未確認：表示できる画像URLがありません。')); continue; }
       const figure=node('figure','evidence-image');
+      if(item.button_label) figure.append(node('p','demo-click-hint','赤枠の「'+item.button_label+'」をクリック'));
       const img=node('img'); img.src=anchor.href; img.alt=item.alt||prefix+'の実画面'; img.loading='lazy';
       anchor.replaceChildren(img); figure.append(anchor);
       figure.append(node('figcaption','',item.caption||prefix+'の実画面。画像を開くと全体を確認できます。'));
+      if(array(item.annotations).length) {
+        const notes=node('ol','evidence-annotations');
+        item.annotations.forEach(note=>notes.append(node('li','',note)));
+        figure.append(notes);
+      }
       gallery.append(figure);
     }
     parent.append(gallery);
   }
-  function source(parent,data) {
-    const section=node('div','source-evidence');
-    section.append(node('h4','','該当ソース'));
+  function phpCode(parent,text) {
+    // Source text is always inserted as text nodes, never HTML.
+    const tokens = /\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\$[A-Za-z_]\w*|\b(?:abstract|array|as|bool|break|case|catch|class|const|continue|default|else|elseif|extends|false|final|finally|float|fn|for|foreach|function|if|implements|int|interface|match|namespace|new|null|private|protected|public|readonly|return|static|string|switch|throw|true|try|use|void|while)\b|\b\d+(?:\.\d+)?\b|\b[A-Z][A-Za-z_]*\b/g;
+    let position=0;
+    for(const match of text.matchAll(tokens)) {
+      if(match.index>position) parent.append(document.createTextNode(text.slice(position,match.index)));
+      const token=match[0];
+      const kind=token.startsWith('//')||token.startsWith('/*')||token.startsWith('#')?'comment':token[0]==='$'?'variable':token[0]==='"'||token[0]==="'"?'string':/^\d/.test(token)?'number':/^[A-Z]/.test(token)?'type':'keyword';
+      parent.append(node('span','syntax-'+kind,token));
+      position=match.index+token.length;
+    }
+    if(position<text.length) parent.append(document.createTextNode(text.slice(position)));
+  }
+  function source(parent,data,label) {
+    const section=node('details','source-evidence');
+    section.append(node('summary','',(label==='BEFORE'?'改善前':'改善後')+'のソース抜粋を開く'));
     const location=node('p','source-location');
-    const label=value(data?.path)+(Number.isInteger(data?.start_line)&&data.start_line>0?':'+data.start_line:'');
-    const anchor=link(data?.url,label);
-    location.append(anchor||node('span','',label)); section.append(location);
+    const filename=value(data?.path)+(Number.isInteger(data?.start_line)&&data.start_line>0?':'+data.start_line:'');
+    const anchor=link(data?.url,filename);
+    location.append(anchor||node('span','',filename)); section.append(location);
     if(present(data?.code)) {
       const block=node('div','code-block'); const pre=node('pre'); pre.tabIndex=0;
-      pre.setAttribute('aria-label',label+'のコード'); pre.append(node('code','',data.code));
+      pre.setAttribute('aria-label',filename+'のPHPコード');
+      const code=node('code','php-code');phpCode(code,data.code);pre.append(code);
       block.append(pre); section.append(block);
     } else section.append(pending('未確認：この段階のソースコードは未登録です。'));
     parent.append(section);
+  }
+  function sourceDiff(parent,data) {
+    if(!array(data?.lines).length) return;
+    const section=node('section','source-diff');
+    section.append(node('h3','',data.label||'コードの変更'));
+    const legend=node('p','diff-legend');
+    legend.append(node('span','diff-removed-key','− 赤：改善前から削除'),node('span','diff-added-key','+ 緑：改善後に追加'));
+    section.append(legend);
+    if(data.note) section.append(node('p','diff-note',data.note));
+    const links=node('p','source-location diff-source-links');
+    const before=link(data.before_url,'改善前 '+String(data.before_revision||'').slice(0,7));
+    const after=link(data.after_url,'改善後 '+String(data.after_revision||'').slice(0,7));
+    if(before) links.append(before);if(after) links.append(after);
+    section.append(links);
+    const block=node('div','code-block');const pre=node('pre');pre.tabIndex=0;
+    pre.setAttribute('aria-label',(data.path||'PHPソース')+'の改善前後の差分。マイナスは削除、プラスは追加。');
+    const code=node('code','code-diff');
+    for(const item of data.lines) {
+      const kind=['added','removed','context','hunk','header'].includes(item.kind)?item.kind:'context';
+      const row=node('span','diff-line diff-'+kind);
+      if(['added','removed','context'].includes(kind)) {
+        row.append(node('span','diff-marker',item.text.slice(0,1)));
+        phpCode(row,item.text.slice(1));
+      } else row.textContent=item.text;
+      code.append(row);
+    }
+    pre.append(code);block.append(pre);section.append(block);parent.append(section);
   }
   function evidenceLinks(parent,items) {
     const ul=node('ul','evidence-links');
@@ -137,12 +184,12 @@
     data=data||{};
     const box=node('section','phase phase-'+label.toLowerCase());
     const heading=node('div','phase-heading'); heading.append(node('span','phase-label',label));
-    heading.append(node('h3','',label==='BEFORE'?'改善前のコードと観測':'改善後のコードと観測')); box.append(heading);
+    heading.append(node('h3','',label==='BEFORE'?'改善前のMackerel観測':'改善後のMackerel観測')); box.append(heading);
     const metadata=node('dl','phase-meta');
     [['revision',value(data.revision)],['from',timeText(data.from)],['to',timeText(data.to)]].forEach(([key,text])=>{metadata.append(node('dt','',key),node('dd','',text));});
     box.append(metadata);
     if(data.description) box.append(node('p','',data.description));
-    source(box,data.source);
+    source(box,data.source,label);
     box.append(node('h4','','Mackerelの実画面・根拠'));
     screenshots(box,data.screenshots,label+'のMackerel');
     evidenceLinks(box,data.links);
@@ -189,6 +236,7 @@
     if(data.demo?.description) demo.append(node('p','',data.demo.description));
     const demoLink=link(data.demo?.url,'デモの該当画面を開く');if(demoLink)demo.append(demoLink);
     screenshots(demo,data.demo?.screenshots,'問題を再現するデモ画面');section.append(demo);
+    sourceDiff(section,data.diff);
     const phases=node('div','phase-grid');phase(phases,data.before,'BEFORE');phase(phases,data.after,'AFTER');section.append(phases);
     const evaluation=node('section','comparison-evaluation');evaluation.append(node('h3','','比較結果と条件'));
     metricsTable(evaluation,data.before,data.after);conditionsTable(evaluation,data.conditions);

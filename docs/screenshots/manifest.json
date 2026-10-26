@@ -52,14 +52,396 @@
       "sha256": "7e3faf7a0defd275329785cf155247639fb8b8a42f003a85480ba5e75a1c3ba3"
     },
     {
-      "file": "demo-after.jpg",
-      "media_type": "image/jpeg",
-      "sha256": "c8d3f490c3d44612e0cc367e1bccd822e45af5372efd775c06558c84c8222ede"
-    },
-    {
       "file": "demo-before.jpg",
       "media_type": "image/jpeg",
       "sha256": "e62562208c59b1afbf29e2f2b03efb4f43916928154359889989532258f26b34"
     }
-  ]
+  ],
+  "annotations": {
+    "source": "demo-before.jpg",
+    "method": "SVG overlay; original screenshot pixels are embedded unchanged",
+    "source_dimensions": {
+      "width": 1905,
+      "height": 848
+    },
+    "files": [
+      {
+        "file": "demo-before-orders.svg",
+        "button": "注文一覧を取得",
+        "rectangle": {
+          "x": 795,
+          "y": 396,
+          "width": 300,
+          "height": 55
+        },
+        "sha256": "ee6d1ec5c2848dff4f5fb9b166922506a6d67f8f638143daa48b43a3dd639ce1"
+      },
+      {
+        "file": "demo-before-checkout.svg",
+        "button": "1点購入する",
+        "rectangle": {
+          "x": 1152,
+          "y": 396,
+          "width": 300,
+          "height": 55
+        },
+        "sha256": "5ba06c9a778e091123e20e97ca062a935b55d62a77dfd4fc48fa6e5c5a80ef04"
+      },
+      {
+        "file": "demo-before-search.svg",
+        "button": "注文を検索",
+        "rectangle": {
+          "x": 440,
+          "y": 668,
+          "width": 300,
+          "height": 55
+        },
+        "sha256": "c51d97c4c9550e605375de83ab9c9de07d51b4cefb8dcbef0bb70c69d6b6f6b6"
+      },
+      {
+        "file": "demo-before-report.svg",
+        "button": "売上を集計",
+        "rectangle": {
+          "x": 795,
+          "y": 668,
+          "width": 300,
+          "height": 55
+        },
+        "sha256": "ebdc6b51e6cb104ff54681d3bfd808afb32ea0e7a8ea36953c8a33c8b9975f43"
+      },
+      {
+        "file": "demo-before-pricing.svg",
+        "button": "見積り条件を選ぶ",
+        "rectangle": {
+          "x": 1152,
+          "y": 668,
+          "width": 300,
+          "height": 55
+        },
+        "sha256": "228a85c5e34dd33d6020c1af860e817ec887ebcd0ec7a8ee41e998955432d514"
+      }
+    ]
+  },
+  "mackerel_annotations": {
+    "method": "SVG red outlines and numbered notes; original JPEG bytes embedded unchanged",
+    "files": [
+      {
+        "file": "before-n-plus-one-annotated.svg",
+        "source": "before-read-database.jpg",
+        "source_sha256": "7e3faf7a0defd275329785cf155247639fb8b8a42f003a85480ba5e75a1c3ba3",
+        "sha256": "d3106bca4a7252de6affaa661acbe8d1ec906eae1d148d003e704c28fb0c3e25",
+        "callouts": [
+          {
+            "rectangle": [
+              55,
+              671,
+              490,
+              36
+            ],
+            "note": "顧客を1件ずつ取得するSQL。繰り返し回数はAPIの記録と測定表で確認します。"
+          }
+        ]
+      },
+      {
+        "file": "after-n-plus-one-annotated.svg",
+        "source": "after-n-plus-one.jpg",
+        "source_sha256": "72c27045efdc9d4ca0afedf64f5ec539ce5a3409b8e899804631680cb2f1dd3a",
+        "sha256": "395e025d20da52ef482ff6a686f29b5b62b68f76328835e888a1bf94decd3a22",
+        "callouts": [
+          {
+            "rectangle": [
+              55,
+              541,
+              510,
+              35
+            ],
+            "note": "IN句で顧客をまとめて取得。SQL数51→2は、別掲の測定表で確認します。"
+          },
+          {
+            "rectangle": [
+              749,
+              276,
+              367,
+              34
+            ],
+            "note": "改善後のversionで絞り込み。異なる版のSQLを混ぜずに確認します。"
+          }
+        ]
+      },
+      {
+        "file": "before-search-annotated.svg",
+        "source": "before-read-database.jpg",
+        "source_sha256": "7e3faf7a0defd275329785cf155247639fb8b8a42f003a85480ba5e75a1c3ba3",
+        "sha256": "c2eefbcfe9c7c585b1364797c2871da8b0b4b42acccbd9af86c7b707316f8108",
+        "callouts": [
+          {
+            "rectangle": [
+              55,
+              561,
+              1370,
+              34
+            ],
+            "note": "created_at::dateで列を変換。全走査かどうかはEXPLAINの結果と照合します。"
+          }
+        ]
+      },
+      {
+        "file": "after-search-annotated.svg",
+        "source": "after-database.jpg",
+        "source_sha256": "d573e7be6f77f4e832e4cdf10015ee0fef46f4302190fe6e083ead226ef3e07a",
+        "sha256": "21f9dda0e3f7c74536b47348f7ddc3477e843397a6d2ccf9245529e01d2f6da1",
+        "callouts": [
+          {
+            "rectangle": [
+              55,
+              708,
+              1280,
+              35
+            ],
+            "note": "日時列をそのまま >= / < で比較。索引利用は別掲の実行計画で確認します。"
+          }
+        ]
+      },
+      {
+        "file": "before-rows-annotated.svg",
+        "source": "before-read-database.jpg",
+        "source_sha256": "7e3faf7a0defd275329785cf155247639fb8b8a42f003a85480ba5e75a1c3ba3",
+        "sha256": "698ffe064de20e27f805e266dc5813017fe72c41f7183ac4e14a33afaadca7a5",
+        "callouts": [
+          {
+            "rectangle": [
+              55,
+              445,
+              1610,
+              40
+            ],
+            "note": "明細の数量・単価をそのまま取得。48,000行の転送はDB統計で確認します。"
+          }
+        ]
+      },
+      {
+        "file": "after-rows-annotated.svg",
+        "source": "after-database.jpg",
+        "source_sha256": "d573e7be6f77f4e832e4cdf10015ee0fef46f4302190fe6e083ead226ef3e07a",
+        "sha256": "1ac5221b2da61f401160875b7647bb3b1b055837e9d0323d974fc0f22439671d",
+        "callouts": [
+          {
+            "rectangle": [
+              55,
+              536,
+              1610,
+              40
+            ],
+            "note": "COUNT / SUM / GROUP BYによる日次集約。転送31行は別掲のDB統計で確認します。"
+          }
+        ]
+      },
+      {
+        "file": "before-quality-annotated.svg",
+        "source": "before-quality.jpg",
+        "source_sha256": "778fef71d9de72069d29c4960446c82bf7319b86daf3973f20d0c4b4b4aa32f6",
+        "sha256": "4dba819514e4f37e350576e1ceb88afe7b895db140939917ba937d734bbda7db",
+        "callouts": [
+          {
+            "rectangle": [
+              1152,
+              53,
+              214,
+              32
+            ],
+            "note": "認知複雑度max = 51。この数値を改善後の12と比較します。"
+          },
+          {
+            "rectangle": [
+              1,
+              166,
+              65,
+              340
+            ],
+            "note": "縦軸は自動スケール。グラフの高さだけで改善の大きさを判断しません。"
+          },
+          {
+            "rectangle": [
+              1142,
+              504,
+              63,
+              23
+            ],
+            "note": "測定点は18:57 JST。versionはrun manifestと照合します。"
+          }
+        ]
+      },
+      {
+        "file": "after-quality-annotated.svg",
+        "source": "after-quality.jpg",
+        "source_sha256": "9406155ce9b8a32f7b665fc11bd3552577574bffa99514c221e313675731e98b",
+        "sha256": "85758033c0d93bfe95c077e83e85a612a9aef749ff8ba8f99c4f2b7b6291a484",
+        "callouts": [
+          {
+            "rectangle": [
+              1152,
+              53,
+              214,
+              32
+            ],
+            "note": "認知複雑度max = 12。改善前51から低下した実投稿値です。"
+          },
+          {
+            "rectangle": [
+              1,
+              166,
+              65,
+              340
+            ],
+            "note": "改善後の縦軸も自動スケール。前後で同じ目盛りではありません。"
+          },
+          {
+            "rectangle": [
+              1142,
+              504,
+              63,
+              23
+            ],
+            "note": "測定点は19:24 JST。同じサービス名でもrunと時刻を確認します。"
+          }
+        ]
+      },
+      {
+        "file": "before-lock-trace-annotated.svg",
+        "source": "before-lock-trace.jpg",
+        "source_sha256": "b6a415e957f2c4ad8c178190bd0bd539b1952d5d518d279305db734db3795917",
+        "rectangles": [
+          [
+            1,
+            65,
+            414,
+            947,
+            28
+          ],
+          [
+            2,
+            1009,
+            414,
+            141,
+            28
+          ],
+          [
+            3,
+            62,
+            642,
+            552,
+            55
+          ]
+        ],
+        "notes": [
+          "SELECT が約2.186秒。後続リクエストのロック待ちを確認。",
+          "送料API（約303ms）は、長いSELECTの後に実行される。",
+          "CheckoutService.php:25 を、トレースと同じcommitのソースで確認。"
+        ],
+        "sha256": "2f0774bc5d45adc29d8c2fa5397d0b4331ae5a5266fc5c05ca3bb2db73075544"
+      },
+      {
+        "file": "after-lock-trace-annotated.svg",
+        "source": "after-lock-trace.jpg",
+        "source_sha256": "15f7ff7f80d618ff0ea3c6144e044086938a0a5621740e504a31c254b302c77c",
+        "rectangles": [
+          [
+            1,
+            98,
+            414,
+            873,
+            28
+          ],
+          [
+            2,
+            971,
+            414,
+            126,
+            28
+          ],
+          [
+            3,
+            62,
+            642,
+            552,
+            55
+          ]
+        ],
+        "notes": [
+          "送料API（305ms）が、在庫SELECTより前に実行されている。",
+          "この例の在庫SELECTは42.390ms。待ちがゼロになった意味ではない。",
+          "改善後のCheckoutService.php:30 に対応。前後で行番号は異なる。"
+        ],
+        "sha256": "fde2d9ba18c49fa9c6c7f1e50d91b5bbde4d51f41ac08bf726476275de6f71d1"
+      },
+      {
+        "file": "before-lock-log-annotated.svg",
+        "source": "before-lock-log.jpg",
+        "source_sha256": "4e235f9caa6042866ea36b5d6ccf266c23053074d92dd29ef7ed0fc669365366",
+        "rectangles": [
+          [
+            1,
+            48,
+            267,
+            288,
+            35
+          ],
+          [
+            2,
+            363,
+            742,
+            83,
+            34
+          ],
+          [
+            3,
+            932,
+            742,
+            665,
+            34
+          ]
+        ],
+        "notes": [
+          "trace IDで対象を1件に絞る。fb529fc… が改善前の選択例。",
+          "ログ行のtrace IDリンクから、同じリクエストのトレースを開く。",
+          "route=/api/checkout、request_time=2.51855秒。単位は秒。"
+        ],
+        "sha256": "3db022a3e9a440202b5cde0612bf4e33abda8a71c88dcbc604db05c7ce5b69a6"
+      },
+      {
+        "file": "after-lock-log-annotated.svg",
+        "source": "after-lock-log.jpg",
+        "source_sha256": "25e2d85912a93fa99ae8ea22fbc289a45955bbff1256872ad865ab54559e30e0",
+        "rectangles": [
+          [
+            1,
+            48,
+            267,
+            288,
+            35
+          ],
+          [
+            2,
+            363,
+            742,
+            83,
+            34
+          ],
+          [
+            3,
+            932,
+            742,
+            665,
+            34
+          ]
+        ],
+        "notes": [
+          "04dcbad… が改善後の選択例。前の画像とは別リクエスト。",
+          "ログ行のtrace IDリンクと、改善後のトレース詳細を照合する。",
+          "route=/api/checkout、request_time=0.384097秒。p95そのものではない。"
+        ],
+        "sha256": "3db61edfb270321f5caeb44a0fd10db65b7005adbaedc2e68489218ca8cd68e0"
+      }
+    ]
+  }
 }
