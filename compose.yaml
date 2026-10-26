@@ -30,7 +30,7 @@ services:
       OTEL_SERVICE_NAME: ${MACKEREL_SERVICE:-mackerel-seminar-demo}
       OTEL_RESOURCE_ATTRIBUTES: service.namespace=demo,deployment.environment.name=development,service.version=${APP_REVISION:-baseline}
       OTEL_PHP_AUTOLOAD_ENABLED: "true"
-      OTEL_PHP_DISABLED_INSTRUMENTATIONS: laravel
+      OTEL_PHP_DISABLED_INSTRUMENTATIONS: laravel,pdo
       OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4318
       OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
       OTEL_TRACES_EXPORTER: otlp

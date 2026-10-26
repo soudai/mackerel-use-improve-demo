@@ -43,11 +43,11 @@ def extract_spans(document):
 
 
 def resolve_database_spans(spans):
-    """PDO execution links to a prepare span; prepare/fetch/connect are not executions."""
+    """Count explicit Laravel executions or legacy PDO execute spans, never prepare/fetch."""
     lookup = {(span["trace_id"], span["span_id"]): span for span in spans}
     groups = {}
     for span in spans:
-        if span["name"] != "PDOStatement::execute":
+        if span["attributes"].get("demo.db.execution") is not True and span["name"] != "PDOStatement::execute":
             continue
         statement = span["attributes"].get("db.query.text", span["attributes"].get("db.statement"))
         source_span_id = span["span_id"]
@@ -177,7 +177,7 @@ def render_issue(title, report):
             url = f"https://github.com/soudai/mackerel-use-improve-demo/blob/{report['revision']}/{source['path']}{suffix}"
             lines.append(f"  - ソース: [{source['path']}]({url})")
     if report.get("database_executions"):
-        lines += ["", "### 観測されたSQL実行", "", "PDOStatement::executeだけを数え、SQLは同一traceのprepareリンクから照合しています。prepare/fetch/connectのスパンを実行回数には加えません。", ""]
+        lines += ["", "### 観測されたSQL実行", "", "demo.db.execution=trueのLaravelクエリスパンを数え、SQLは直接のdb.query.textから取得します。旧PDOトレースはexecuteと同一traceのprepareリンクを照合します。prepare/fetch/connect単独は実行回数に加えません。時間はアプリ側のprepare・execute・fetchを含む成功クエリの経過時間で、DBサーバー内部だけの実行時間ではありません。失敗クエリはこの集計の対象外です。", ""]
         for query in report["database_executions"][:10]:
             sql = query["sql"].replace("`", "'")
             lines.append(f"- 実行スパン {query['observed_execute_spans']}件 / 実行時間合計 {query['total_execute_ms']} ms: `{sql}`")
@@ -244,7 +244,7 @@ def main():
     report = {"schema_version": 1, "revision": revision, "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
               "status": "partial" if warnings else "complete", "warnings": sorted(set(warnings)), "load": load,
               "spans": selected, "database_executions": database_executions, "matched_spans": len(spans),
-              "selection": "30 longest matching spans; nested durations must not be summed; database counts include observed PDO execute spans only"}
+              "selection": "30 longest matching spans; nested durations must not be summed; database counts include observed marked Laravel executions and legacy PDO execute spans only"}
     args.output.mkdir(parents=True)
     (args.output / "evidence.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     body = args.output / "issue.md"

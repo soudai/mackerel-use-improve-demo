@@ -52,6 +52,8 @@ DEMO_MACKEREL=1 ./scripts/demo logs --tail=100 collector
 
 traces/logs は OTLP HTTP、DB メトリックスは OTLP gRPC で送信します。アプリの service.name は mackerel-improve-demo、namespace は demo、環境は development です。Collector が旧ログを読み込む場合も、ログ内の service_version を保持します。
 
+DBクエリはLaravelの`QueryExecuted`で成功した実行を1件のCLIENTスパンとして記録し、`demo.db.execution=true`を付けます。SQL本文はプレースホルダーを保持し、bindingsを展開しません。時間はアプリ側で観測したprepare・execute・fetch（再試行があればその経過を含む）で、DBサーバー内部だけの実行時間ではありません。失敗クエリはこのイベントに出ないため、HTTPエラー・例外とDB側の証拠を別途確認します。PDO自動計装は二重計上を避けるため無効です。旧トレースのPDO execute→prepareリンクは引き続き読み取れます。
+
 通常の `./scripts/demo up` に戻すと Collector がローカル設定で再作成されます。デモ終了時は同じ設定で down します。
 
 Collector 設定の検証:

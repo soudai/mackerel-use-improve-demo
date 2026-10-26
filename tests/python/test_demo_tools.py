@@ -136,6 +136,26 @@ class EvidenceTests(unittest.TestCase):
         self.assertIn("原因は未特定", body)
         self.assertIn("missing", body)
 
+    def test_marked_laravel_execution_uses_direct_sql_and_ignores_other_spans(self):
+        document = {"resourceSpans": [{"scopeSpans": [{"spans": [{
+            "traceId": "a", "spanId": "e", "name": "SELECT orders",
+            "startTimeUnixNano": "1000000000", "endTimeUnixNano": "1050000000",
+            "attributes": [
+                {"key": "demo.db.execution", "value": {"boolValue": True}},
+                {"key": "db.query.text", "value": {"stringValue": "select * from orders where id = ?"}},
+            ],
+        }]}]}]}
+        spans = evidence.extract_spans(document)
+        spans.append({"trace_id": "a", "span_id": "p", "name": "prepare", "duration_ms": 1,
+                      "attributes": {"db.query.text": "select * from orders where id = ?"}})
+        queries = evidence.resolve_database_spans(spans)
+        self.assertEqual(len(queries), 1)
+        self.assertEqual(queries[0]["observed_execute_spans"], 1)
+        self.assertEqual(queries[0]["total_execute_ms"], 50)
+        self.assertEqual(spans[0]["sql_source_span_id"], "e")
+        spans[0]["attributes"]["demo.db.execution"] = False
+        self.assertEqual(evidence.resolve_database_spans(spans), [])
+
     def test_pdo_sql_is_resolved_from_same_trace_prepare_link(self):
         spans = [
             {"trace_id": "a", "span_id": "p", "name": "PDO::prepare", "duration_ms": 1, "attributes": {"db.query.text": "select * from customers where id = ?"}},

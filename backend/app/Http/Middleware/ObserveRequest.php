@@ -66,7 +66,9 @@ final class ObserveRequest
                 'service_name' => config('demo.service_name'),
                 'service_version' => config('demo.revision'), 'environment' => config('demo.environment'),
             ];
-            file_put_contents(storage_path('logs/access.jsonl'), json_encode($entry, JSON_THROW_ON_ERROR).PHP_EOL, FILE_APPEND | LOCK_EX);
+            if (! app()->runningUnitTests()) {
+                file_put_contents(storage_path('logs/access.jsonl'), json_encode($entry, JSON_THROW_ON_ERROR).PHP_EOL, FILE_APPEND | LOCK_EX);
+            }
             $scope->detach();
             $span->end();
         }
