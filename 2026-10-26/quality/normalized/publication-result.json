@@ -1,0 +1,17 @@
+{
+  "attempt_id": "1",
+  "measurement_timestamp": 1793008677,
+  "metric_count": 25,
+  "payload_sha256": "452abe7c17c6fd32760f032c906e3ed159b30da509b914b5bb9741065674cf18",
+  "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+  "run_id": "20261026T095756Z-a8bfaae1",
+  "schema_version": 1,
+  "service": "mackerel-seminar-demo",
+  "stages": [
+    {
+      "at": "2026-10-26T09:57:57.943736+00:00",
+      "status": "dry_run"
+    }
+  ],
+  "status": "dry_run"
+}

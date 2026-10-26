@@ -1,0 +1,47 @@
+{
+  "revision": "3cad843ef08bd225f79255c84dc94a625d4d57c1",
+  "base_revision": null,
+  "run_id": "20261026T095756Z-a8bfaae1",
+  "attempt_id": "1",
+  "started_at": "2026-10-26T09:57:57.075371Z",
+  "finished_at": "2026-10-26T09:57:57.861768Z",
+  "working_tree_dirty": false,
+  "artifact_uri": "https://github.com/soudai/mackerel-use-improve-demo/tree/codex/mackerel-validation-reports/2026-10-26/quality",
+  "test_wrapper_exit_code": 0,
+  "profiles": {
+    "unit": {
+      "report": "raw/phpunit.xml",
+      "version": "12.5.40",
+      "exit_code": 0,
+      "run_status": "completed",
+      "test_plan_complete": true,
+      "started_at": "2026-10-26T09:57:57.300142Z",
+      "finished_at": "2026-10-26T09:57:57.850284Z"
+    },
+    "php_static": {
+      "report": "raw/cccc.json",
+      "version": "1.8.3",
+      "exit_code": 0,
+      "expected_files": [
+        "backend/app/Http/Controllers/CheckoutController.php",
+        "backend/app/Http/Controllers/Controller.php",
+        "backend/app/Http/Controllers/OrderController.php",
+        "backend/app/Http/Controllers/ProductController.php",
+        "backend/app/Http/Controllers/QuoteController.php",
+        "backend/app/Http/Controllers/ReportController.php",
+        "backend/app/Http/Middleware/ObserveRequest.php",
+        "backend/app/Models/Customer.php",
+        "backend/app/Models/Inventory.php",
+        "backend/app/Models/Order.php",
+        "backend/app/Models/OrderItem.php",
+        "backend/app/Models/Product.php",
+        "backend/app/Models/User.php",
+        "backend/app/Providers/AppServiceProvider.php",
+        "backend/app/Services/CheckoutService.php",
+        "backend/app/Services/PricingService.php",
+        "backend/app/Services/SalesReportService.php",
+        "backend/app/Support/Telemetry.php"
+      ]
+    }
+  }
+}

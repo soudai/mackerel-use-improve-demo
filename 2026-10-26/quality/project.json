@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "service": "mackerel-seminar-demo",
+  "environment": "development",
+  "mackerel_service": "mackerel-seminar-demo",
+  "profiles": {
+    "unit": {
+      "kind": "junit",
+      "producer": "phpunit",
+      "version": "12.5.40",
+      "selection": "full PHPUnit suite, one invocation, no retries; independent --list-tests-xml plan"
+    },
+    "php_static": {
+      "kind": "cccc",
+      "producer": "moznion/cccc",
+      "version": "1.8.3",
+      "language": "php",
+      "selection": "backend/app PHP sources; full JSON; min=0; no config; no cache",
+      "cognitive_limit": 15,
+      "cyclomatic_limit": 10
+    }
+  }
+}

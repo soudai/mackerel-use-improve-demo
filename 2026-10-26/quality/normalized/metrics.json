@@ -1,0 +1,127 @@
+[
+  {
+    "name": "cccc.php_static.analysis.complete",
+    "time": 1793008677,
+    "value": 1
+  },
+  {
+    "name": "cccc.php_static.analysis.files",
+    "time": 1793008677,
+    "value": 18
+  },
+  {
+    "name": "cccc.php_static.analysis.functions",
+    "time": 1793008677,
+    "value": 37
+  },
+  {
+    "name": "cccc.php_static.analysis.last_success_timestamp",
+    "time": 1793008677,
+    "value": 1793008677
+  },
+  {
+    "name": "cccc.php_static.analysis.parse_error_files",
+    "time": 1793008677,
+    "value": 0
+  },
+  {
+    "name": "cccc.php_static.analysis.parse_errors",
+    "time": 1793008677,
+    "value": 0
+  },
+  {
+    "name": "cccc.php_static.cognitive.max",
+    "time": 1793008677,
+    "value": 51
+  },
+  {
+    "name": "cccc.php_static.cognitive.over_limit_count",
+    "time": 1793008677,
+    "value": 1
+  },
+  {
+    "name": "cccc.php_static.cognitive.over_limit_ratio",
+    "time": 1793008677,
+    "value": 0.02702702702702703
+  },
+  {
+    "name": "cccc.php_static.cognitive.p95",
+    "time": 1793008677,
+    "value": 12
+  },
+  {
+    "name": "cccc.php_static.cyclomatic.max",
+    "time": 1793008677,
+    "value": 29
+  },
+  {
+    "name": "cccc.php_static.cyclomatic.over_limit_count",
+    "time": 1793008677,
+    "value": 3
+  },
+  {
+    "name": "cccc.php_static.cyclomatic.over_limit_ratio",
+    "time": 1793008677,
+    "value": 0.08108108108108109
+  },
+  {
+    "name": "cccc.php_static.cyclomatic.p95",
+    "time": 1793008677,
+    "value": 11
+  },
+  {
+    "name": "tests.unit.cases.error",
+    "time": 1793008677,
+    "value": 0
+  },
+  {
+    "name": "tests.unit.cases.failed",
+    "time": 1793008677,
+    "value": 0
+  },
+  {
+    "name": "tests.unit.cases.passed",
+    "time": 1793008677,
+    "value": 28
+  },
+  {
+    "name": "tests.unit.cases.selected",
+    "time": 1793008677,
+    "value": 28
+  },
+  {
+    "name": "tests.unit.cases.skipped",
+    "time": 1793008677,
+    "value": 0
+  },
+  {
+    "name": "tests.unit.ratios.strict_pass",
+    "time": 1793008677,
+    "value": 1.0
+  },
+  {
+    "name": "tests.unit.run.complete",
+    "time": 1793008677,
+    "value": 1
+  },
+  {
+    "name": "tests.unit.run.duration_seconds",
+    "time": 1793008677,
+    "value": 0.5501420497894287
+  },
+  {
+    "name": "tests.unit.run.last_completed_timestamp",
+    "time": 1793008677,
+    "value": 1793008677
+  },
+  {
+    "name": "tests.unit.run.report_complete",
+    "time": 1793008677,
+    "value": 1
+  },
+  {
+    "name": "tests.unit.run.success",
+    "time": 1793008677,
+    "value": 1
+  }
+]
