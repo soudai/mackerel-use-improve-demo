@@ -1,0 +1,38 @@
+name: Verify demo baseline and improvements
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Python tooling
+        run: python3 -m unittest discover -s tests/python -v
+      - name: Setup local demonstration
+        run: ./scripts/demo setup
+        env:
+          DEMO_SEED_ORDERS: '1000'
+      - name: Business regression tests
+        run: ./scripts/demo test
+      - name: Collect real quality reports (offline publication check)
+        run: |
+          ./scripts/install-tools
+          python3 scripts/quality.py
+      - name: Smoke workload
+        run: python3 scripts/load.py orders --requests 5 --concurrency 1 --warmup 1 --output artifacts/runs/ci-orders.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demo-evidence
+          path: artifacts
+      - name: Stop this demo stack
+        if: always()
+        run: docker compose down

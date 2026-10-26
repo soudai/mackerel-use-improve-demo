@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+version=1.8.3
+case "$(uname -m)" in
+  x86_64) target=x86_64-unknown-linux-musl; checksum=9596a70e920ca9fd22ea541b773c2ddc6a63af4390da8864ebdfbcdc5949aa97 ;;
+  aarch64|arm64) target=aarch64-unknown-linux-musl; checksum=8aad9b34f398f32cafb2825dc2e7d68ab2dea51bd00e1bec1d2fb8370c8506f2 ;;
+  *) echo "Supported: Linux/WSL x86_64 or aarch64" >&2; exit 2 ;;
+esac
+mkdir -p .tools
+archive=$(mktemp /tmp/mackerel-demo-cccc.XXXXXXXX.tar.gz)
+trap 'rm -f "$archive"' EXIT
+curl --fail --location --silent --show-error --connect-timeout 10 --max-time 120 \
+  "https://github.com/moznion/cccc/releases/download/v${version}/cccc-v${version}-${target}.tar.gz" -o "$archive"
+printf '%s  %s\n' "$checksum" "$archive" | sha256sum --check --status
+tar -xzf "$archive" -C .tools cccc
+chmod +x .tools/cccc
+.tools/cccc --version

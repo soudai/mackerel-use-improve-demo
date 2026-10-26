@@ -1,0 +1,121 @@
+extensions:
+  file_storage:
+    directory: /var/lib/otel/checkpoints
+    create_directory: true
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+  file_log:
+    include: [/var/log/demo/access.jsonl]
+    start_at: beginning
+    storage: file_storage
+    operators:
+      - type: json_parser
+        parse_from: body
+        parse_to: attributes
+        timestamp:
+          parse_from: attributes.timestamp
+          layout_type: gotime
+          layout: "2006-01-02T15:04:05.000000Z07:00"
+      - type: severity_parser
+        parse_from: attributes.level
+      - type: trace_parser
+        if: 'attributes.trace_id matches "^[0-9a-fA-F]{32}$" and attributes.span_id matches "^[0-9a-fA-F]{16}$" and attributes.trace_id != "00000000000000000000000000000000" and attributes.span_id != "0000000000000000"'
+        trace_id:
+          parse_from: attributes.trace_id
+        span_id:
+          parse_from: attributes.span_id
+      - type: add
+        field: resource["service.name"]
+        value: mackerel-improve-demo
+      - type: add
+        field: resource["service.namespace"]
+        value: demo
+      - type: add
+        field: resource["deployment.environment.name"]
+        value: development
+      - type: move
+        from: attributes.service_version
+        to: resource["service.version"]
+  postgresql:
+    endpoint: db:5432
+    transport: tcp
+    username: demo
+    password: demo
+    databases: [demo]
+    tls:
+      insecure: true
+    collection_interval: 10s
+    connect_database: demo
+    timeout: 10s
+    connection_pool:
+      max_open: 2
+      max_idle: 1
+    metrics:
+      postgresql.database.locks:
+        enabled: true
+      postgresql.deadlocks:
+        enabled: true
+      postgresql.blks_hit:
+        enabled: true
+      postgresql.blks_read:
+        enabled: true
+      postgresql.temp.io:
+        enabled: true
+      postgresql.temp_files:
+        enabled: true
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+    spike_limit_mib: 64
+  resource/db:
+    attributes:
+      - key: service.name
+        value: mackerel-improve-demo-db
+        action: insert
+      - key: service.namespace
+        value: demo
+        action: insert
+      - key: deployment.environment.name
+        value: development
+        action: insert
+  batch:
+    timeout: 1s
+    send_batch_size: 256
+exporters:
+  file/traces:
+    path: /var/lib/otel/traces.jsonl
+    rotation:
+      max_megabytes: 25
+      max_backups: 3
+  file/logs:
+    path: /var/lib/otel/logs.jsonl
+    rotation:
+      max_megabytes: 25
+      max_backups: 3
+  file/metrics:
+    path: /var/lib/otel/metrics.jsonl
+    rotation:
+      max_megabytes: 25
+      max_backups: 3
+service:
+  extensions: [file_storage]
+  telemetry:
+    logs:
+      level: warn
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [file/traces]
+    logs:
+      receivers: [otlp, file_log]
+      processors: [memory_limiter, batch]
+      exporters: [file/logs]
+    metrics:
+      receivers: [otlp, postgresql]
+      processors: [memory_limiter, resource/db, batch]
+      exporters: [file/metrics]

@@ -1,0 +1,44 @@
+processors:
+  transform/redact:
+    error_mode: ignore
+    trace_statements:
+      - context: span
+        statements:
+          - delete_key(attributes, "http.request.header.authorization")
+          - delete_key(attributes, "http.request.header.cookie")
+          - delete_key(attributes, "http.response.header.set_cookie")
+exporters:
+  otlphttp/mackerel:
+    endpoint: https://otlp-vaxila.mackerelio.com
+    headers:
+      Mackerel-Api-Key: ${env:MACKEREL_APIKEY}
+    retry_on_failure:
+      enabled: true
+      max_elapsed_time: 120s
+    sending_queue:
+      enabled: true
+      queue_size: 1024
+  otlp/mackerel:
+    endpoint: otlp.mackerelio.com:4317
+    headers:
+      Mackerel-Api-Key: ${env:MACKEREL_APIKEY}
+    retry_on_failure:
+      enabled: true
+      max_elapsed_time: 120s
+    sending_queue:
+      enabled: true
+      queue_size: 1024
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, transform/redact, batch]
+      exporters: [file/traces, otlphttp/mackerel]
+    logs:
+      receivers: [otlp, file_log]
+      processors: [memory_limiter, batch]
+      exporters: [file/logs, otlphttp/mackerel]
+    metrics:
+      receivers: [otlp, postgresql]
+      processors: [memory_limiter, resource/db, batch]
+      exporters: [file/metrics, otlp/mackerel]

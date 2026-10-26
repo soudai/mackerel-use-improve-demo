@@ -1,0 +1,11 @@
+/.env
+/.tools/
+/artifacts/*
+!/artifacts/.gitkeep
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+.DS_Store
+
+/output/
+/.playwright-cli/

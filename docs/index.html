@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Laravel・PostgreSQL・Mackerelで、障害の観測から原因特定、Issue、改善PR、効果検証までを再現するデモガイド。">
+<meta name="color-scheme" content="light">
+<title>Mackerel Improvement Lab — デモガイド</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/main.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#content">本文へ移動</a>
+<aside class="sidebar" aria-label="ドキュメントナビゲーション">
+  <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">m</span><span>Mackerel<br><small>Improvement Lab</small></span></a>
+  <div class="nav-label">DEMO HANDBOOK</div>
+  <nav>
+    <a href="#overview">全体像<span>01</span></a>
+    <a href="#quickstart">起動と基準測定<span>02</span></a>
+    <a href="#scenarios">6つの改善シナリオ<span>03</span></a>
+    <div class="nav-children"><a href="#n-plus-one">注文一覧 / N+1</a><a href="#lock-wait">在庫引当 / ロック待ち</a><a href="#scan">注文検索 / 全走査</a><a href="#overfetch">売上集計 / 大量取得</a><a href="#unused-index">未使用インデックス</a><a href="#complexity">コードの複雑度</a></div>
+    <a href="#evidence">証拠からIssue・PRへ<span>04</span></a>
+    <a href="#telemetry">観測とMackerel接続<span>05</span></a>
+    <a href="#domain">保持する業務仕様<span>06</span></a>
+    <a href="#prompts">エージェントへの依頼<span>07</span></a>
+  </nav>
+  <a class="repo-link" href="https://github.com/soudai/mackerel-use-improve-demo">GitHub リポジトリ <span aria-hidden="true">↗</span></a>
+  <p class="sidebar-note">Laravel · PostgreSQL<br>OpenTelemetry · Mackerel</p>
+</aside>
+<div class="document">
+<header class="topbar"><span>実践デモ / 開発改善</span><a href="https://github.com/soudai/mackerel-use-improve-demo">ソースを見る <span aria-hidden="true">↗</span></a></header>
+<main id="content">
+<section class="hero" id="top">
+  <div><p class="eyebrow"><span></span> OBSERVE. UNDERSTAND. IMPROVE.</p><h1>観測から、<br><em>改善のPR</em>へ。</h1><p class="hero-lead">「遅い」を見つけて終わらない。<br>Laravelの小さな受注アプリで、証拠を集め、コードを直し、同じ条件で効果を確かめる。</p><div class="hero-actions"><a class="button" href="#quickstart">デモを起動する <span aria-hidden="true">↓</span></a><a class="text-link" href="#scenarios">シナリオを選ぶ <span aria-hidden="true">→</span></a></div></div>
+  <div class="hero-card"><div class="hero-card-label">ONE IMPROVEMENT LOOP</div><ol><li><span>01</span><div><strong>観測する</strong><small>メトリックス・ログ・トレース</small></div></li><li><span>02</span><div><strong>原因を確かめる</strong><small>実行計画・対象commitのコード</small></div></li><li><span>03</span><div><strong>IssueからPRへ</strong><small>一つの仮説、一つの変更</small></div></li><li><span>04</span><div><strong>同条件で検証する</strong><small>性能・挙動・品質の前後比較</small></div></li></ol><div class="hero-card-foot"><span class="status-dot"></span> main = 改善前のベースライン</div></div>
+</section>
+<div class="principle-strip"><div><strong>6</strong><span>改善シナリオ</span></div><div><strong>1</strong><span>共通の基準commit</span></div><div><strong>0</strong><span>事前に埋め込む修正版</span></div><p>各シナリオは <code>demo-before</code> から始め、<br>独立したブランチとPRで改善します。</p></div>
+<section class="section" id="overview"><div class="section-head"><span class="section-no">01</span><div><h2>一つのアプリで、観測をつなぐ</h2><p>購入・検索・売上集計の実際の操作を、実行時の挙動とコードの品質に結び付けます。</p></div></div>
+<p>題材は「ミニEC＋受注・在庫管理」です。注文一覧のN+1、人気商品のロック待ち、検索SQL、大量データの集計、複雑な割引ロジックを含みます。mainには業務上動作する改善前コードを置き、完成済みの修正版へ切り替えるフラグは設けません。</p>
+<div class="architecture" role="img" aria-label="負荷生成からLaravel、PostgreSQLと配送モックへ。実行時のデータはOpenTelemetry Collectorでローカルに保存し、設定時のみMackerelへ送信。PHPUnitとCCCCの品質結果も別経路で保存・投稿する。">
+  <div class="arch-row"><div class="arch-node"><small>TRAFFIC</small><strong>画面 / 負荷生成</strong><span>同じseed・同じ条件</span></div><span class="arch-arrow" aria-hidden="true">→</span><div class="arch-node app-node"><small>APPLICATION</small><strong>Laravel + PHP-FPM</strong><span>業務スパン / 構造化ログ</span></div><span class="arch-arrow" aria-hidden="true">→</span><div class="arch-node"><small>DEPENDENCIES</small><strong>PostgreSQL / 配送モック</strong><span>実行計画 / 行ロック</span></div></div>
+  <div class="arch-flow-label">実行時のテレメトリー <span aria-hidden="true">↓</span></div>
+  <div class="arch-row"><div class="arch-node"><small>COLLECT</small><strong>OTel Collector</strong><span>トレース / ログ / DB統計</span></div><span class="arch-arrow" aria-hidden="true">→</span><div class="arch-node storage-node"><small>DEFAULT</small><strong>ローカル成果物</strong><span>artifacts/otel/*.jsonl</span></div><span class="arch-arrow optional" aria-hidden="true">⇢</span><div class="arch-node optional-node"><small>OPT-IN</small><strong>Mackerel</strong><span>接続を設定して送信</span></div></div>
+  <div class="arch-quality"><span>PHPUnit + CCCC</span><span aria-hidden="true">→</span><span>品質bundle・詳細レポート</span><span aria-hidden="true">→</span><span>Mackerelサービスメトリックス</span></div>
+</div>
+<div class="two-column"><div class="note"><h3>このデモで扱う5つの目的</h3><ol class="compact-list"><li>N+1・ロック待ちなどの性能改善</li><li>認知複雑度・循環的複雑度の継続監視</li><li>全走査・未使用索引・大量行取得の調査</li><li>ログから遅いAPIを抽出し、内部処理へ進む</li><li>トレースとソースを照合し、Issue・改善PRへ</li></ol></div><div class="note"><h3>基準を固定する</h3><p><code>demo-before</code> は初期実装を指す不変のタグです。別の改善を試すたびにこのタグから分岐します。品質の対象は <code>backend/app/</code>。実行していない問題版も静的解析されるため、問題版と修正版を同じコードに共存させません。</p></div></div>
+</section><section class="section" id="quickstart"><div class="section-head"><span class="section-no">02</span><div><h2>起動して、改善前を測る</h2><p>WSLのリポジトリルートで実行します。Docker Engine / Docker Desktop、Compose、Python 3が必要です。</p></div></div>
+<div class="step-title"><span>1</span><h3>デモ環境を起動</h3></div>
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>cd /home/soudai/work/mackerel/mackerel-use-improve-demo
+test -f .env || cp .env.example .env
+./scripts/demo setup
+curl -fsS http://localhost:18080/up</code></pre></div>
+<p><code>setup</code> は依存インストール、APP_KEY生成、migration、固定seedの投入、各サービスの起動を行います。画面は <a href="http://localhost:18080">http://localhost:18080</a>。フロントエンドのビルド工程はありません。</p>
+<div class="table-wrap" tabindex="0" aria-label="横にスクロールできる表"><table><caption>実行環境と成果物</caption><thead><tr><th>対象</th><th>設定・保存先</th></tr></thead><tbody><tr><td>アプリ画面 / API</td><td><code>localhost:18080</code></td></tr><tr><td>PostgreSQL</td><td><code>localhost:55432</code> / DB・ユーザー・パスワードは各 <code>demo</code></td></tr><tr><td>トレース / ログ / DBメトリックス</td><td><code>artifacts/otel/traces.jsonl</code> / <code>logs.jsonl</code> / <code>metrics.jsonl</code></td></tr><tr><td>アクセスログの元データ</td><td><code>backend/storage/logs/access.jsonl</code></td></tr><tr><td>データ規模</td><td>顧客・商品 各1,000件 / 注文20,000件 / 明細60,000件</td></tr><tr><td>条件の調整</td><td><code>.env</code> の <code>DEMO_SEED_ORDERS</code>、<code>SHIPPING_DELAY_MS</code></td></tr></tbody></table></div>
+<div class="step-title"><span>2</span><h3>基準タグからブランチを作る</h3></div>
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>git show --no-patch demo-before
+git switch -c codex/demo-n-plus-one demo-before
+export APP_REVISION=&quot;$(git rev-parse HEAD)&quot;
+./scripts/demo up</code></pre></div>
+<p>コードを切り替えたらアプリを更新し、レスポンスの <code>X-App-Revision</code> と対象commitを照合します。未コミットの変更を、commitと同一のコードとして扱わないでください。修正後の最終測定はcommitしてから行います。</p>
+<div class="step-title"><span>3</span><h3>負荷と証拠を保存</h3></div>
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>RUN_ID=$(date -u +%Y%m%dT%H%M%SZ)
+python3 scripts/load.py orders --requests 100 --concurrency 4 --warmup 3 \
+  --output &quot;artifacts/runs/$RUN_ID/orders-before.json&quot;
+python3 scripts/evidence.py \
+  --load &quot;artifacts/runs/$RUN_ID/orders-before.json&quot; \
+  --output &quot;artifacts/issues/$RUN_ID/orders-before&quot;</code></pre></div>
+<p>各コマンドは新しい出力先を使います。再実行時は <code>RUN_ID</code> を更新してください。Issueの下書きは出力ディレクトリの <code>issue.md</code> に保存されます。通常実行はGitHubへ投稿しません。</p>
+<details class="details"><summary>停止・テスト・初期データの再作成</summary><div>
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>./scripts/demo test
+./scripts/demo artisan route:list
+./scripts/demo logs --tail=100 collector app
+./scripts/demo down</code></pre></div>
+<p><code>down</code> はDBデータを保持します。比較のためにこのデモDBを初期化し直す場合だけ、次を使います。投入する注文数を変える場合は、先に <code>.env</code> を編集してサービスへ反映します。</p>
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>./scripts/demo reset --yes</code></pre></div>
+<p class="caution">この操作はデモDBの既存データを削除し、migrationとseedを再実行します。</p></div></details>
+</section><section class="section" id="scenarios"><div class="section-head"><span class="section-no">03</span><div><h2>6つの改善シナリオ</h2><p>一度に一つ選び、仮説・変更・評価を対応させます。改善案は検証前の候補です。</p></div></div><div class="scenario-index"><a href="#n-plus-one"><span>01</span>注文一覧のN+1<span aria-hidden="true">↗</span></a><a href="#lock-wait"><span>02</span>在庫引当のロック待ち<span aria-hidden="true">↗</span></a><a href="#scan"><span>03</span>日付検索の全走査<span aria-hidden="true">↗</span></a><a href="#overfetch"><span>04</span>売上集計の大量行取得<span aria-hidden="true">↗</span></a><a href="#unused-index"><span>05</span>観測負荷で使われない索引<span aria-hidden="true">↗</span></a><a href="#complexity"><span>06</span>割引ロジックの複雑度<span aria-hidden="true">↗</span></a></div><article class="scenario" id="n-plus-one"><div class="scenario-top"><span class="scenario-number">01</span><div><p class="eyebrow">QUERY COUNT</p><h3>注文一覧のN+1</h3></div><span class="branch-tag">codex/demo-n-plus-one</span></div><p class="scenario-symptom">注文が増えるほど、顧客情報を取得するSQLも増える。</p><p>最新注文を取得した後、ループ内で顧客リレーションを遅延読込します。注文50件と顧客取得だけなら51回になる構造を、実際のトレースで確認します。</p><p class="endpoint"><code>GET /api/orders?limit=50</code></p><div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>python3 scripts/load.py orders --requests 100 --concurrency 4 --warmup 3 \
+  --output &quot;artifacts/runs/$RUN_ID/orders-before.json&quot;</code></pre></div><div class="scenario-columns"><div><h4>見る証拠</h4><ul><li>route別のp95、失敗率、X-Query-Count</li><li>同じtrace内で反復する顧客取得SQL</li><li>取得件数を変えたときのSQL数の増え方</li></ul></div><div><h4>改善の仮説</h4><p>必要な顧客情報をEager Loadingでまとめて取得する。51→2は取得部分の設計上の例であり、実測値はレポートで確認します。</p></div></div><div class="acceptance"><h4>PRの受入条件</h4><ul><li>注文の件数・順番・顧客名・金額が同じ。</li><li>limitを増やしてもSQL数が比例して増えない。</li><li>p95・DB時間・メモリ・失敗率に回帰がない。</li></ul></div><div class="scenario-source"><span>調査を始めるコード</span><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/backend/app/Http/Controllers/OrderController.php">backend/app/Http/Controllers/OrderController.php</a></div></article><article class="scenario" id="lock-wait"><div class="scenario-top"><span class="scenario-number">02</span><div><p class="eyebrow">CONCURRENCY</p><h3>在庫引当のロック待ち</h3></div><span class="branch-tag">codex/demo-lock-wait</span></div><p class="scenario-symptom">同じ人気商品への注文が、配送APIの待ち時間まで直列化される。</p><p>在庫行をロックした状態で配送見積りAPIを待ちます。PHP-FPMと配送モックは並行処理できるため、同じ在庫行の競合を観測できます。</p><p class="endpoint"><code>POST /api/checkout</code></p><div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>python3 scripts/load.py checkout --requests 40 --concurrency 12 --warmup 1 \
+  --timeout 60 --output &quot;artifacts/runs/$RUN_ID/checkout-before.json&quot;
+# 負荷中に別のターミナルで実行
+python3 scripts/db_snapshot.py --output &quot;artifacts/db/$RUN_ID/checkout-during.json&quot;</code></pre></div><div class="scenario-columns"><div><h4>見る証拠</h4><ul><li>在庫取得スパンと配送HTTPスパンの時間</li><li>pg_stat_activityのLock待機・blocking PID</li><li>成功注文数、在庫減少数、タイムアウト</li></ul></div><div><h4>改善の仮説</h4><p>配送見積りを先に取得し、在庫を再確認・更新するトランザクションを短くする。ロック件数だけでは、待ち時間や競合の原因を判断しません。</p></div></div><div class="acceptance"><h4>PRの受入条件</h4><ul><li>在庫が負数にならず、成功注文数と在庫減少数が一致。</li><li>配送失敗で不完全な注文や在庫減少を残さない。</li><li>ロック待ちとp95が改善し、失敗率が悪化しない。</li></ul></div><div class="scenario-source"><span>調査を始めるコード</span><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/backend/app/Services/CheckoutService.php">backend/app/Services/CheckoutService.php</a></div></article><article class="scenario" id="scan"><div class="scenario-top"><span class="scenario-number">03</span><div><p class="eyebrow">QUERY PLAN</p><h3>日付検索の全走査</h3></div><span class="branch-tag">codex/demo-order-search</span></div><p class="scenario-symptom">狭い期間の検索でも、多くの行やブロックを読む。</p><p>状態・日時に合う複合インデックスがなく、日時列には日付変換を適用しています。実行計画と選択率を確認し、どちらが効いているかを調べます。</p><p class="endpoint"><code>GET /api/orders/search?status=paid&amp;from=2026-01-01&amp;to=2026-01-02</code></p><div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>python3 scripts/load.py search --requests 100 --concurrency 4 \
+  --output &quot;artifacts/runs/$RUN_ID/search-before.json&quot;
+python3 scripts/db_snapshot.py --explain-search \
+  --output &quot;artifacts/db/$RUN_ID/search-before.json&quot;</code></pre></div><div class="scenario-columns"><div><h4>見る証拠</h4><ul><li>クエリ別の時間・読込ブロック・返却行数</li><li>EXPLAIN ANALYZEのSeq Scan・Sortなど</li><li>検索条件の選択率とseed件数</li></ul></div><div><h4>改善の仮説</h4><p>UTCの日付境界を保持して半開区間に書き換え、状態・日時・並び順に合う複合索引を検討する。改善後のSQLに合わせた実行計画も取得します。</p></div></div><div class="acceptance"><h4>PRの受入条件</h4><ul><li>日付の両端、状態、降順、同時刻のid順、limitを保持。</li><li>同じ検索結果について読込量・p95を比較。</li><li>小規模テーブルの合理的なSeq Scanを障害と断定しない。</li></ul></div><div class="scenario-source"><span>調査を始めるコード</span><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/backend/app/Http/Controllers/OrderController.php">backend/app/Http/Controllers/OrderController.php</a></div></article><article class="scenario" id="overfetch"><div class="scenario-top"><span class="scenario-number">04</span><div><p class="eyebrow">DATA TRANSFER</p><h3>売上集計の大量行取得</h3></div><span class="branch-tag">codex/demo-sales-report</span></div><p class="scenario-symptom">少量の集計結果を返すために、大量の明細をPHPへ転送する。</p><p>対象の注文・明細を全件取得してから、PHPで注文数・販売数量・日別金額を集計します。DB転送とPHP処理の両方を分けて観測します。</p><p class="endpoint"><code>GET /api/reports/sales?from=2026-01-01&amp;to=2026-02-01</code></p><div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>python3 scripts/load.py report --requests 30 --concurrency 2 \
+  --output &quot;artifacts/runs/$RUN_ID/report-before.json&quot;
+python3 scripts/db_snapshot.py --output &quot;artifacts/db/$RUN_ID/report-before.json&quot;</code></pre></div><div class="scenario-columns"><div><h4>見る証拠</h4><ul><li>reports.fetch_rows / reports.aggregate の時間</li><li>SELECT返却行数と実行回数の差分</li><li>アプリのメモリとリクエスト時間</li></ul></div><div><h4>改善の仮説</h4><p>SQL側で集約し、APIに必要な集計行だけを取得する。DBからアプリへの返却行数と、最終HTTPレスポンスの大きさを区別します。</p></div></div><div class="acceptance"><h4>PRの受入条件</h4><ul><li>対象状態・日付境界・注文数・数量・売上が一致。</li><li>ゼロ件、数量2以上、複数明細の注文も正しく集計。</li><li>返却行数・メモリ・p95を同じデータで比較。</li></ul></div><div class="scenario-source"><span>調査を始めるコード</span><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/backend/app/Services/SalesReportService.php">backend/app/Services/SalesReportService.php</a></div></article><article class="scenario" id="unused-index"><div class="scenario-top"><span class="scenario-number">05</span><div><p class="eyebrow">INDEX USAGE</p><h3>観測負荷で使われない索引</h3></div><span class="branch-tag">codex/demo-unused-index</span></div><p class="scenario-symptom">廃止した検索機能のインデックスが残っている。</p><p>現在のAPIはlegacy_referenceで検索しません。全業務の負荷を流す前後で、利用統計・サイズ・制約用途を保存して候補を見つけます。</p><p class="endpoint"><code>orders_legacy_reference_idx</code></p><div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>python3 scripts/db_snapshot.py --output &quot;artifacts/db/$RUN_ID/index-before.json&quot;
+# 商品・注文・検索・購入・集計・見積りの代表負荷を実行
+python3 scripts/db_snapshot.py --output &quot;artifacts/db/$RUN_ID/index-after.json&quot;</code></pre></div><div class="scenario-columns"><div><h4>見る証拠</h4><ul><li>pg_stat_user_indexesのidx_scanとサイズ</li><li>primary / unique / 制約への依存</li><li>観測期間、DB・クエリ統計のリセット情報</li></ul></div><div><h4>改善の仮説</h4><p>業務上の用途と依存関係がないと確認したうえで、削除と復元ができるmigrationを作る。短時間の利用0回は、永久に不要という証明にはなりません。</p></div></div><div class="acceptance"><h4>PRの受入条件</h4><ul><li>月次・移行・外部利用・制約用途を確認。</li><li>全業務と制約の動作を維持。</li><li>必要に応じて同じ書込み負荷で容量・更新コストを比較。</li></ul></div><div class="scenario-source"><span>調査を始めるコード</span><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/backend/database/migrations/2026_01_01_000000_create_demo_tables.php">backend/database/migrations/2026_01_01_000000_create_demo_tables.php</a></div></article><article class="scenario" id="complexity"><div class="scenario-top"><span class="scenario-number">06</span><div><p class="eyebrow">CODE QUALITY</p><h3>割引ロジックの複雑度</h3></div><span class="branch-tag">codex/demo-pricing-complexity</span></div><p class="scenario-symptom">会員・数量・クーポン・送料の追加条件が深い入れ子になる。</p><p>認知複雑度と循環的複雑度を別々に測定します。最初に解析の完全性・全関数の明細・価格計算の仕様テストを確認してから、構造を整理します。</p><p class="endpoint"><code>PricingService::calculate</code></p><div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>./scripts/install-tools
+python3 scripts/quality.py</code></pre></div><div class="scenario-columns"><div><h4>見る証拠</h4><ul><li>cccc.php_static.cognitive.* / cyclomatic.*</li><li>analysis.complete、対象ファイル数・関数数</li><li>PHPUnit結果・全関数明細・ソースmanifest</li></ul></div><div><h4>改善の仮説</h4><p>業務規則を決定表で確認し、条件や責務を整理する。別の巨大関数への移動や、解析対象の除外で指標だけを下げる変更を避けます。</p></div></div><div class="acceptance"><h4>PRの受入条件</h4><ul><li>価格・割引・送料・クーポン条件の振る舞いを保持。</li><li>関数分割後も明細と差分を確認。</li><li>複雑度低下だけで高速化や未知のバグ減少を主張しない。</li></ul></div><div class="scenario-source"><span>調査を始めるコード</span><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/backend/app/Services/PricingService.php">backend/app/Services/PricingService.php</a></div></article></section><section class="section" id="evidence"><div class="section-head"><span class="section-no">04</span><div><h2>証拠を、レビューできる変更にする</h2><p>アクセスログは入口を絞り、トレースは時間の内訳を示し、コードとDB情報で仮説を確かめます。</p></div></div>
+<ol class="workflow"><li><strong>遅いrouteを見つける</strong><p>アクセスログの期間・revisionを絞って、p95、失敗、代表trace IDを取り出します。</p></li><li><strong>同じtraceの処理を読む</strong><p>HTTP・SQL・業務子スパンから時間を使う場所を確認します。ネストしたスパンの時間は単純合算しません。</p></li><li><strong>対象commitのソースへ進む</strong><p>service.versionとコード属性を照合します。未コミット状態・別revision・欠測は、確定したソース帰属にしません。</p></li><li><strong>根拠付きIssueを作る</strong><p>期間、再現条件、確認済みの事実、原因仮説、ソース位置、受入条件を残します。</p></li><li><strong>一つの変更をPRにする</strong><p>回帰テストと同条件のbefore/afterを添え、性能・挙動・品質の結果を分けて説明します。</p></li></ol>
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>python3 scripts/log_summary.py --output &quot;artifacts/logs/$RUN_ID/routes.json&quot;
+python3 scripts/evidence.py \
+  --load &quot;artifacts/runs/$RUN_ID/orders-before.json&quot; \
+  --output &quot;artifacts/issues/$RUN_ID/orders-before&quot;</code></pre></div>
+<p><code>log_summary.py</code> は <code>--since</code> / <code>--until</code> / <code>--revision</code> で絞れます。<code>evidence.py</code> はローカルOTLP JSONと負荷レポートのtrace IDを照合し、成果物からIssue下書きを作ります。全メソッドの実行時間や行番号が、自動計装だけで得られるわけではありません。</p>
+<div class="note accent"><h3>Issue・PRに含めるもの</h3><div class="check-grid"><span>観測期間・環境・revision</span><span>seed・負荷・ウォームアップ条件</span><span>trace・ログ・DBの証拠</span><span>対象ソースと原因仮説</span><span>変更内容・受入条件</span><span>前後値・テスト結果・未確認事項</span></div></div>
+<details class="details"><summary>依頼を受けた段階でGitHub Issueを投稿する</summary><div><p>下記はGitHubへの書込み操作です。デモの実施者がIssue作成を依頼した段階で使います。認証済みの <code>gh</code> または対応するGitHubツールが必要です。</p><div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>python3 scripts/evidence.py \
+  --load &quot;artifacts/runs/$RUN_ID/orders-before.json&quot; \
+  --output &quot;artifacts/issues/$RUN_ID/orders-publish&quot; \
+  --title &quot;注文一覧のN+1を改善する&quot; \
+  --create-issue --repo soudai/mackerel-use-improve-demo</code></pre></div><p>MackerelのトレースURLは、画面で確認した実URLを追記します。ローカルのtrace IDだけから、Mackerelへの保存成功を判断しません。</p></div></details>
+<div class="table-wrap" tabindex="0" aria-label="横にスクロールできる表"><table><caption>比較時に揃える条件</caption><thead><tr><th>条件</th><th>確認すること</th></tr></thead><tbody><tr><td>データ</td><td>seed件数・内容、購入で増えた注文、消費された在庫。必要なら独立した初期DBを使う。</td></tr><tr><td>負荷</td><td>リクエスト数・同時接続数・対象API・ウォームアップ。ウォームアップは測定母数に含めないが、購入では在庫を消費する。</td></tr><tr><td>実行と計装</td><td>アプリrevision・依存・DB・sampling・収集範囲。修正後も同じ条件を使う。</td></tr><tr><td>結果</td><td>全リクエストと成功リクエストの分布、失敗率、業務結果。失敗が増えて速く見える状態を改善としない。</td></tr><tr><td>統計</td><td>累積値の区間差分、実行回数、リセット時刻。平均やp95を別区間で単純平均しない。</td></tr></tbody></table></div>
+</section><section class="section" id="telemetry"><div class="section-head"><span class="section-no">05</span><div><h2>ローカルで観測し、Mackerelへ接続する</h2><p>既定構成はローカルJSONへの保存です。外部への実送信は設定を追加して有効化します。</p></div></div>
+<div class="table-wrap" tabindex="0" aria-label="横にスクロールできる表"><table><caption>情報ごとの役割と取得経路</caption><thead><tr><th>情報</th><th>デモで使う証拠</th><th>読み方</th></tr></thead><tbody><tr><td>HTTP / DB / 業務トレース</td><td>OTelスパン、service.version、trace ID</td><td>リクエスト内の反復SQLと時間の内訳を確認。</td></tr><tr><td>アクセスログ</td><td>route、status、時間、query count、trace ID</td><td>遅いAPIを抽出。内部メソッドの原因はトレースへ進む。</td></tr><tr><td>DB基本メトリックス</td><td>CollectorのPostgreSQL receiver</td><td>接続・ロック・I/Oなどを確認。ロック件数と待ち時間を混同しない。</td></tr><tr><td>DB詳細情報</td><td>pg_stat_statements、実行計画、index統計、待機情報</td><td>db_snapshot.pyで別途収集。返却行数と走査行数を区別。</td></tr><tr><td>コード品質</td><td>PHPUnit・CCCCの生レポートと正規化bundle</td><td>完全性を確認して固定数のサービスメトリックスへ投稿。</td></tr></tbody></table></div>
+<div class="step-title"><span>A</span><h3>Mackerelへ実行時データを送る</h3></div><p>デモ用の送信先組織を確認し、Write権限のAPIキーを <code>.env</code> の <code>MACKEREL_APIKEY</code> に設定します。キーをcommitしないでください。追加Composeの起動と同時に外部への送信が始まります。</p>
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>DEMO_MACKEREL=1 ./scripts/demo up
+DEMO_MACKEREL=1 ./scripts/demo logs --tail=100 collector</code></pre></div>
+<p>service.name は <code>mackerel-improve-demo</code>、namespace は <code>demo</code>、環境は <code>development</code>。traces/logsはOTLP HTTP、DBメトリックスはOTLP gRPCを使います。Mackerel側でservice・version・観測期間とデータの到着を確認してください。<strong>この資料は実組織への送信・保存・画面表示の検証済みを意味しません。</strong></p>
+<div class="step-title"><span>B</span><h3>品質レポートを取得する</h3></div>
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>./scripts/install-tools
+python3 scripts/quality.py</code></pre></div>
+<p>CCCC 1.8.3の全件JSON、PHPUnit 12.5.xのXML、独立したテスト一覧、ソースmanifest、品質bundle、投稿dry-run結果を保存します。<code>quality.py</code> は送信しません。まず <code>analysis.complete</code>、解析対象件数、元コマンドの終了結果を確認します。</p>
+<div class="code-block"><button class="copy-button" type="button" aria-label="系列名をコピー">コピー</button><pre><code>cccc.php_static.cognitive.max
+cccc.php_static.cognitive.over_limit_count
+cccc.php_static.cyclomatic.max
+cccc.php_static.cyclomatic.over_limit_count
+cccc.php_static.analysis.complete</code></pre></div>
+<p>実投稿は、成果物を実際のHTTPS保存先へ置き、cleanな基準commit・run・attemptを照合してから、Skillの <code>publish.py --send --expected-org ...</code> を使います。関数名・ファイル・commitは詳細成果物へ残し、共有系列にPRごとの測定を混ぜません。</p>
+<details class="details"><summary>設定の検証と収集の限界</summary><div>
+<div class="code-block"><button class="copy-button" type="button" aria-label="コマンドをコピー">コピー</button><pre><code>docker compose run --rm --no-deps collector validate --config=/etc/otelcol/local.yaml
+MACKEREL_APIKEY=validation-only docker compose -f compose.yaml -f compose.mackerel.yaml \
+  run --rm --no-deps collector validate \
+  --config=/etc/otelcol/local.yaml --config=/etc/otelcol/mackerel.yaml</code></pre></div>
+<ul><li>構文検証の成功は、Mackerelへの接続・認証・保存の成功とは別です。</li><li>Collectorのメモリ内queue・有限retryには欠落の可能性があります。停止や欠測を「問題が解消した」と扱いません。</li><li>ログの読取位置は <code>artifacts/otel/checkpoints</code> に保存します。checkpoint削除やログの再配置で再読込が起こり得るため、期間・trace IDで絞ります。</li><li>APM受信スパン数は、負荷生成の全リクエスト数と一致するとは限りません。</li></ul></div></details>
+<p class="resource-links">公式資料：<a href="https://mackerel.io/ja/docs/entry/tracing/installations/php">MackerelのPHP計装</a><a href="https://opentelemetry.io/docs/languages/php/instrumentation/">OTel PHP手動計装</a><a href="https://www.postgresql.org/docs/current/pgstatstatements.html">pg_stat_statements</a><a href="https://github.com/moznion/cccc">CCCC</a></p>
+</section><section class="section" id="domain"><div class="section-head"><span class="section-no">06</span><div><h2>変更後も保持する業務仕様</h2><p>性能改善と業務上の正しさを同時に確かめるため、金額・在庫・日付境界を固定します。</p></div></div>
+<div class="two-column"><div><h3>データと在庫</h3><p>顧客・商品・在庫・注文・注文明細を持ちます。seedは固定乱数 <code>20260101</code>、注文日時はUTCの2026年1月。商品ID 1の初期在庫は100,000です。既存の商品があるとseedをスキップし、追加投入しません。</p><p>購入は既存顧客・有効商品・数量1〜100を受け付けます。在庫確認、減算、注文と明細作成を原子的に行い、配送失敗ではロールバックします。単品購入APIの合計は単価×数量＋配送APIの送料です。</p></div><div><h3>一覧・検索・集計</h3><ul><li>注文一覧：id降順、limit既定50、範囲1〜100。</li><li>検索：状態とUTCの日付範囲、両端含む。created_at降順・id降順、limit既定50、範囲1〜200。</li><li>売上：paidだけを対象。注文数は一意な注文ID数、数量は明細数量の合計、金額は数量×単価で送料を含まない。</li><li>by_dateはUTCの日付順。ゼロ件、境界日、複数明細も検証する。</li></ul></div></div>
+<h3>見積りAPIの価格計算</h3><p>金額は整数の <code>*_cents</code>。単価1〜1,000,000、数量1〜100で、小計＝単価×数量です。見積りの会員・クーポン規則は、単品購入APIには適用しません。</p>
+<div class="table-wrap" tabindex="0" aria-label="横にスクロールできる表"><table><caption>会員割引率（小計に対して適用・端数切捨て）</caption><thead><tr><th>会員</th><th>数量条件</th><th>割引率</th></tr></thead><tbody><tr><td>regular</td><td>20以上 / 20未満</td><td>5% / 0%</td></tr><tr><td>silver</td><td>10以上 / 5〜9 / 1〜4</td><td>10% / 7% / 5%</td></tr><tr><td>gold</td><td>10以上 / 5〜9 / 1〜4</td><td>15% / 12% / 10%</td></tr></tbody></table></div>
+<ol><li><code>SAVE10</code>：割引前小計が3,000以上なら、会員割引後の10%を追加割引。端数切捨て、上限2,000。</li><li>送料判定は全割引後の金額を使います。tokyo / osakaは600、10,000以上または <code>FREESHIP</code> で0。速達は最後に400追加。</li><li>remoteは1,200、10,000以上なら600。<code>FREESHIP</code> は適用せず、速達は最後に800追加。</li><li>合計＝小計−会員割引−クーポン割引＋送料。</li></ol>
+<div class="example"><span>仕様例</span><p>単価1,000 × 数量10 / gold / SAVE10 / tokyo / 通常配送<br><strong>10,000 − 1,500 − 850 ＋ 600 ＝ 8,250 cents</strong></p></div>
+<p>価格の例は仕様上の期待値です。性能の実測結果ではありません。</p>
+</section><section class="section" id="prompts"><div class="section-head"><span class="section-no">07</span><div><h2>エージェントへの依頼例</h2><p>調査と修正の範囲を明示して依頼します。必要なシナリオを開き、そのままコピーできます。</p></div></div><details class="details prompt"><summary>まず原因を調査し、Issueを作る</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、このLaravelデモの注文一覧が遅い原因を調査してください。
+docs/index.htmlのN+1シナリオを再現し、MackerelのHTTP/DB統計、代表trace、同一traceのログを照合してください。
+Mackerelへ接続できない場合はローカルOTLPファイルと負荷結果を使い、未接続を明記してください。
+対象commitのソースを確認し、観測期間、負荷条件、根拠、原因仮説、受入条件を含むGitHub Issueをこのリポジトリに作成してください。
+この段階では実装を修正しないでください。</code></pre></div></div></details><details class="details prompt"><summary>N+1の改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、注文一覧のN+1を改善してください。
+demo-beforeからcodex/demo-n-plus-oneを作り、対象Issueと実際のコードを確認してください。
+APIの返却内容・順番を保持し、クエリ数の増え方を確認する回帰テストを追加してください。
+修正前後を同じseed・負荷・計装条件で測定し、クエリ数、HTTP p95、失敗率とメモリを比較してください。
+根拠付きの比較と未検証事項を記載して、このリポジトリにPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>ロック待ちの改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-beforeからcodex/demo-lock-waitを作り、同一商品の同時購入時のロック待ちを改善してください。
+負荷中のDB待機・blocking情報と、trace内の在庫ロック・配送見積りを照合してください。
+在庫不足、配送失敗、同時購入時の整合性を保持し、短いトランザクションへ改善してください。
+成功注文数と在庫減少数、ロック待ち、p95、失敗率を検証し、Issueを参照するPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>DB検索・集計の改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-beforeから新しいブランチを作り、注文検索の全走査または売上集計の大量行取得の一つを改善してください。
+対象SQL、pg_stat_statements、実行計画、返却行数、アプリの処理スパンを保存してください。
+日付境界、状態、並び順、集計値を保持し、一つの原因仮説に対応する変更とテストを実装してください。
+同じ条件の実測値で採否を判断してPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>未使用索引の調査と改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-beforeからcodex/demo-unused-indexを作り、orders_legacy_reference_idxを調査してください。
+代表的な全業務負荷の前後で、利用統計・サイズ・観測期間・統計reset・制約用途を確認してください。
+短時間の利用0回だけで不要と断定せず、月次・外部利用も含めた確認事項をIssueに残してください。
+削除可能と判断できた場合は削除と復元のmigrationを作り、全業務と制約の動作を確認したPRを作成してください。</code></pre></div></div></details><details class="details prompt"><summary>コード品質の改善PR</summary><div><div class="code-block"><button class="copy-button" type="button" aria-label="プロンプトをコピー">コピー</button><pre><code>mackerel-dev-improveを使い、demo-beforeからcodex/demo-pricing-complexityを作り、PricingServiceの保守性を改善してください。
+CCCCの測定完全性と全関数明細、価格計算の仕様テストを確認してください。
+認知複雑度と循環的複雑度を別々に測定し、価格計算の振る舞いを保持してリファクタリングしてください。
+品質bundle・テスト・差分を照合し、複雑度の移動や対象除外による見かけの改善がないことを確認してPRを作成してください。
+共有Mackerel品質系列へ投稿する場合は基準ブランチの単一publisher経路を使ってください。</code></pre></div></div></details><div class="note"><h3>リポジトリ内の参照先</h3><p>このページはGitHub Pagesで単独で読めるデモ資料です。より細かな実装契約・エージェント向けの指示は、次のソースに保持しています。</p><div class="resource-links"><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/AGENTS.md">AGENTS.md</a><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/.agents/skills/mackerel-dev-improve/SKILL.md">Mackerel Skill</a><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/docs/domain.md">業務仕様の原本</a><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/docs/scenarios.md">シナリオの原本</a><a class="source-link" href="https://github.com/soudai/mackerel-use-improve-demo/blob/main/docs/operations.md">運用手順の原本</a></div></div></section>
+<footer class="footer"><div><strong>Mackerel Improvement Lab</strong><p>観測できた事実と、検証した改善をつなぐ。</p></div><a href="#top">ページ上部へ <span aria-hidden="true">↑</span></a></footer>
+</main></div><div class="sr-only" role="status" aria-live="polite" id="copy-status"></div>
+</body></html>

@@ -1,0 +1,92 @@
+name: mackerel-improve-demo
+services:
+  app:
+    build: .
+    image: mackerel-improve-demo-php:local
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+      - ./artifacts:/workspace/artifacts
+      - ./artifacts:/artifacts
+    environment:
+      APP_NAME: Mackerel Improve Demo
+      APP_ENV: local
+      APP_DEBUG: "false"
+      APP_URL: http://localhost:${APP_PORT:-18080}
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: demo
+      DB_USERNAME: demo
+      DB_PASSWORD: demo
+      CACHE_STORE: file
+      SESSION_DRIVER: file
+      QUEUE_CONNECTION: sync
+      LOG_CHANNEL: stderr
+      DEMO_SEED_ORDERS: ${DEMO_SEED_ORDERS:-20000}
+      SHIPPING_URL: http://shipping:8081
+      SHIPPING_DELAY_MS: ${SHIPPING_DELAY_MS:-300}
+      APP_REVISION: ${APP_REVISION:-baseline}
+      OTEL_SERVICE_NAME: mackerel-improve-demo
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=demo,deployment.environment.name=development,service.version=${APP_REVISION:-baseline}
+      OTEL_PHP_AUTOLOAD_ENABLED: "true"
+      OTEL_PHP_DISABLED_INSTRUMENTATIONS: laravel
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
+      OTEL_TRACES_SAMPLER: always_on
+      OTEL_PHP_EXCLUDED_URLS: /up
+    depends_on:
+      db:
+        condition: service_healthy
+      shipping:
+        condition: service_healthy
+      collector:
+        condition: service_started
+  web:
+    image: nginx:1.27-alpine
+    ports: ["127.0.0.1:${APP_PORT:-18080}:80"]
+    volumes:
+      - ./backend/public:/var/www/html/public:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [app]
+  db:
+    image: postgres:18-bookworm
+    environment:
+      POSTGRES_DB: demo
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "compute_query_id=on", "-c", "track_io_timing=on"]
+    ports: ["127.0.0.1:${DB_PORT:-55432}:5432"]
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./docker/postgres/001-observability.sql:/docker-entrypoint-initdb.d/001-observability.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d demo"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  shipping:
+    image: python:3.13-slim-bookworm
+    command: ["python", "-u", "/mock/server.py"]
+    volumes: ["./docker/shipping/server.py:/mock/server.py:ro"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8081/health')"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.163.2
+    command: ["--config=/etc/otelcol/local.yaml"]
+    user: "0:0"
+    volumes:
+      - ./docker/otel/local.yaml:/etc/otelcol/local.yaml:ro
+      - ./backend/storage/logs:/var/log/demo:ro
+      - ./artifacts/otel:/var/lib/otel
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  postgres-data:

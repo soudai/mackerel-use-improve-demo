@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+compose=(docker compose)
+if [[ "${DEMO_MACKEREL:-0}" == "1" ]]; then
+  compose+=(-f compose.yaml -f compose.mackerel.yaml)
+fi
+prepare() {
+  [[ -f .env ]] || cp .env.example .env
+  mkdir -p artifacts/otel backend/storage/logs
+  if [[ -z "${APP_REVISION:-}" ]]; then
+    export APP_REVISION="$(git rev-parse --verify HEAD 2>/dev/null || printf baseline)"
+  fi
+}
+case "${1:-help}" in
+  build)
+    prepare
+    "${compose[@]}" build app
+    ;;
+  setup)
+    prepare
+    "${compose[@]}" build app
+    "${compose[@]}" up -d db shipping collector
+    "${compose[@]}" run --rm app composer install --no-interaction --prefer-dist
+    "${compose[@]}" run --rm app sh -c 'test -f .env || cp .env.example .env; php artisan key:generate --force; php artisan migrate --force; php artisan db:seed --force'
+    "${compose[@]}" up -d app web
+    ;;
+  up|start)
+    prepare
+    "${compose[@]}" up -d
+    ;;
+  restart)
+    prepare
+    "${compose[@]}" up -d --force-recreate app web
+    ;;
+  down|stop)
+    "${compose[@]}" down
+    ;;
+  reset)
+    if [[ "${2:-}" != "--yes" ]]; then
+      echo "reset removes all rows in this demo database. Run ./scripts/demo reset --yes explicitly." >&2
+      exit 2
+    fi
+    "${compose[@]}" exec -T app php artisan migrate:fresh --seed --force
+    ;;
+  artisan)
+    shift
+    "${compose[@]}" exec -T app php artisan "$@"
+    ;;
+  composer)
+    shift
+    "${compose[@]}" run --rm app composer "$@"
+    ;;
+  test)
+    shift
+    "${compose[@]}" exec -T -e OTEL_PHP_AUTOLOAD_ENABLED=false -e OTEL_SDK_DISABLED=true app php artisan test "$@"
+    ;;
+  logs)
+    shift
+    "${compose[@]}" logs "$@"
+    ;;
+  *)
+    echo "Usage: ./scripts/demo {setup|build|up|restart|down|reset --yes|artisan ...|composer ...|test|logs}"
+    echo "Use DEMO_MACKEREL=1 only after setting the demo organization's MACKEREL_APIKEY."
+    ;;
+esac

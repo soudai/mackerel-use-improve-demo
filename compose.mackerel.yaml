@@ -1,0 +1,7 @@
+services:
+  collector:
+    command: ["--config=/etc/otelcol/local.yaml", "--config=/etc/otelcol/mackerel.yaml"]
+    environment:
+      MACKEREL_APIKEY: ${MACKEREL_APIKEY:?Set MACKEREL_APIKEY for your demo organization}
+    volumes:
+      - ./docker/otel/mackerel.yaml:/etc/otelcol/mackerel.yaml:ro
