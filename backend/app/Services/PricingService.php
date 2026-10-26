@@ -7,10 +7,6 @@ use InvalidArgumentException;
 
 class PricingService
 {
-    /**
-     * Rules are specified in docs/domain.md. This baseline deliberately keeps
-     * the growing business rules in one nested method for the complexity demo.
-     */
     public function calculate(array $input): array
     {
         return Telemetry::span('pricing.calculate', function () use ($input): array {
@@ -20,75 +16,13 @@ class PricingService
             $coupon = $input['coupon'] ?? null;
             $region = $input['region'] ?? 'tokyo';
             $express = (bool) ($input['express'] ?? false);
-
-            if ($price < 1 || $price > 1000000 || $quantity < 1 || $quantity > 100) {
-                throw new InvalidArgumentException('Price or quantity is outside the supported range.');
-            }
-            if (! in_array($tier, ['regular', 'silver', 'gold'], true) || ! in_array($coupon, [null, 'SAVE10', 'FREESHIP'], true) || ! in_array($region, ['tokyo', 'osaka', 'remote'], true)) {
-                throw new InvalidArgumentException('Unknown tier, coupon, or region.');
-            }
+            $this->validateInput($price, $quantity, $tier, $coupon, $region);
 
             $subtotal = $price * $quantity;
-            $rate = 0;
-            if ($tier === 'gold') {
-                if ($quantity >= 10) {
-                    $rate = 15;
-                } else {
-                    if ($quantity >= 5) {
-                        $rate = 12;
-                    } else {
-                        $rate = 10;
-                    }
-                }
-            } else {
-                if ($tier === 'silver') {
-                    if ($quantity >= 10) {
-                        $rate = 10;
-                    } else {
-                        if ($quantity >= 5) {
-                            $rate = 7;
-                        } else {
-                            $rate = 5;
-                        }
-                    }
-                } else {
-                    if ($quantity >= 20) {
-                        $rate = 5;
-                    }
-                }
-            }
-
-            $memberDiscount = intdiv($subtotal * $rate, 100);
-            $couponDiscount = 0;
-            if ($coupon === 'SAVE10') {
-                if ($subtotal >= 3000) {
-                    $couponDiscount = min(2000, intdiv(($subtotal - $memberDiscount) * 10, 100));
-                }
-            }
-
+            $memberDiscount = intdiv($subtotal * $this->memberRate($tier, $quantity), 100);
+            $couponDiscount = $this->couponDiscount($coupon, $subtotal, $memberDiscount);
             $net = $subtotal - $memberDiscount - $couponDiscount;
-            if ($region === 'remote') {
-                if ($net >= 10000) {
-                    $shipping = 600;
-                } else {
-                    $shipping = 1200;
-                }
-                if ($express) {
-                    $shipping += 800;
-                }
-            } else {
-                if ($net >= 10000) {
-                    $shipping = 0;
-                } else {
-                    $shipping = 600;
-                }
-                if ($coupon === 'FREESHIP') {
-                    $shipping = 0;
-                }
-                if ($express) {
-                    $shipping += 400;
-                }
-            }
+            $shipping = $this->shipping($region, $coupon, $net, $express);
 
             return [
                 'subtotal_cents' => $subtotal,
@@ -98,5 +32,52 @@ class PricingService
                 'total_cents' => $net + $shipping,
             ];
         });
+    }
+
+    private function validateInput(int $price, int $quantity, mixed $tier, mixed $coupon, mixed $region): void
+    {
+        if ($price < 1 || $price > 1000000 || $quantity < 1 || $quantity > 100) {
+            throw new InvalidArgumentException('Price or quantity is outside the supported range.');
+        }
+        foreach ([[$tier, ['regular', 'silver', 'gold']], [$coupon, [null, 'SAVE10', 'FREESHIP']], [$region, ['tokyo', 'osaka', 'remote']]] as [$value, $allowed]) {
+            if (! in_array($value, $allowed, true)) {
+                throw new InvalidArgumentException('Unknown tier, coupon, or region.');
+            }
+        }
+    }
+
+    private function memberRate(string $tier, int $quantity): int
+    {
+        $rules = [
+            'regular' => [[20, 5], [1, 0]],
+            'silver' => [[10, 10], [5, 7], [1, 5]],
+            'gold' => [[10, 15], [5, 12], [1, 10]],
+        ];
+        foreach ($rules[$tier] as [$minimum, $rate]) {
+            if ($quantity >= $minimum) {
+                return $rate;
+            }
+        }
+
+        return 0;
+    }
+
+    private function couponDiscount(?string $coupon, int $subtotal, int $memberDiscount): int
+    {
+        if ($coupon !== 'SAVE10' || $subtotal < 3000) {
+            return 0;
+        }
+
+        return min(2000, intdiv(($subtotal - $memberDiscount) * 10, 100));
+    }
+
+    private function shipping(string $region, ?string $coupon, int $net, bool $express): int
+    {
+        if ($region === 'remote') {
+            return ($net >= 10000 ? 600 : 1200) + ($express ? 800 : 0);
+        }
+        $base = ($net >= 10000 || $coupon === 'FREESHIP') ? 0 : 600;
+
+        return $base + ($express ? 400 : 0);
     }
 }

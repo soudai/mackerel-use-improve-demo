@@ -11,38 +11,29 @@ class SalesReportService
     public function generate(string $from, string $to): array
     {
         $until = CarbonImmutable::parse($to, 'UTC')->addDay()->format('Y-m-d');
-        // Baseline: transfer every matching detail row, then aggregate in PHP.
         $rows = Telemetry::span('reports.fetch_rows', fn () => DB::table('order_items')
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.status', 'paid')
             ->where('orders.created_at', '>=', $from.' 00:00:00')
             ->where('orders.created_at', '<', $until.' 00:00:00')
-            ->select('orders.id as order_id', 'orders.created_at', 'order_items.quantity', 'order_items.unit_price_cents')
+            ->selectRaw('DATE(orders.created_at) AS sales_date, COUNT(DISTINCT orders.id) AS orders_count, SUM(order_items.quantity) AS items_quantity, SUM(CAST(order_items.quantity AS BIGINT) * order_items.unit_price_cents) AS gross_cents')
+            ->groupByRaw('DATE(orders.created_at)')
+            ->orderBy('sales_date')
             ->get());
 
         return Telemetry::span('reports.aggregate', function () use ($rows, $from, $to): array {
-            $orders = [];
+            $orders = 0;
             $quantity = 0;
             $gross = 0;
             $daily = [];
             foreach ($rows as $row) {
-                $orders[$row->order_id] = true;
-                $amount = (int) $row->quantity * (int) $row->unit_price_cents;
-                $quantity += (int) $row->quantity;
-                $gross += $amount;
-                $date = substr($row->created_at, 0, 10);
-                $daily[$date] = ($daily[$date] ?? 0) + $amount;
+                $orders += (int) $row->orders_count;
+                $quantity += (int) $row->items_quantity;
+                $gross += (int) $row->gross_cents;
+                $daily[$row->sales_date] = (int) $row->gross_cents;
             }
-            ksort($daily);
 
-            return [
-                'from' => $from,
-                'to' => $to,
-                'orders_count' => count($orders),
-                'items_quantity' => $quantity,
-                'gross_cents' => $gross,
-                'by_date' => $daily,
-            ];
+            return ['from' => $from, 'to' => $to, 'orders_count' => $orders, 'items_quantity' => $quantity, 'gross_cents' => $gross, 'by_date' => $daily];
         }, ['demo.fetched_rows' => $rows->count()]);
     }
 }
